@@ -50,9 +50,12 @@ public partial class Form1 : Form
     const uint KEYEVENTF_KEYUP = 0x0002;
 
     const string PROSHOW_TITLE = "ProShow Producer - I Love You - ProShow Slideshow *"; // Cập nhật tiêu đề cửa sổ nếu cần thiết
+    const string PROSHOW_NEW_TITLE = "ProShow Producer - I Love You"; // Cập nhật tiêu đề cửa sổ nếu cần thiết
 
     const string PATH_IMAGE = @"C:\Users\Dinh Kha\Desktop\image-test\80cac51934362ebb6b4b129cb7cecc77.jpg"; // Đường dẫn đến file ảnh
     const string PATH_AUDIO = @"C:\Users\Dinh Kha\Desktop\a2.mp3"; // Đường dẫn đến file ảnh
+    string PROSHOW_PATH = "C:\\Program Files (x86)\\Photodex\\ProShow Producer\\proshow.exe"; // Thay đường dẫn bằng đường dẫn cài đặt ProShow Producer 9 trên máy của bạn
+
     public Form1()
     {
         InitializeComponent();
@@ -80,8 +83,34 @@ public partial class Form1 : Form
     }
     private void button3_Click(object sender, EventArgs e)
     {
-        string proShowPath = "C:\\Program Files (x86)\\Photodex\\ProShow Producer\\proshow.exe"; // Thay đường dẫn bằng đường dẫn cài đặt ProShow Producer 9 trên máy của bạn
-        Process.Start(proShowPath);
+        IntPtr proShowHandle = FindWindow(null, PROSHOW_TITLE); // Cập nhật tiêu đề cửa sổ nếu cần thiết
+        if (proShowHandle != IntPtr.Zero)
+        {
+            SetForegroundWindow(proShowHandle);
+
+            // nhấn alt + B
+            keybd_event(VK_MENU, 0, 0, UIntPtr.Zero); // Alt down
+            keybd_event(B_KEY, 0, 0, UIntPtr.Zero);   // B down
+            keybd_event(B_KEY, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // B up
+            keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Alt up
+
+        }
+        else
+        {
+            IntPtr proShowNewHandle = FindWindow(null, PROSHOW_NEW_TITLE); // Cập nhật tiêu đề cửa sổ nếu cần thiết
+            SetForegroundWindow(proShowNewHandle);
+            if (proShowNewHandle == IntPtr.Zero)
+            {
+                Process.Start(PROSHOW_PATH);
+                Thread.Sleep(10000); // Đợi một chút để ProShow mở hoàn toàn
+            }
+            // nhấn alt + B
+            keybd_event(VK_MENU, 0, 0, UIntPtr.Zero); // Alt down
+            keybd_event(B_KEY, 0, 0, UIntPtr.Zero);   // B down
+            keybd_event(B_KEY, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // B up
+            keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Alt up
+        }
+
     }
     private void button4_Click(object sender, EventArgs e)
     {
@@ -92,21 +121,17 @@ public partial class Form1 : Form
             {
                 StringBuilder className = new StringBuilder(256);
                 GetClassName(hwnd, className, className.Capacity);
-                if (className.ToString() == "ListBox")
+                if (className.ToString() == "Button")
                 {
-                    MessageBox.Show("Double click on the ListBox.");
-                    clickDouble(hwnd);
-                    return false; // Stop enumerating
-                    // StringBuilder windowText = new StringBuilder(256);
-                    // GetWindowText(hwnd, windowText, windowText.Capacity);
-                    // if (windowText.ToString() == "Add Blank")
-                    // {
-                    //     // Dùng PostMessage để click nút
-                    //     // PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
+                    StringBuilder windowText = new StringBuilder(256);
+                    GetWindowText(hwnd, windowText, windowText.Capacity);
+                    if (windowText.ToString() == "Add Blank")
+                    {
+                        // Dùng PostMessage để click nút
+                        PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
 
-                    //     clickDouble(hwnd);
-                    //     return false; // Stop enumerating
-                    // }
+                        return false; // Stop enumerating
+                    }
                 }
                 return true; // Continue enumerating
             }, IntPtr.Zero);
@@ -127,6 +152,8 @@ public partial class Form1 : Form
             path_audio = length_audio / 5 + 1;
         }
         IntPtr proShowHandle = FindWindow(null, PROSHOW_TITLE); // Cập nhật tiêu đề cửa sổ nếu cần thiết
+        int lengt_selectedFilePaths = selectedFilePaths.Length;
+
         if (proShowHandle != IntPtr.Zero)
         {
             for (int i = 0; i < path_audio; i++)
@@ -160,7 +187,7 @@ public partial class Form1 : Form
                     GetClassName(hwnd, className, className.Capacity);
                     if (className.ToString() == "Edit")
                     {
-                        SendMessage(hwnd, WM_SETTEXT, IntPtr.Zero, PATH_IMAGE);
+                        SendMessage(hwnd, WM_SETTEXT, IntPtr.Zero, selectedFilePaths[lengt_selectedFilePaths - 1 - (i % lengt_selectedFilePaths)]);
                         return false; // Stop enumerating
                     }
                     return true; // Continue enumerating
@@ -168,7 +195,6 @@ public partial class Form1 : Form
 
 
                 // // Truyền biến PATH_IMAGE vào hộp thoại
-                // SendKeys.SendWait(PATH_IMAGE);
                 SendKeys.SendWait("{ENTER}"); // Gửi phím Enter để mở ảnh
 
                 Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
@@ -229,8 +255,24 @@ public partial class Form1 : Form
             // Gửi sự kiện nhấp chuột trái xuống và lên để mô phỏng nhấp chuột
             mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, x2, y2, 0, 0);
 
+            Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
+
             // Truyền biến PATH_IMAGE vào hộp thoại
-            SendKeys.SendWait(PATH_AUDIO);
+            IntPtr openAudioHandle = FindWindow(null, "Open Audio File"); // Cập nhật tiêu đề cửa sổ nếu cần thiết
+
+            // Truyền biến PATH_IMAGE vào hộp thoại bằng class
+            EnumChildWindows(openAudioHandle, (hwnd, lParam) =>
+            {
+                StringBuilder className = new StringBuilder(256);
+                GetClassName(hwnd, className, className.Capacity);
+                if (className.ToString() == "Edit")
+                {
+                    SendMessage(hwnd, WM_SETTEXT, IntPtr.Zero, PATH_AUDIO);
+                    return false; // Stop enumerating
+                }
+                return true; // Continue enumerating
+            }, IntPtr.Zero);
+
             SendKeys.SendWait("{ENTER}"); // Gửi phím Enter để mở ảnh
 
             Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
@@ -298,13 +340,19 @@ public partial class Form1 : Form
 
         }
     }
-    private void clickDouble(IntPtr hwnd)
+
+    private void OpenFileButton_Click(object sender, EventArgs e)
     {
-        PostMessage(hwnd, WM_LBUTTONDOWN, IntPtr.Zero, IntPtr.Zero);
-        PostMessage(hwnd, WM_LBUTTONUP, IntPtr.Zero, IntPtr.Zero);
-        Thread.Sleep(100); // Đợi một chút giữa các lần nhấp
-        PostMessage(hwnd, WM_LBUTTONDOWN, IntPtr.Zero, IntPtr.Zero);
-        PostMessage(hwnd, WM_LBUTTONUP, IntPtr.Zero, IntPtr.Zero);
+        using (OpenFileDialog openFileDialog = new OpenFileDialog())
+        {
+            openFileDialog.Multiselect = true; // Cho phép chọn nhiều tệp
+            openFileDialog.Filter = "All files (*.*)|*.*"; // Bộ lọc tệp (tất cả các tệp)
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                selectedFilePaths = openFileDialog.FileNames; // Lưu các đường dẫn của các tệp đã chọn
+            }
+        }
     }
     static int GetAudioFileLength(string filePath)
     {

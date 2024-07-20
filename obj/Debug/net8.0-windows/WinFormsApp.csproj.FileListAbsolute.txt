@@ -21,3 +21,4 @@ D:\C#\WinFormsApp\bin\Debug\net8.0-windows\NAudio.WinForms.dll
 D:\C#\WinFormsApp\bin\Debug\net8.0-windows\NAudio.WinMM.dll
 D:\C#\WinFormsApp\obj\Debug\net8.0-windows\WinFormsApp.csproj.AssemblyReference.cache
 D:\C#\WinFormsApp\obj\Debug\net8.0-windows\WinForms.79E25943.Up2Date
+D:\C#\WinFormsApp\obj\Debug\net8.0-windows\WinFormsApp.sourcelink.json
