@@ -31,22 +31,23 @@ class Image
         {
             timeSegment = 1,
             attributeMask = -1,
-            zoomX = 10000,
-            zoomY = 10000,
+            zoomX = 5000,
+            zoomY = 5000,
             panAccelType = 1,
             zoomXAccelType = 1,
             zoomYAccelType = 1,
             rotationAccelType = 1,
             tiltVAccelType = 1,
             tiltHAccelType = 1,
-            motionSmoothness = 5000,
+            motionSmoothness = 0,
             lockAR = 1,
             transparency = 0,
             audioFade = 2000,
             colorizeColor = 8421504,
             colorizeStrength = 10000,
             shadowOffsetX = 70,
-            shadowOffsetY = 70
+            shadowOffsetY = 70,
+            offsetX = -134
         };
 
         keyframes[1] = new Keyframe
@@ -55,22 +56,23 @@ class Image
             timeSegment = 3,
             segmentTimestamp = 10000,
             attributeMask = -1,
-            zoomX = 10000,
-            zoomY = 10000,
+            zoomX = 5000,
+            zoomY = 5000,
             panAccelType = 1,
             zoomXAccelType = 1,
             zoomYAccelType = 1,
             rotationAccelType = 1,
             tiltVAccelType = 1,
             tiltHAccelType = 1,
-            motionSmoothness = 5000,
+            motionSmoothness = 0,
             lockAR = 1,
             transparency = 0,
             audioFade = 2000,
             colorizeColor = 8421504,
             colorizeStrength = 10000,
             shadowOffsetX = 70,
-            shadowOffsetY = 70
+            shadowOffsetY = 70,
+            offsetX = -134
         };
     }
 }
@@ -97,6 +99,7 @@ class Keyframe
     public int shadowOffsetY { get; set; }
     public int timestamp { get; set; }
     public int segmentTimestamp { get; set; }
+    public int offsetX { get; set; }
 }
 
 class Sound
@@ -112,6 +115,8 @@ class Sound
     public int musicFadeOut { get; set; } = 100;
     public int normalizeCustom { get; set; } = 0;
     public int normalizePreset { get; set; } = 0;
+    public string file { get; set; } = null;
+    public int length { get; set; } = 0;
 }
 
 class Cell

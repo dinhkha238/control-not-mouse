@@ -51,9 +51,8 @@ public partial class Form1 : Form
 
     const string PROSHOW_TITLE = "ProShow Producer - I Love You - ProShow Slideshow *"; // Cập nhật tiêu đề cửa sổ nếu cần thiết
     const string PROSHOW_NEW_TITLE = "ProShow Producer - I Love You"; // Cập nhật tiêu đề cửa sổ nếu cần thiết
-
     const string PATH_IMAGE = @"C:\Users\Dinh Kha\Desktop\image-test\80cac51934362ebb6b4b129cb7cecc77.jpg"; // Đường dẫn đến file ảnh
-    const string PATH_AUDIO = @"C:\Users\Dinh Kha\Desktop\a2.mp3"; // Đường dẫn đến file ảnh
+    const string PATH_AUDIO = @"C:\Users\Dinh Kha\Desktop\Video\18\audio_files\1.wav"; // Đường dẫn đến file ảnh
     string PROSHOW_PATH = "C:\\Program Files (x86)\\Photodex\\ProShow Producer\\proshow.exe"; // Thay đường dẫn bằng đường dẫn cài đặt ProShow Producer 9 trên máy của bạn
 
     public Form1()
@@ -286,6 +285,8 @@ public partial class Form1 : Form
     {
         int length_selectedFilePaths = selectedFilePaths.Length;
         string path_parent = "";
+        string path_audio = @"Video\18\audio_files\1.wav"; // Đường dẫn đến file ảnh
+        int length_audio = GetAudioFileLength(PATH_AUDIO);
         if (length_selectedFilePaths == 0)
         {
             MessageBox.Show("Please select image files!");
@@ -308,6 +309,9 @@ public partial class Form1 : Form
                 cell.images[0].image = splited_path[1];
                 cell.images[0].name = "Image" + i;
                 cell.images[0].objectId = i;
+                cell.sound.file = path_audio;
+                cell.sound.length = length_audio;
+                cell.time = length_audio;
                 WriteCellToFile(cell, i, writer1);
             }
             writer1.Close();
@@ -417,7 +421,7 @@ public partial class Form1 : Form
         var audioFileReader = new AudioFileReader(filePath);
         TimeSpan duration = audioFileReader.TotalTime;
         int[] timeArray = { duration.Hours, duration.Minutes, duration.Seconds, duration.Milliseconds };
-        return timeArray[0] * 60 * 60 + timeArray[1] * 60 + timeArray[2];
+        return (timeArray[0] * 60 * 60 + timeArray[1] * 60 + timeArray[2]) * 1000 + timeArray[3];
     }
     static void WriteCellToFile(Cell cell, int index, StreamWriter writer)
     {
@@ -462,6 +466,7 @@ public partial class Form1 : Form
                 }
                 writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].timeSegment={keyframe.timeSegment}");
                 writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].attributeMask={keyframe.attributeMask}");
+                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].offsetX={keyframe.offsetX}");
                 writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].zoomX={keyframe.zoomX}");
                 writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].zoomY={keyframe.zoomY}");
                 writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].panAccelType={keyframe.panAccelType}");
@@ -486,6 +491,14 @@ public partial class Form1 : Form
         writer.WriteLine($"cell[{index}].bgDefault={cell.bgDefault}");
         writer.WriteLine($"cell[{index}].bgSizeMode={cell.bgSizeMode}");
         writer.WriteLine($"cell[{index}].bgColorizeColor={cell.bgColorizeColor}");
+        if (cell.sound.file != null)
+        {
+            writer.WriteLine($"cell[{index}].sound.file={cell.sound.file}");
+        }
+        if (cell.sound.length != 0)
+        {
+            writer.WriteLine($"cell[{index}].sound.length={cell.sound.length}");
+        }
         writer.WriteLine($"cell[{index}].sound.useDefault={cell.sound.useDefault}");
         writer.WriteLine($"cell[{index}].sound.volume={cell.sound.volume}");
         writer.WriteLine($"cell[{index}].sound.fadeIn={cell.sound.fadeIn}");
@@ -498,7 +511,12 @@ public partial class Form1 : Form
         writer.WriteLine($"cell[{index}].sound.normalizeCustom={cell.sound.normalizeCustom}");
         writer.WriteLine($"cell[{index}].sound.normalizePreset={cell.sound.normalizePreset}");
         writer.WriteLine($"cell[{index}].musicVolumeOffset={cell.musicVolumeOffset}");
-        writer.WriteLine($"cell[{index}].time={cell.time}");
+        if (cell.sound.length != 0)
+        {
+            writer.WriteLine($"cell[{index}].time={cell.sound.length}");
+        }
+        else
+            writer.WriteLine($"cell[{index}].time={cell.time}");
         writer.WriteLine($"cell[{index}].transId={cell.transId}");
         writer.WriteLine($"cell[{index}].transTime={cell.transTime}");
         writer.WriteLine($"cell[{index}].includeGlobalCaptions={cell.includeGlobalCaptions}");
