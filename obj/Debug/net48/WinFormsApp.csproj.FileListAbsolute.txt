@@ -1,5 +1,0 @@
-D:\C#\WinFormsApp\obj\Debug\net48\WinFormsApp.csproj.AssemblyReference.cache
-D:\C#\WinFormsApp\obj\Debug\net48\WinFormsApp.GeneratedMSBuildEditorConfig.editorconfig
-D:\C#\WinFormsApp\obj\Debug\net48\WinFormsApp.AssemblyInfoInputs.cache
-D:\C#\WinFormsApp\obj\Debug\net48\WinFormsApp.AssemblyInfo.cs
-D:\C#\WinFormsApp\obj\Debug\net48\WinFormsApp.csproj.CoreCompileInputs.cache
