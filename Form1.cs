@@ -309,6 +309,9 @@ public partial class Form1 : Form
                 cell.images[0].image = splited_path[1];
                 cell.images[0].name = "Image" + i;
                 cell.images[0].objectId = i;
+                cell.images[1].image = splited_path[1];
+                cell.images[1].name = "Image" + i;
+                cell.images[1].objectId = i;
                 cell.sound.file = path_audio;
                 cell.sound.length = length_audio;
                 cell.time = length_audio;
@@ -427,6 +430,8 @@ public partial class Form1 : Form
     {
 
         writer.WriteLine($"cell[{index}].imageEnable={cell.imageEnable}");
+        writer.WriteLine($"cell[{index}].notes={cell.notes}");
+        writer.WriteLine($"cell[{index}].slideStyleFileName={cell.slideStyleFileName}");
         writer.WriteLine($"cell[{index}].nrOfImages={cell.nrOfImages}");
 
         for (int i = 0; i < cell.images.Length; i++)
@@ -435,16 +440,37 @@ public partial class Form1 : Form
             writer.WriteLine($"cell[{index}].images[{i}].image={image.image}");
             writer.WriteLine($"cell[{index}].images[{i}].imageEnable={image.imageEnable}");
             writer.WriteLine($"cell[{index}].images[{i}].name={image.name}");
+            writer.WriteLine($"cell[{index}].images[{i}].notes={image.notes}");
+            if (i == 1)
+            {
+                writer.WriteLine($"cell[{index}].images[{i}].fromStyle={image.fromStyle}");
+            }
+            writer.WriteLine($"cell[{index}].images[{i}].templateImageId={image.templateImageId}");
             writer.WriteLine($"cell[{index}].images[{i}].replaceableTemplate={image.replaceableTemplate}");
             writer.WriteLine($"cell[{index}].images[{i}].sizeMode={image.sizeMode}");
+            if (i == 1)
+            {
+                writer.WriteLine($"cell[{index}].images[{i}].colorize={image.colorize}");
+            }
             writer.WriteLine($"cell[{index}].images[{i}].colorizeColor={image.colorizeColor}");
             writer.WriteLine($"cell[{index}].images[{i}].colorizeStrength={image.colorizeStrength}");
+            if (i == 0)
+            {
+                writer.WriteLine($"cell[{index}].images[{i}].outline={image.outline}");
+            }
             writer.WriteLine($"cell[{index}].images[{i}].outlineColor={image.outlineColor}");
+            if (i == 0)
+            {
+                writer.WriteLine($"cell[{index}].images[{i}].shadow={image.shadow}");
+
+            }
             writer.WriteLine($"cell[{index}].images[{i}].aspectX={image.aspectX}");
             writer.WriteLine($"cell[{index}].images[{i}].aspectY={image.aspectY}");
             writer.WriteLine($"cell[{index}].images[{i}].videoVolume={image.videoVolume}");
             writer.WriteLine($"cell[{index}].images[{i}].objectId={image.objectId}");
             writer.WriteLine($"cell[{index}].images[{i}].videoSpeed={image.videoSpeed}");
+            writer.WriteLine($"cell[{index}].images[{i}].useTransitionIn={image.useTransitionIn}");
+            writer.WriteLine($"cell[{index}].images[{i}].useTransitionOut={image.useTransitionOut}");
             writer.WriteLine($"cell[{index}].images[{i}].outlineSize={image.outlineSize}");
             writer.WriteLine($"cell[{index}].images[{i}].shadowSize={image.shadowSize}");
             writer.WriteLine($"cell[{index}].images[{i}].shadowOpacity={image.shadowOpacity}");
@@ -462,11 +488,18 @@ public partial class Form1 : Form
                 if (j == 1)
                 {
                     writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].timestamp={keyframe.timestamp}");
-                    writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].segmentTimestamp={keyframe.segmentTimestamp}");
                 }
                 writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].timeSegment={keyframe.timeSegment}");
+                if (j == 1)
+                {
+                    writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].segmentTimestamp={keyframe.segmentTimestamp}");
+                }
                 writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].attributeMask={keyframe.attributeMask}");
                 writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].offsetX={keyframe.offsetX}");
+                if (i == 1)
+                {
+                    writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].offsetY={keyframe.offsetY}");
+                }
                 writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].zoomX={keyframe.zoomX}");
                 writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].zoomY={keyframe.zoomY}");
                 writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].panAccelType={keyframe.panAccelType}");
