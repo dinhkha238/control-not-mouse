@@ -33,7 +33,7 @@ public class PathProshowInputForm : Form
         // Nút để mở hộp thoại chọn tệp
         openFileButton = new Button
         {
-            Text = "Open Audio",
+            Text = "Open Explorer",
             Location = new System.Drawing.Point(320, 40),
             Size = new System.Drawing.Size(100, 28)
         };
@@ -64,6 +64,11 @@ public class PathProshowInputForm : Form
     private void SaveButton_Click(object sender, EventArgs e)
     {
         string filePath = textBox.Text;
+        if (string.IsNullOrEmpty(filePath))
+        {
+            MessageBox.Show("Please enter the path to the file.");
+            return;
+        }
         // Save the path to a file
         File.WriteAllText("pathProshow.txt", filePath);
         MessageBox.Show("Path saved successfully.");
