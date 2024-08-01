@@ -90,7 +90,7 @@ public partial class Form1 : Form
         }
 
         // Đợi một chút để hộp thoại mở
-        Thread.Sleep(5000);
+        Thread.Sleep(7000);
 
         IntPtr proShowHandle = FindWindow(null, PROSHOW_TITLE); // Cập nhật tiêu đề cửa sổ nếu cần thiết
         if (proShowHandle != IntPtr.Zero)
@@ -103,7 +103,7 @@ public partial class Form1 : Form
             keybd_event(0x72, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // F3 up
             keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Alt up
 
-            Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
+            Thread.Sleep(2000); // Đợi một chút để hộp thoại mở
 
             EnumChildWindows(proShowHandle, (hwnd, lParam) =>
             {
