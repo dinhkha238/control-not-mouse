@@ -88,6 +88,8 @@ class Sound
     public int normalizePreset { get; set; } = 0;
     public string file { get; set; } = null;
     public int length { get; set; } = 0;
+    public float startTime { get; set; } = 0;
+    public float endTime { get; set; } = 0;
 }
 
 class Cell
@@ -105,9 +107,9 @@ class Cell
     public int bgColorizeColor { get; set; } = 8421504;
     public Sound sound { get; set; } = new Sound();
     public int musicVolumeOffset { get; set; } = 50;
-    public int time { get; set; } = 3000;
+    public float time { get; set; } = 3000;
     public int transId { get; set; } = 2;
-    public int transTime { get; set; } = 3000;
+    public int transTime { get; set; } = 1000;
     public int includeGlobalCaptions { get; set; } = 1;
 
     public Cell()

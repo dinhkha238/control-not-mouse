@@ -37,85 +37,74 @@ public partial class Form1 : Form
     public const int MOUSEEVENTF_LEFTDOWN = 0x02;
     public const int MOUSEEVENTF_LEFTUP = 0x04;
     delegate bool EnumChildProc(IntPtr hwnd, IntPtr lParam);
-    const int WM_SETTEXT = 0x000C;
-    const int WM_SYSCOMMAND = 0x0112;
-    const int SC_MAXIMIZE = 0xF030;
-    const int BM_CLICK = 0x00F5;
-    const int WM_LBUTTONDBLCLK = 0x0203;
-    const int WM_LBUTTONDOWN = 0x0201;
-    const int WM_LBUTTONUP = 0x0202;
-
     const byte VK_MENU = 0x12; // Alt key
-    const byte B_KEY = 0x42;   // B key
     const uint KEYEVENTF_KEYUP = 0x0002;
+    const int BM_CLICK = 0x00F5;
 
-    const string PROSHOW_TITLE = "ProShow Producer - I Love You - ProShow Slideshow *"; // Cập nhật tiêu đề cửa sổ nếu cần thiết
-    const string PROSHOW_NEW_TITLE = "ProShow Producer - I Love You"; // Cập nhật tiêu đề cửa sổ nếu cần thiết
-    const string PATH_IMAGE = @"C:\Users\Dinh Kha\Desktop\image-test\80cac51934362ebb6b4b129cb7cecc77.jpg"; // Đường dẫn đến file ảnh
-    const string PATH_AUDIO = @"C:\Users\Dinh Kha\Desktop\Video\18\audio_files\1.wav"; // Đường dẫn đến file ảnh
-    string PROSHOW_PATH = "C:\\Program Files (x86)\\Photodex\\ProShow Producer\\proshow.exe"; // Thay đường dẫn bằng đường dẫn cài đặt ProShow Producer 9 trên máy của bạn
+    const string PROSHOW_TITLE = "ProShow Producer - I Love You - combined.psh"; // Cập nhật tiêu đề cửa sổ nếu cần thiết
 
     public Form1()
     {
         InitializeComponent();
     }
 
-    private void button1_Click(object sender, EventArgs e)
+    private void button7_Click(object sender, EventArgs e)
     {
-        Process notepad = Process.Start("notepad.exe");
-        notepad.WaitForInputIdle();
-
-        Thread.Sleep(500); // Đợi một chút để Notepad mở hoàn toàn
-
-        IntPtr notepadHandle = FindWindow("Notepad", null);
-        IntPtr editHandle = FindWindowEx(notepadHandle, IntPtr.Zero, "Edit", null);
-
-        SendMessage(editHandle, WM_SETTEXT, IntPtr.Zero, "Hello");
-    }
-    private void button2_Click(object sender, EventArgs e)
-    {
-        IntPtr notepadHandle = FindWindow("Notepad", null);
-        if (notepadHandle != IntPtr.Zero)
+        string filePath = Path.Combine(Directory.GetCurrentDirectory(), @"finals\combined.psh");
+        string proShowPath = "";
+        // Kiểm tra và đọc file pathProshow.txt
+        if (File.Exists("pathProshow.txt"))
         {
-            SendMessage(notepadHandle, WM_SYSCOMMAND, (IntPtr)SC_MAXIMIZE, null);
+            proShowPath = File.ReadAllText("pathProshow.txt");
         }
-    }
-    private void button3_Click(object sender, EventArgs e)
-    {
+        // Kiểm tra xem tệp thực thi và tệp .psh có tồn tại không
+        if (!System.IO.File.Exists(proShowPath))
+        {
+            MessageBox.Show("Đường dẫn tới ProShow không đúng.");
+            return;
+        }
+
+        if (!System.IO.File.Exists(filePath))
+        {
+            MessageBox.Show("Đường dẫn tới tệp .psh không đúng.");
+            return;
+        }
+
+        // Tạo một đối tượng ProcessStartInfo để khởi động ProShow với tệp .psh
+        ProcessStartInfo startInfo = new ProcessStartInfo
+        {
+            FileName = proShowPath,
+            Arguments = filePath,
+            UseShellExecute = true
+        };
+
+        // Khởi động ProShow với tệp .psh
+        try
+        {
+            Process process = Process.Start(startInfo);
+            Console.WriteLine("ProShow đã được khởi động.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Đã xảy ra lỗi khi khởi động ProShow: " + ex.Message);
+        }
+
+        // Đợi một chút để hộp thoại mở
+        Thread.Sleep(5000);
+
         IntPtr proShowHandle = FindWindow(null, PROSHOW_TITLE); // Cập nhật tiêu đề cửa sổ nếu cần thiết
         if (proShowHandle != IntPtr.Zero)
         {
             SetForegroundWindow(proShowHandle);
 
-            // nhấn alt + B
+            // Nhấn tổ hợp phím alt+f3
             keybd_event(VK_MENU, 0, 0, UIntPtr.Zero); // Alt down
-            keybd_event(B_KEY, 0, 0, UIntPtr.Zero);   // B down
-            keybd_event(B_KEY, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // B up
+            keybd_event(0x72, 0, 0, UIntPtr.Zero); // F3 down
+            keybd_event(0x72, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // F3 up
             keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Alt up
 
-        }
-        else
-        {
-            IntPtr proShowNewHandle = FindWindow(null, PROSHOW_NEW_TITLE); // Cập nhật tiêu đề cửa sổ nếu cần thiết
-            SetForegroundWindow(proShowNewHandle);
-            if (proShowNewHandle == IntPtr.Zero)
-            {
-                Process.Start(PROSHOW_PATH);
-                Thread.Sleep(10000); // Đợi một chút để ProShow mở hoàn toàn
-            }
-            // nhấn alt + B
-            keybd_event(VK_MENU, 0, 0, UIntPtr.Zero); // Alt down
-            keybd_event(B_KEY, 0, 0, UIntPtr.Zero);   // B down
-            keybd_event(B_KEY, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // B up
-            keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Alt up
-        }
+            Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
 
-    }
-    private void button4_Click(object sender, EventArgs e)
-    {
-        IntPtr proShowHandle = FindWindow(null, PROSHOW_TITLE); // Cập nhật tiêu đề cửa sổ nếu cần thiết
-        if (proShowHandle != IntPtr.Zero)
-        {
             EnumChildWindows(proShowHandle, (hwnd, lParam) =>
             {
                 StringBuilder className = new StringBuilder(256);
@@ -124,198 +113,187 @@ public partial class Form1 : Form
                 {
                     StringBuilder windowText = new StringBuilder(256);
                     GetWindowText(hwnd, windowText, windowText.Capacity);
-                    if (windowText.ToString() == "Add Blank")
+                    if (windowText.ToString() == "Video")
                     {
-                        // Dùng PostMessage để click nút
                         PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
-
                         return false; // Stop enumerating
                     }
                 }
                 return true; // Continue enumerating
             }, IntPtr.Zero);
-        }
 
+            Thread.Sleep(3000); // Đợi một chút để hộp thoại mở
 
-    }
-    private void button5_Click(object sender, EventArgs e)
-    {
-        int length_audio = GetAudioFileLength(PATH_AUDIO);
-        int path_audio;
-        if (length_audio % 5 == 0)
-        {
-            path_audio = length_audio / 5;
-        }
-        else
-        {
-            path_audio = length_audio / 5 + 1;
-        }
-        IntPtr proShowHandle = FindWindow(null, PROSHOW_TITLE); // Cập nhật tiêu đề cửa sổ nếu cần thiết
-        int length_selectedFilePaths = selectedFilePaths.Length;
-
-        if (proShowHandle != IntPtr.Zero)
-        {
-            for (int i = 0; i < path_audio; i++)
+            IntPtr showOptionHandle = FindWindow(null, "Video for Web, Devices and Computers");
+            if (showOptionHandle != IntPtr.Zero)
             {
-                SetForegroundWindow(proShowHandle);
-
-                // Gửi tổ hợp phím Ctrl+L
-                keybd_event(0x11, 0, 0, UIntPtr.Zero); // Ctrl down
-                keybd_event(0x4C, 0, 0, UIntPtr.Zero); // L down
-                keybd_event(0x4C, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // L up
-                keybd_event(0x11, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Ctrl up
-
-                Thread.Sleep(500); // Đợi một chút để hộp thoại mở
-
-                // Gửi tổ hợp phím Ctrl+Shift+I
-                keybd_event(0x11, 0, 0, UIntPtr.Zero); // Ctrl down
-                keybd_event(0x10, 0, 0, UIntPtr.Zero); // Shift down
-                keybd_event(0x49, 0, 0, UIntPtr.Zero); // I down
-                keybd_event(0x49, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // I up
-                keybd_event(0x10, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Shift up
-                keybd_event(0x11, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Ctrl up
-
-                Thread.Sleep(500); // Đợi một chút để hộp thoại mở
-
-                IntPtr openImageHandle = FindWindow(null, "Open Image File"); // Cập nhật tiêu đề cửa sổ nếu cần thiết
-
-                // Truyền biến PATH_IMAGE vào hộp thoại bằng class
-                EnumChildWindows(openImageHandle, (hwnd, lParam) =>
-                {
-                    StringBuilder className = new StringBuilder(256);
-                    GetClassName(hwnd, className, className.Capacity);
-                    if (className.ToString() == "Edit")
-                    {
-                        SendMessage(hwnd, WM_SETTEXT, IntPtr.Zero, selectedFilePaths[length_selectedFilePaths - 1 - (i % length_selectedFilePaths)]);
-                        return false; // Stop enumerating
-                    }
-                    return true; // Continue enumerating
-                }, IntPtr.Zero);
-
-
-                // // Truyền biến PATH_IMAGE vào hộp thoại
-                SendKeys.SendWait("{ENTER}"); // Gửi phím Enter để mở ảnh
-
-                Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
-
-                SendKeys.SendWait("{ENTER}"); // Gửi phím Enter để mở ảnh
-
-                Thread.Sleep(1000); // Đợi một chút để menu mở
-
-                // Gửi tổ hợp phím Alt+B
-                keybd_event(VK_MENU, 0, 0, UIntPtr.Zero); // Alt down
-                keybd_event(B_KEY, 0, 0, UIntPtr.Zero);   // B down
-                keybd_event(B_KEY, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // B up
-                keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Alt up
-
-                Thread.Sleep(1000); // Đợi một chút để menu mở
-
-            }
-            // nhấn phím delete
-            keybd_event(0x2E, 0, 0, UIntPtr.Zero); // Delete down
-            keybd_event(0x2E, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Delete up
-        }
-
-    }
-    private void button6_Click(object sender, EventArgs e)
-    {
-
-
-        IntPtr proShowHandle = FindWindow(null, PROSHOW_TITLE); // Cập nhật tiêu đề cửa sổ nếu cần thiết
-        if (proShowHandle != IntPtr.Zero)
-        {
-            SetForegroundWindow(proShowHandle);
-
-            // Tổ hợp phím Ctrl+M
-            keybd_event(0x11, 0, 0, UIntPtr.Zero); // Ctrl down
-            keybd_event(0x4D, 0, 0, UIntPtr.Zero); // M down
-            keybd_event(0x4D, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // M up
-            keybd_event(0x11, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Ctrl up 
-
-            Thread.Sleep(500); // Đợi một chút để hộp thoại mở
-
-            // Vị trí mà bạn muốn di chuyển chuột đến (ví dụ: x = 500, y = 500)
-            int x1 = 100;
-            int y1 = 257;
-            int x2 = 120;
-            int y2 = 267;
-
-            // Di chuyển chuột đến vị trí đã chỉ định trong cửa sổ showOptionHandle
-            SetCursorPos(x1, y1);
-
-            // Gửi sự kiện nhấp chuột trái xuống và lên để mô phỏng nhấp chuột
-            mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, x1, y1, 0, 0);
-
-            Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
-
-            // Di chuyển chuột đến vị trí đã chỉ định trong cửa sổ showOptionHandle
-            SetCursorPos(x2, y2);
-
-            // Gửi sự kiện nhấp chuột trái xuống và lên để mô phỏng nhấp chuột
-            mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, x2, y2, 0, 0);
-
-            Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
-
-            // Truyền biến PATH_IMAGE vào hộp thoại
-            IntPtr openAudioHandle = FindWindow(null, "Open Audio File"); // Cập nhật tiêu đề cửa sổ nếu cần thiết
-
-            // Truyền biến PATH_IMAGE vào hộp thoại bằng class
-            EnumChildWindows(openAudioHandle, (hwnd, lParam) =>
+                EnumChildWindows(showOptionHandle, (hwnd, lParam) =>
             {
                 StringBuilder className = new StringBuilder(256);
                 GetClassName(hwnd, className, className.Capacity);
-                if (className.ToString() == "Edit")
+                if (className.ToString() == "Button")
                 {
-                    SendMessage(hwnd, WM_SETTEXT, IntPtr.Zero, PATH_AUDIO);
-                    return false; // Stop enumerating
+                    StringBuilder windowText = new StringBuilder(256);
+                    GetWindowText(hwnd, windowText, windowText.Capacity);
+                    if (windowText.ToString() == "Create")
+                    {
+                        PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
+                        return false; // Stop enumerating
+                    }
                 }
                 return true; // Continue enumerating
             }, IntPtr.Zero);
-
-            SendKeys.SendWait("{ENTER}"); // Gửi phím Enter để mở ảnh
-
-            Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
-
-            SendKeys.SendWait("{ENTER}"); // Gửi phím Enter để mở ảnh
+            }
 
         }
     }
 
-    private void button7_Click(object sender, EventArgs e)
+    private void OpenImageButton_Click(object sender, EventArgs e, int index)
     {
-        int length_selectedFilePaths = selectedFilePaths.Length;
-        string path_parent = "";
-        string path_audio = @"Video\18\audio_files\1.wav"; // Đường dẫn đến file ảnh
-        int length_audio = GetAudioFileLength(PATH_AUDIO);
-        if (length_selectedFilePaths == 0)
+        using (OpenFileDialog openFileDialog = new OpenFileDialog())
+        {
+            openFileDialog.Multiselect = true; // Cho phép chọn nhiều tệp
+            openFileDialog.Filter = "Image files (*.jpg, *.jpeg, *.png, *.gif)|*.jpg;*.jpeg;*.png;*.gif"; // Bộ lọc tệp (các tệp hình ảnh)
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                if (index >= selectedFileImagePaths.Count)
+                {
+                    selectedFileImagePaths.Add(new string[index - selectedFileImagePaths.Count + 1]);
+                }
+                selectedFileImagePaths[index] = openFileDialog.FileNames; // Lưu các đường dẫn của các tệp đã chọn
+            }
+        }
+    }
+    private void AddButtons(int buttonCount)
+    {
+        int buttonsPerRow = 10; // Số nút bấm mỗi hàng
+        int buttonWidth = 90; // Chiều rộng của nút bấm
+        int buttonHeight = 30; // Chiều cao của nút bấm
+        int labelHeight = 20; // Chiều cao của nhãn
+        int horizontalSpacing = 20; // Khoảng cách ngang giữa các nút bấm
+        int verticalSpacing = 60; // Khoảng cách dọc giữa các hàng nút bấm (bao gồm cả khoảng cách cho nhãn)
+        int startX = 100; // Vị trí bắt đầu theo trục X
+        int startY = 200; // Vị trí bắt đầu theo trục Y
+
+        // Tạo các nút bấm động và nhãn
+        for (int i = 0; i < buttonCount; i++)
+        {
+            Button button = new Button();
+            Label label = new Label();
+
+            int row = i / buttonsPerRow; // Xác định hàng
+            int col = i % buttonsPerRow; // Xác định cột
+
+            int x = startX + (col * (buttonWidth + horizontalSpacing));
+            int y = startY + (row * verticalSpacing);
+
+            // Thiết lập nhãn
+            label.Location = new System.Drawing.Point(x, y);
+            label.Name = "label" + (i + 1);
+            label.Size = new System.Drawing.Size(buttonWidth, labelHeight);
+            label.Text = "Đoạn " + (i + 1);
+            label.Tag = "LabelSelectImageButton"; // Gán thuộc tính Tag để nhận diện label động
+            this.Controls.Add(label);
+
+            // Thiết lập nút bấm
+            button.Location = new System.Drawing.Point(x, y + labelHeight);
+            button.Name = "button" + (i + 1);
+            button.Size = new System.Drawing.Size(buttonWidth, buttonHeight);
+            button.TabIndex = i + 2; // Điều chỉnh TabIndex để tránh xung đột với các điều khiển hiện có
+            button.Text = "Select Image";
+            button.UseVisualStyleBackColor = true;
+            button.Click += (sender, e) => OpenImageButton_Click(sender, e, button.TabIndex - 2);
+            button.Tag = "SelectImageButton"; // Gán thuộc tính Tag để nhận diện button động
+            this.Controls.Add(button);
+        }
+    }
+    private void OpenAudioButton_Click(object sender, EventArgs e)
+    {
+        foreach (Control control in this.Controls)
+        {
+            if (control.Tag != null && (control.Tag.ToString() == "SelectImageButton"))
+            {
+                this.Controls.Remove(control);
+            }
+        }
+        selectedFileImagePaths.Clear();
+
+        using (OpenFileDialog openFileDialog = new OpenFileDialog())
+        {
+            openFileDialog.Multiselect = true; // Cho phép chọn nhiều tệp
+            openFileDialog.Filter = "Audio files (*.wav, *.mp3, *.ogg)|*.wav;*.mp3;*.ogg"; // Bộ lọc tệp (các tệp âm thanh)
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                selectedFileAudioPaths = new List<string>(openFileDialog.FileNames); // Lưu các đường dẫn của các tệp đã chọn
+                AddButtons(selectedFileAudioPaths.Count);
+            }
+        }
+    }
+    private void generateSlideButton_Click(object sender, EventArgs e)
+    {
+        if (selectedFileAudioPaths.Count == 0)
+        {
+            MessageBox.Show("Please select audio files!");
+            return;
+        }
+        if (selectedFileImagePaths.Count == 0)
         {
             MessageBox.Show("Please select image files!");
             return;
         }
+        int length_selectedFileAudioPaths = selectedFileAudioPaths.Count;
+
         string file2Path = @"files/FileProShow_2.txt";
+        int totalCount = 0;
+
+        foreach (var array in selectedFileImagePaths)
+        {
+            totalCount += array.Length;
+        }
         using (StreamWriter writer1 = new StreamWriter(file2Path))
         {
-            writer1.WriteLine($"cells={length_selectedFilePaths}");
+            writer1.WriteLine($"cells={totalCount}");
             writer1.Close();
         }
         string file3Path = @"files/FileProShow_3.txt";
+        int index_cell = 0;
         using (StreamWriter writer1 = new StreamWriter(file3Path))
         {
-            for (int i = 0; i < length_selectedFilePaths; i++)
+            for (int x = 0; x < length_selectedFileAudioPaths; x++)
             {
-                string[] splited_path = SplitPath(selectedFilePaths[i]);
-                path_parent = splited_path[0];
-                Cell cell = new Cell();
-                cell.images[0].image = splited_path[1];
-                cell.images[0].name = "Image" + i;
-                cell.images[0].objectId = i;
-                cell.images[1].image = splited_path[1];
-                cell.images[1].name = "Image" + i;
-                cell.images[1].objectId = i;
-                cell.sound.file = path_audio;
-                cell.sound.length = length_audio;
-                cell.time = length_audio;
-                WriteCellToFile(cell, i, writer1);
+                int length_audio = GetAudioFileLength(selectedFileAudioPaths[x]);
+
+                string[] att_in_selectedFileImagePaths = selectedFileImagePaths[x];
+                int length_att_in_selectedFileImagePaths = att_in_selectedFileImagePaths.Length;
+                float segment = length_audio / length_att_in_selectedFileImagePaths;
+
+                for (int i = 0; i < length_att_in_selectedFileImagePaths; i++)
+                {
+                    Cell cell = new Cell();
+                    cell.images[0].image = "../../../../" + att_in_selectedFileImagePaths[i];
+                    cell.images[0].name = "Image" + index_cell;
+                    cell.images[0].objectId = index_cell;
+                    cell.images[1].image = "../../../../" + att_in_selectedFileImagePaths[i];
+                    cell.images[1].name = "Image" + index_cell;
+                    cell.images[1].objectId = index_cell;
+                    cell.sound.file = "../../../../" + selectedFileAudioPaths[x];
+                    cell.sound.length = length_audio;
+                    cell.sound.startTime = i * segment;
+                    if (i == length_att_in_selectedFileImagePaths - 1)
+                    {
+                        cell.sound.endTime = length_audio;
+                        cell.time = length_audio - i * segment - cell.transTime;
+                    }
+                    else
+                    {
+                        cell.sound.endTime = (i + 1) * segment;
+                        cell.time = segment - cell.transTime;
+                    }
+                    WriteCellToFile(cell, index_cell, writer1);
+                    index_cell++;
+                }
             }
             writer1.Close();
         }
@@ -325,13 +303,27 @@ public partial class Form1 : Form
             writer1.WriteLine($"modifierCount=0");
             writer1.Close();
         }
-        string file1Path = @"files/FileProShow.txt";
 
+        string file1Path = @"files/FileProShow.txt";
+        string folderContainFileProShow = Path.Combine(Directory.GetCurrentDirectory(), @"finals");
+        if (Directory.Exists(folderContainFileProShow))
+        {
+            // // Delete all files in the folder
+            // foreach (string file in Directory.GetFiles(folderContainFileProShow))
+            // {
+            //     File.Delete(file);
+            // }
+        }
+        else
+        {
+            // Create the folder if it does not exist
+            Directory.CreateDirectory(folderContainFileProShow);
+        }
         string combinedFilePath = @"finals/combined.psh"; // Replace with your combined file path
         // Open the combined file for writing
         using (StreamWriter writer = new StreamWriter(combinedFilePath))
         {
-            WriteFileContentHeader(writer, file1Path, path_parent);
+            WriteFileContent(writer, file1Path);
 
             // Write the content of the first file
             WriteFileContent(writer, file2Path);
@@ -342,82 +334,7 @@ public partial class Form1 : Form
             // Write the content of the third file
             WriteFileContent(writer, file4Path);
         }
-
-
-
-
-        // write to file psh
-
-
-
-        // IntPtr proShowHandle = FindWindow(null, PROSHOW_TITLE); // Cập nhật tiêu đề cửa sổ nếu cần thiết
-        // if (proShowHandle != IntPtr.Zero)
-        // {
-        //     SetForegroundWindow(proShowHandle);
-
-        //     // Nhấn tổ hợp phím alt+f3
-        //     keybd_event(VK_MENU, 0, 0, UIntPtr.Zero); // Alt down
-        //     keybd_event(0x72, 0, 0, UIntPtr.Zero); // F3 down
-        //     keybd_event(0x72, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // F3 up
-        //     keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Alt up
-
-        //     Thread.Sleep(500); // Đợi một chút để hộp thoại mở
-
-        //     EnumChildWindows(proShowHandle, (hwnd, lParam) =>
-        //     {
-        //         StringBuilder className = new StringBuilder(256);
-        //         GetClassName(hwnd, className, className.Capacity);
-        //         if (className.ToString() == "Button")
-        //         {
-        //             StringBuilder windowText = new StringBuilder(256);
-        //             GetWindowText(hwnd, windowText, windowText.Capacity);
-        //             if (windowText.ToString() == "Video")
-        //             {
-        //                 PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
-        //                 return false; // Stop enumerating
-        //             }
-        //         }
-        //         return true; // Continue enumerating
-        //     }, IntPtr.Zero);
-
-        //     Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
-
-        //     IntPtr showOptionHandle = FindWindow(null, "Video for Web, Devices and Computers");
-        //     if (showOptionHandle != IntPtr.Zero)
-        //     {
-        //         EnumChildWindows(showOptionHandle, (hwnd, lParam) =>
-        //     {
-        //         StringBuilder className = new StringBuilder(256);
-        //         GetClassName(hwnd, className, className.Capacity);
-        //         if (className.ToString() == "Button")
-        //         {
-        //             StringBuilder windowText = new StringBuilder(256);
-        //             GetWindowText(hwnd, windowText, windowText.Capacity);
-        //             if (windowText.ToString() == "Create")
-        //             {
-        //                 PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
-        //                 return false; // Stop enumerating
-        //             }
-        //         }
-        //         return true; // Continue enumerating
-        //     }, IntPtr.Zero);
-        //     }
-
-        // }
-    }
-
-    private void OpenFileButton_Click(object sender, EventArgs e)
-    {
-        using (OpenFileDialog openFileDialog = new OpenFileDialog())
-        {
-            openFileDialog.Multiselect = true; // Cho phép chọn nhiều tệp
-            openFileDialog.Filter = "All files (*.*)|*.*"; // Bộ lọc tệp (tất cả các tệp)
-
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                selectedFilePaths = openFileDialog.FileNames; // Lưu các đường dẫn của các tệp đã chọn
-            }
-        }
+        MessageBox.Show("Done!");
     }
     static int GetAudioFileLength(string filePath)
     {
@@ -534,6 +451,8 @@ public partial class Form1 : Form
         }
         writer.WriteLine($"cell[{index}].sound.useDefault={cell.sound.useDefault}");
         writer.WriteLine($"cell[{index}].sound.volume={cell.sound.volume}");
+        writer.WriteLine($"cell[{index}].sound.startTime={cell.sound.startTime}");
+        writer.WriteLine($"cell[{index}].sound.endTime={cell.sound.endTime}");
         writer.WriteLine($"cell[{index}].sound.fadeIn={cell.sound.fadeIn}");
         writer.WriteLine($"cell[{index}].sound.fadeOut={cell.sound.fadeOut}");
         writer.WriteLine($"cell[{index}].sound.async={cell.sound.async}");
@@ -544,12 +463,7 @@ public partial class Form1 : Form
         writer.WriteLine($"cell[{index}].sound.normalizeCustom={cell.sound.normalizeCustom}");
         writer.WriteLine($"cell[{index}].sound.normalizePreset={cell.sound.normalizePreset}");
         writer.WriteLine($"cell[{index}].musicVolumeOffset={cell.musicVolumeOffset}");
-        if (cell.sound.length != 0)
-        {
-            writer.WriteLine($"cell[{index}].time={cell.sound.length}");
-        }
-        else
-            writer.WriteLine($"cell[{index}].time={cell.time}");
+        writer.WriteLine($"cell[{index}].time={cell.time}");
         writer.WriteLine($"cell[{index}].transId={cell.transId}");
         writer.WriteLine($"cell[{index}].transTime={cell.transTime}");
         writer.WriteLine($"cell[{index}].includeGlobalCaptions={cell.includeGlobalCaptions}");
@@ -572,41 +486,6 @@ public partial class Form1 : Form
         {
             Console.WriteLine($"File not found: {filePath}");
         }
-    }
-
-    static void WriteFileContentHeader(StreamWriter writer, string filePath, string parentPath)
-    {
-        if (File.Exists(filePath))
-        {
-            using (StreamReader reader = new StreamReader(filePath))
-            {
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    if (line.Contains("makeFileLocalFolder="))
-                    {
-                        // thay dòng đó bằng đường dẫn thư mục chứa file ảnh
-                        writer.WriteLine($"makeFileLocalFolder={parentPath}");
-                    }
-                    else
-                    {
-                        writer.WriteLine(line);
-                    }
-                }
-            }
-        }
-        else
-        {
-            Console.WriteLine($"File not found: {filePath}");
-        }
-    }
-    // viết hàm để tách C:\Users\Dinh Kha\Desktop\image-test\1.jpg thành C:\Users\Dinh Kha\Desktop và image-test\1.jpg
-    static string[] SplitPath(string path)
-    {
-        string[] pathParts = path.Split('\\');
-        string parentPath = string.Join("\\", pathParts.Take(pathParts.Length - 2));
-        string fileName = string.Join("\\", pathParts.Skip(pathParts.Length - 2));
-        return new string[] { parentPath, fileName };
     }
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]

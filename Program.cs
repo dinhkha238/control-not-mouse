@@ -10,8 +10,16 @@ namespace WinFormsApp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            // Application.Run(new MainForm());
-            Application.Run(new Form1());
+            // Kiểm tra xem tệp lưu đường dẫn có tồn tại không
+            if (File.Exists("pathProshow.txt"))
+            {
+                Application.Run(new Form1());
+            }
+            else
+            {
+                Application.Run(new PathProshowInputForm());
+            }
+
         }
     }
 }
