@@ -256,7 +256,7 @@ public partial class Form1 : Form
                 ComboBox cb = sender as ComboBox;
                 if (cb != null && cb.SelectedItem != null)
                 {
-                    MessageBox.Show(cb.SelectedItem.ToString());
+                    selectedGroupPaths.Add(cb.SelectedItem.ToString());
                 }
             };
             this.Controls.Add(comboBox);
@@ -321,12 +321,17 @@ public partial class Form1 : Form
 
                 string[] att_in_selectedFileImagePaths = selectedFileImagePaths[x];
                 int length_att_in_selectedFileImagePaths = att_in_selectedFileImagePaths.Length;
-
-                string style_file_name = "Alternating Portrait Tilt Dark";
-                string selectedFile = System.IO.Path.Combine("styles", style_file_name + ".pxs");
+                // Đọc tất cả các dòng từ file group/selectedGroupPaths[x]
+                string groupFilePath = System.IO.Path.Combine("groups", selectedGroupPaths[x]);
+                string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
+                // Tạo đối tượng Random
+                Random random = new Random();
+                // 
 
                 for (int i = 0; i < length_att_in_selectedFileImagePaths; i++)
                 {
+                    // Lấy ngẫu nhiên một dòng từ groupFileLines
+                    string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
                     string path_image = "../../../../" + att_in_selectedFileImagePaths[i];
                     string path_audio = "../../../../" + selectedFileAudioPaths[x];
                     int length_audio = GetAudioFileLength(selectedFileAudioPaths[x]);
@@ -409,19 +414,35 @@ public partial class Form1 : Form
             {
                 string insertImage = $"cell[0].images[{n}]";
                 string searchPattern = $"cell[0].images[{n}].imageEnable=1";
+                string searchPattern2 = $"cell[0].images[{n}].image=";
+
                 if (extractedContent.Contains(searchPattern))
                 {
-                    string newLine = $"{insertImage}.image={path_image}";
-                    int insertIndex = extractedContent.IndexOf(searchPattern) + searchPattern.Length;
-                    extractedContent = extractedContent.Insert(insertIndex, Environment.NewLine + newLine);
+                    if (!extractedContent.Contains(searchPattern2))
+                    {
+                        string newLine = $"{insertImage}.image={path_image}";
+                        int insertIndex = extractedContent.IndexOf(searchPattern) + searchPattern.Length;
+                        extractedContent = extractedContent.Insert(insertIndex, Environment.NewLine + newLine);
+                    }
                 }
                 else
                 {
                     break;
                 }
             }
+            extractedContent = System.Text.RegularExpressions.Regex.Replace(extractedContent, @"cell\[0\]\.sound\.normalizeFrameSize=0\s*[\r\n]*", "");
+            extractedContent = System.Text.RegularExpressions.Regex.Replace(extractedContent, @"cell\[0\]\.sound\.normalizeFilterSize=0\s*[\r\n]*", "");
+            extractedContent = System.Text.RegularExpressions.Regex.Replace(extractedContent, @"cell\[0\]\.sound\.normalizePeakValue=0\s*[\r\n]*", "");
+            extractedContent = System.Text.RegularExpressions.Regex.Replace(extractedContent, @"cell\[0\]\.sound\.normalizeMaxAmp=0\s*[\r\n]*", "");
+            extractedContent = System.Text.RegularExpressions.Regex.Replace(extractedContent, @"cell\[0\]\.sound\.normalizeTargetRMS=0\s*[\r\n]*", "");
+            extractedContent = System.Text.RegularExpressions.Regex.Replace(extractedContent, @"cell\[0\]\.sound\.normalizeCompressionFactor=0\s*[\r\n]*", "");
+            extractedContent = System.Text.RegularExpressions.Regex.Replace(extractedContent, @"cell\[0\]\.sound\.normalizeInitialGainFade=0\s*[\r\n]*", "");
+            extractedContent = System.Text.RegularExpressions.Regex.Replace(extractedContent, @"cell\[0\]\.sound\.normalizePaddingMode=0\s*[\r\n]*", "");
+
             // Thay thế "cell[0]" bằng "cell[index]"
             extractedContent = extractedContent.Replace("cell[0]", $"cell[{index}]");
+            // Tìm và thay thế dòng chứa "cell[0].transTime" bằng "cell[0].transTime=1000"
+            extractedContent = System.Text.RegularExpressions.Regex.Replace(extractedContent, $@"cell\[{index}\]\.transTime=\d+", $"cell[{index}].transTime=1000");
 
             string soundFile = $"cell[{index}].sound.file={path_audio}";
             string soundLength = $"cell[{index}].sound.length={length_audio}";
