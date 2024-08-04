@@ -47,6 +47,29 @@ public partial class Form1 : Form
     {
         InitializeComponent();
     }
+    // Phương thức công khai để cập nhật ComboBox
+    public void UpdateComboBoxes()
+    {
+        // Lấy danh sách các file trong thư mục
+        string folderPath = @"groups"; // Thay đổi đường dẫn đến thư mục của bạn
+        string[] files = System.IO.Directory.GetFiles(folderPath);
+
+        // Lặp qua tất cả các điều khiển trong form
+        foreach (Control control in this.Controls)
+        {
+            if (control is ComboBox comboBox)
+            {
+                // Xóa các mục cũ trong ComboBox
+                comboBox.Items.Clear();
+
+                // Thêm tên file vào ComboBox
+                foreach (string file in files)
+                {
+                    comboBox.Items.Add(System.IO.Path.GetFileName(file));
+                }
+            }
+        }
+    }
 
     private void button7_Click(object sender, EventArgs e)
     {
@@ -165,22 +188,29 @@ public partial class Form1 : Form
             }
         }
     }
+
     private void AddButtons(int buttonCount)
     {
         int buttonsPerRow = 10; // Số nút bấm mỗi hàng
         int buttonWidth = 90; // Chiều rộng của nút bấm
         int buttonHeight = 30; // Chiều cao của nút bấm
         int labelHeight = 20; // Chiều cao của nhãn
+        int comboBoxHeight = 30; // Chiều cao của ComboBox
+
         int horizontalSpacing = 20; // Khoảng cách ngang giữa các nút bấm
         int verticalSpacing = 60; // Khoảng cách dọc giữa các hàng nút bấm (bao gồm cả khoảng cách cho nhãn)
         int startX = 100; // Vị trí bắt đầu theo trục X
         int startY = 200; // Vị trí bắt đầu theo trục Y
 
+        // Lấy danh sách các file trong thư mục
+        string folderPath = @"groups"; // Thay đổi đường dẫn đến thư mục của bạn
+        string[] files = System.IO.Directory.GetFiles(folderPath);
         // Tạo các nút bấm động và nhãn
         for (int i = 0; i < buttonCount; i++)
         {
             Button button = new Button();
             Label label = new Label();
+            ComboBox comboBox = new ComboBox();
 
             int row = i / buttonsPerRow; // Xác định hàng
             int col = i % buttonsPerRow; // Xác định cột
@@ -206,6 +236,30 @@ public partial class Form1 : Form
             button.Click += (sender, e) => OpenImageButton_Click(sender, e, button.TabIndex - 2);
             button.Tag = "SelectImageButton"; // Gán thuộc tính Tag để nhận diện button động
             this.Controls.Add(button);
+
+            // Thiết lập ComboBox
+            comboBox.Location = new System.Drawing.Point(x, y + labelHeight + buttonHeight);
+            comboBox.Name = "comboBox" + (i + 1);
+            comboBox.Size = new System.Drawing.Size(buttonWidth, comboBoxHeight);
+
+            // Xóa các mục cũ trong ComboBox
+            comboBox.Items.Clear();
+
+            // Thêm tên file vào ComboBox
+            foreach (string file in files)
+            {
+                comboBox.Items.Add(System.IO.Path.GetFileName(file));
+            }
+            // Gán sự kiện SelectedIndexChanged cho ComboBox
+            comboBox.SelectedIndexChanged += (sender, e) =>
+            {
+                ComboBox cb = sender as ComboBox;
+                if (cb != null && cb.SelectedItem != null)
+                {
+                    MessageBox.Show(cb.SelectedItem.ToString());
+                }
+            };
+            this.Controls.Add(comboBox);
         }
     }
     private void OpenAudioButton_Click(object sender, EventArgs e)
@@ -257,45 +311,30 @@ public partial class Form1 : Form
             writer1.WriteLine($"cells={totalCount}");
             writer1.Close();
         }
-        string file3Path = @"files/FileProShow_3.txt";
+        string file3Path = @"files/extractedContent.txt";
+        // clear content of file3Path
+        System.IO.File.WriteAllText(file3Path, string.Empty);
         int index_cell = 0;
-        using (StreamWriter writer1 = new StreamWriter(file3Path))
         {
             for (int x = 0; x < length_selectedFileAudioPaths; x++)
             {
-                int length_audio = GetAudioFileLength(selectedFileAudioPaths[x]);
 
                 string[] att_in_selectedFileImagePaths = selectedFileImagePaths[x];
                 int length_att_in_selectedFileImagePaths = att_in_selectedFileImagePaths.Length;
-                float segment = length_audio / length_att_in_selectedFileImagePaths;
+
+                string style_file_name = "Alternating Portrait Tilt Dark";
+                string selectedFile = System.IO.Path.Combine("styles", style_file_name + ".pxs");
 
                 for (int i = 0; i < length_att_in_selectedFileImagePaths; i++)
                 {
-                    Cell cell = new Cell();
-                    cell.images[0].image = "../../../../" + att_in_selectedFileImagePaths[i];
-                    cell.images[0].name = "Image" + index_cell;
-                    cell.images[0].objectId = index_cell;
-                    cell.images[1].image = "../../../../" + att_in_selectedFileImagePaths[i];
-                    cell.images[1].name = "Image" + index_cell;
-                    cell.images[1].objectId = index_cell;
-                    cell.sound.file = "../../../../" + selectedFileAudioPaths[x];
-                    cell.sound.length = length_audio;
-                    cell.sound.startTime = i * segment;
-                    if (i == length_att_in_selectedFileImagePaths - 1)
-                    {
-                        cell.sound.endTime = length_audio;
-                        cell.time = length_audio - i * segment - cell.transTime;
-                    }
-                    else
-                    {
-                        cell.sound.endTime = (i + 1) * segment;
-                        cell.time = segment - cell.transTime;
-                    }
-                    WriteCellToFile(cell, index_cell, writer1);
+                    string path_image = "../../../../" + att_in_selectedFileImagePaths[i];
+                    string path_audio = "../../../../" + selectedFileAudioPaths[x];
+                    int length_audio = GetAudioFileLength(selectedFileAudioPaths[x]);
+                    float segment = length_audio / length_att_in_selectedFileImagePaths;
+                    WriteCellToFile(selectedFile, index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
                     index_cell++;
                 }
             }
-            writer1.Close();
         }
         string file4Path = @"files/FileProShow_4.txt";
         using (StreamWriter writer1 = new StreamWriter(file4Path))
@@ -343,131 +382,73 @@ public partial class Form1 : Form
         int[] timeArray = { duration.Hours, duration.Minutes, duration.Seconds, duration.Milliseconds };
         return (timeArray[0] * 60 * 60 + timeArray[1] * 60 + timeArray[2]) * 1000 + timeArray[3];
     }
-    static void WriteCellToFile(Cell cell, int index, StreamWriter writer)
+    static void WriteCellToFile(string style_file_name, int index, string path_image, string path_audio, int length_audio, float segment, int i, int length_att_in_selectedFileImagePaths, string outputFilePath)
     {
+        string fileContent = System.IO.File.ReadAllText(style_file_name);
 
-        writer.WriteLine($"cell[{index}].imageEnable={cell.imageEnable}");
-        writer.WriteLine($"cell[{index}].notes={cell.notes}");
-        writer.WriteLine($"cell[{index}].slideStyleFileName={cell.slideStyleFileName}");
-        writer.WriteLine($"cell[{index}].nrOfImages={cell.nrOfImages}");
+        // Cắt nội dung từ dòng có "cells=" và kết thúc ở dòng "modifierCount="
+        string startMarker = "cells=1";
+        string endMarker = "modifierCount=";
+        int startIndex = fileContent.IndexOf(startMarker);
+        int endIndex = fileContent.IndexOf(endMarker);
 
-        for (int i = 0; i < cell.images.Length; i++)
+        if (startIndex != -1 && endIndex != -1 && endIndex > startIndex)
         {
-            var image = cell.images[i];
-            writer.WriteLine($"cell[{index}].images[{i}].image={image.image}");
-            writer.WriteLine($"cell[{index}].images[{i}].imageEnable={image.imageEnable}");
-            writer.WriteLine($"cell[{index}].images[{i}].name={image.name}");
-            writer.WriteLine($"cell[{index}].images[{i}].notes={image.notes}");
-            if (i == 1)
-            {
-                writer.WriteLine($"cell[{index}].images[{i}].fromStyle={image.fromStyle}");
-            }
-            writer.WriteLine($"cell[{index}].images[{i}].templateImageId={image.templateImageId}");
-            writer.WriteLine($"cell[{index}].images[{i}].replaceableTemplate={image.replaceableTemplate}");
-            writer.WriteLine($"cell[{index}].images[{i}].sizeMode={image.sizeMode}");
-            if (i == 1)
-            {
-                writer.WriteLine($"cell[{index}].images[{i}].colorize={image.colorize}");
-            }
-            writer.WriteLine($"cell[{index}].images[{i}].colorizeColor={image.colorizeColor}");
-            writer.WriteLine($"cell[{index}].images[{i}].colorizeStrength={image.colorizeStrength}");
-            if (i == 0)
-            {
-                writer.WriteLine($"cell[{index}].images[{i}].outline={image.outline}");
-            }
-            writer.WriteLine($"cell[{index}].images[{i}].outlineColor={image.outlineColor}");
-            if (i == 0)
-            {
-                writer.WriteLine($"cell[{index}].images[{i}].shadow={image.shadow}");
+            // Bỏ qua dòng "cells=" và "modifierCount="
+            startIndex += startMarker.Length;
+            string extractedContent = fileContent.Substring(startIndex, endIndex - startIndex).Trim();
 
-            }
-            writer.WriteLine($"cell[{index}].images[{i}].aspectX={image.aspectX}");
-            writer.WriteLine($"cell[{index}].images[{i}].aspectY={image.aspectY}");
-            writer.WriteLine($"cell[{index}].images[{i}].videoVolume={image.videoVolume}");
-            writer.WriteLine($"cell[{index}].images[{i}].objectId={image.objectId}");
-            writer.WriteLine($"cell[{index}].images[{i}].videoSpeed={image.videoSpeed}");
-            writer.WriteLine($"cell[{index}].images[{i}].useTransitionIn={image.useTransitionIn}");
-            writer.WriteLine($"cell[{index}].images[{i}].useTransitionOut={image.useTransitionOut}");
-            writer.WriteLine($"cell[{index}].images[{i}].outlineSize={image.outlineSize}");
-            writer.WriteLine($"cell[{index}].images[{i}].shadowSize={image.shadowSize}");
-            writer.WriteLine($"cell[{index}].images[{i}].shadowOpacity={image.shadowOpacity}");
-            writer.WriteLine($"cell[{index}].images[{i}].maskChannel={image.maskChannel}");
-            writer.WriteLine($"cell[{index}].images[{i}].filterName={image.filterName}");
-            writer.WriteLine($"cell[{index}].images[{i}].savedFilterName={image.savedFilterName}");
-            writer.WriteLine($"cell[{index}].images[{i}].motionFilterName={image.motionFilterName}");
-            writer.WriteLine($"cell[{index}].images[{i}].motionFilterNameIn={image.motionFilterNameIn}");
-            writer.WriteLine($"cell[{index}].images[{i}].motionFilterNameOut={image.motionFilterNameOut}");
-            writer.WriteLine($"cell[{index}].images[{i}].nrOfKeyframes={image.nrOfKeyframes}");
-
-            for (int j = 0; j < image.keyframes.Length; j++)
+            // Loại bỏ dòng "modifierCount=" khỏi kết quả
+            int endMarkerIndex = extractedContent.IndexOf(endMarker);
+            if (endMarkerIndex != -1)
             {
-                var keyframe = image.keyframes[j];
-                if (j == 1)
-                {
-                    writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].timestamp={keyframe.timestamp}");
-                }
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].timeSegment={keyframe.timeSegment}");
-                if (j == 1)
-                {
-                    writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].segmentTimestamp={keyframe.segmentTimestamp}");
-                }
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].attributeMask={keyframe.attributeMask}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].offsetX={keyframe.offsetX}");
-                if (i == 1)
-                {
-                    writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].offsetY={keyframe.offsetY}");
-                }
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].zoomX={keyframe.zoomX}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].zoomY={keyframe.zoomY}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].panAccelType={keyframe.panAccelType}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].zoomXAccelType={keyframe.zoomXAccelType}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].zoomYAccelType={keyframe.zoomYAccelType}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].rotationAccelType={keyframe.rotationAccelType}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].tiltVAccelType={keyframe.tiltVAccelType}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].tiltHAccelType={keyframe.tiltHAccelType}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].motionSmoothness={keyframe.motionSmoothness}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].lockAR={keyframe.lockAR}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].transparency={keyframe.transparency}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].audioFade={keyframe.audioFade}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].colorizeColor={keyframe.colorizeColor}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].colorizeStrength={keyframe.colorizeStrength}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].shadowOffsetX={keyframe.shadowOffsetX}");
-                writer.WriteLine($"cell[{index}].images[{i}].keyframes[{j}].shadowOffsetY={keyframe.shadowOffsetY}");
-
+                extractedContent = extractedContent.Substring(0, endMarkerIndex).Trim();
             }
+            // Tìm kiếm và thêm dòng mới
+            for (int n = 0; n <= 20; n++)
+            {
+                string insertImage = $"cell[0].images[{n}]";
+                string searchPattern = $"cell[0].images[{n}].imageEnable=1";
+                if (extractedContent.Contains(searchPattern))
+                {
+                    string newLine = $"{insertImage}.image={path_image}";
+                    int insertIndex = extractedContent.IndexOf(searchPattern) + searchPattern.Length;
+                    extractedContent = extractedContent.Insert(insertIndex, Environment.NewLine + newLine);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            // Thay thế "cell[0]" bằng "cell[index]"
+            extractedContent = extractedContent.Replace("cell[0]", $"cell[{index}]");
+
+            string soundFile = $"cell[{index}].sound.file={path_audio}";
+            string soundLength = $"cell[{index}].sound.length={length_audio}";
+            string soundStartTime = $"cell[{index}].sound.startTime={i * segment}";
+            string soundEndTime, cellTime;
+
+            if (i == length_att_in_selectedFileImagePaths - 1)
+            {
+                soundEndTime = $"cell[{index}].sound.endTime={length_audio}";
+                cellTime = $"cell[{index}].time={length_audio - i * segment - 1000}";
+            }
+            else
+            {
+                soundEndTime = $"cell[{index}].sound.endTime={(i + 1) * segment}";
+                cellTime = $"cell[{index}].time={segment - 1000}";
+            }
+
+            extractedContent += Environment.NewLine + soundFile + Environment.NewLine + soundLength + Environment.NewLine + soundStartTime + Environment.NewLine + soundEndTime + Environment.NewLine + cellTime;
+            // Ghi nội dung đã cắt vào một file khác
+            // string outputFilePath = System.IO.Path.Combine("files", "extractedContent.txt");
+            System.IO.File.AppendAllText(outputFilePath, extractedContent + Environment.NewLine);
+
         }
-
-        writer.WriteLine($"cell[{index}].background={cell.background}");
-        writer.WriteLine($"cell[{index}].bgDefault={cell.bgDefault}");
-        writer.WriteLine($"cell[{index}].bgSizeMode={cell.bgSizeMode}");
-        writer.WriteLine($"cell[{index}].bgColorizeColor={cell.bgColorizeColor}");
-        if (cell.sound.file != null)
+        else
         {
-            writer.WriteLine($"cell[{index}].sound.file={cell.sound.file}");
+            MessageBox.Show("Không tìm thấy đoạn nội dung cần cắt.", "Lỗi");
         }
-        if (cell.sound.length != 0)
-        {
-            writer.WriteLine($"cell[{index}].sound.length={cell.sound.length}");
-        }
-        writer.WriteLine($"cell[{index}].sound.useDefault={cell.sound.useDefault}");
-        writer.WriteLine($"cell[{index}].sound.volume={cell.sound.volume}");
-        writer.WriteLine($"cell[{index}].sound.startTime={cell.sound.startTime}");
-        writer.WriteLine($"cell[{index}].sound.endTime={cell.sound.endTime}");
-        writer.WriteLine($"cell[{index}].sound.fadeIn={cell.sound.fadeIn}");
-        writer.WriteLine($"cell[{index}].sound.fadeOut={cell.sound.fadeOut}");
-        writer.WriteLine($"cell[{index}].sound.async={cell.sound.async}");
-        writer.WriteLine($"cell[{index}].sound.musicUseDefault={cell.sound.musicUseDefault}");
-        writer.WriteLine($"cell[{index}].sound.musicVolume={cell.sound.musicVolume}");
-        writer.WriteLine($"cell[{index}].sound.musicFadeIn={cell.sound.musicFadeIn}");
-        writer.WriteLine($"cell[{index}].sound.musicFadeOut={cell.sound.musicFadeOut}");
-        writer.WriteLine($"cell[{index}].sound.normalizeCustom={cell.sound.normalizeCustom}");
-        writer.WriteLine($"cell[{index}].sound.normalizePreset={cell.sound.normalizePreset}");
-        writer.WriteLine($"cell[{index}].musicVolumeOffset={cell.musicVolumeOffset}");
-        writer.WriteLine($"cell[{index}].time={cell.time}");
-        writer.WriteLine($"cell[{index}].transId={cell.transId}");
-        writer.WriteLine($"cell[{index}].transTime={cell.transTime}");
-        writer.WriteLine($"cell[{index}].includeGlobalCaptions={cell.includeGlobalCaptions}");
-
     }
     static void WriteFileContent(StreamWriter writer, string filePath)
     {
@@ -487,6 +468,12 @@ public partial class Form1 : Form
             Console.WriteLine($"File not found: {filePath}");
         }
     }
+    private void showStylesButton_Click(object sender, EventArgs e)
+    {
+        StylesForm stylesForm = new StylesForm(this);
+        stylesForm.ShowDialog();
+    }
+
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
     static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);

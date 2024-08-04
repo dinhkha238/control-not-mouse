@@ -9,6 +9,7 @@ partial class Form1
     private Button button3;
     private Button button7;
     private Button generateSlideButton;
+    private Button showStylesButton;
 
     // private Button openFileButton;
 
@@ -40,6 +41,7 @@ partial class Form1
         this.button3 = new Button();
         this.button7 = new Button();
         this.generateSlideButton = new Button();
+        this.showStylesButton = new System.Windows.Forms.Button();
         this.SuspendLayout();
 
         // 
@@ -74,7 +76,16 @@ partial class Form1
         this.button7.Text = "Save to video";
         this.button7.UseVisualStyleBackColor = true;
         this.button7.Click += new System.EventHandler(this.button7_Click);
-
+        // 
+        // showStylesButton
+        // 
+        this.showStylesButton.Location = new System.Drawing.Point(12, 12);
+        this.showStylesButton.Name = "showStylesButton";
+        this.showStylesButton.Size = new System.Drawing.Size(75, 23);
+        this.showStylesButton.TabIndex = 0;
+        this.showStylesButton.Text = "Show Styles";
+        this.showStylesButton.UseVisualStyleBackColor = true;
+        this.showStylesButton.Click += new System.EventHandler(this.showStylesButton_Click);
         // 
         // Form1
         // 
@@ -84,6 +95,7 @@ partial class Form1
         this.Controls.Add(this.button3);
         this.Controls.Add(this.button7);
         this.Controls.Add(this.generateSlideButton);
+        this.Controls.Add(this.showStylesButton);
         this.Name = "Form1";
         this.Text = "Notepad Example";
         this.ResumeLayout(false);
