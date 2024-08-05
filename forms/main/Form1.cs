@@ -171,24 +171,6 @@ public partial class Form1 : Form
         }
     }
 
-    private void OpenImageButton_Click(object sender, EventArgs e, int index)
-    {
-        using (OpenFileDialog openFileDialog = new OpenFileDialog())
-        {
-            openFileDialog.Multiselect = true; // Cho phép chọn nhiều tệp
-            openFileDialog.Filter = "Image files (*.jpg, *.jpeg, *.png, *.gif)|*.jpg;*.jpeg;*.png;*.gif"; // Bộ lọc tệp (các tệp hình ảnh)
-
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                if (index >= selectedFileImagePaths.Count)
-                {
-                    selectedFileImagePaths.Add(new string[index - selectedFileImagePaths.Count + 1]);
-                }
-                selectedFileImagePaths[index] = openFileDialog.FileNames; // Lưu các đường dẫn của các tệp đã chọn
-            }
-        }
-    }
-
     private void AddButtons(int buttonCount)
     {
         int buttonsPerRow = 10; // Số nút bấm mỗi hàng
@@ -233,7 +215,7 @@ public partial class Form1 : Form
             button.TabIndex = i + 2; // Điều chỉnh TabIndex để tránh xung đột với các điều khiển hiện có
             button.Text = "Select Image";
             button.UseVisualStyleBackColor = true;
-            button.Click += (sender, e) => OpenImageButton_Click(sender, e, button.TabIndex - 2);
+            button.Click += (sender, e) => selectedFileImagePaths_Click(sender, e, button.TabIndex - 2);
             button.Tag = "SelectImageButton"; // Gán thuộc tính Tag để nhận diện button động
             this.Controls.Add(button);
 
@@ -282,6 +264,11 @@ public partial class Form1 : Form
             {
                 selectedFileAudioPaths = new List<string>(openFileDialog.FileNames); // Lưu các đường dẫn của các tệp đã chọn
                 AddButtons(selectedFileAudioPaths.Count);
+                // Khởi tạo phần tử cho selectedFileImagePaths
+                for (int i = 0; i < selectedFileAudioPaths.Count; i++)
+                {
+                    selectedFileImagePaths.Add([]);
+                }
             }
         }
     }
@@ -315,30 +302,28 @@ public partial class Form1 : Form
         // clear content of file3Path
         System.IO.File.WriteAllText(file3Path, string.Empty);
         int index_cell = 0;
+        for (int x = 0; x < length_selectedFileAudioPaths; x++)
         {
-            for (int x = 0; x < length_selectedFileAudioPaths; x++)
+
+            string[] att_in_selectedFileImagePaths = selectedFileImagePaths[x];
+            int length_att_in_selectedFileImagePaths = att_in_selectedFileImagePaths.Length;
+            // Đọc tất cả các dòng từ file group/selectedGroupPaths[x]
+            string groupFilePath = System.IO.Path.Combine("groups", selectedGroupPaths[x]);
+            string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
+            // Tạo đối tượng Random
+            Random random = new Random();
+            // 
+
+            for (int i = 0; i < length_att_in_selectedFileImagePaths; i++)
             {
-
-                string[] att_in_selectedFileImagePaths = selectedFileImagePaths[x];
-                int length_att_in_selectedFileImagePaths = att_in_selectedFileImagePaths.Length;
-                // Đọc tất cả các dòng từ file group/selectedGroupPaths[x]
-                string groupFilePath = System.IO.Path.Combine("groups", selectedGroupPaths[x]);
-                string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
-                // Tạo đối tượng Random
-                Random random = new Random();
-                // 
-
-                for (int i = 0; i < length_att_in_selectedFileImagePaths; i++)
-                {
-                    // Lấy ngẫu nhiên một dòng từ groupFileLines
-                    string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
-                    string path_image = "../../../../" + att_in_selectedFileImagePaths[i];
-                    string path_audio = "../../../../" + selectedFileAudioPaths[x];
-                    int length_audio = GetAudioFileLength(selectedFileAudioPaths[x]);
-                    float segment = length_audio / length_att_in_selectedFileImagePaths;
-                    WriteCellToFile(selectedFile, index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
-                    index_cell++;
-                }
+                // Lấy ngẫu nhiên một dòng từ groupFileLines
+                string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
+                string path_image = "../../../../" + att_in_selectedFileImagePaths[i];
+                string path_audio = "../../../../" + selectedFileAudioPaths[x];
+                int length_audio = GetAudioFileLength(selectedFileAudioPaths[x]);
+                float segment = length_audio / length_att_in_selectedFileImagePaths;
+                WriteCellToFile(selectedFile, index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
+                index_cell++;
             }
         }
         string file4Path = @"files/FileProShow_4.txt";
@@ -493,6 +478,21 @@ public partial class Form1 : Form
     {
         StylesForm stylesForm = new StylesForm(this);
         stylesForm.ShowDialog();
+    }
+    private void selectedFileImagePaths_Click(object sender, EventArgs e, int index)
+    {
+        // Thực hiện các thao tác với phần tử tại index
+        List<string> variables = selectedFileImagePaths[index]?.ToList() ?? new List<string>();
+        DetailImageForm detailImageForm = new DetailImageForm(variables);
+
+        // Show the form as a dialog
+        detailImageForm.ShowDialog();
+
+        // After the form is closed, get the updated variables
+        List<string> updatedVariables = detailImageForm.UpdatedVariables;
+
+        // Update your data in Form A
+        selectedFileImagePaths[index] = updatedVariables.ToArray();
     }
 
 
