@@ -111,64 +111,80 @@ public partial class Form1 : Form
         {
             Console.WriteLine("Đã xảy ra lỗi khi khởi động ProShow: " + ex.Message);
         }
-
-        // Đợi một chút để hộp thoại mở
-        Thread.Sleep(7000);
-
-        IntPtr proShowHandle = FindWindow(null, PROSHOW_TITLE); // Cập nhật tiêu đề cửa sổ nếu cần thiết
-        if (proShowHandle != IntPtr.Zero)
+        IntPtr proShowHandle = IntPtr.Zero;
+        int timeout = 20000; // 20 giây
+        int interval = 100; // Kiểm tra mỗi 100ms
+        int elapsed = 0;
+        while (elapsed < timeout)
         {
-            SetForegroundWindow(proShowHandle);
-
-            // Nhấn tổ hợp phím alt+f3
-            keybd_event(VK_MENU, 0, 0, UIntPtr.Zero); // Alt down
-            keybd_event(0x72, 0, 0, UIntPtr.Zero); // F3 down
-            keybd_event(0x72, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // F3 up
-            keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Alt up
-
-            Thread.Sleep(2000); // Đợi một chút để hộp thoại mở
-
-            EnumChildWindows(proShowHandle, (hwnd, lParam) =>
+            proShowHandle = FindWindow(null, PROSHOW_TITLE); // Cập nhật tiêu đề cửa sổ nếu cần thiết
+            if (proShowHandle != IntPtr.Zero)
             {
-                StringBuilder className = new StringBuilder(256);
-                GetClassName(hwnd, className, className.Capacity);
-                if (className.ToString() == "Button")
+                break;
+            }
+            // Chờ 100ms trước khi kiểm tra lại
+            Thread.Sleep(interval);
+            elapsed += interval;
+        }
+        SetForegroundWindow(proShowHandle);
+        Thread.Sleep(2000); // Đợi một chút để hộp thoại mở
+
+        // Nhấn tổ hợp phím alt+f3
+        keybd_event(VK_MENU, 0, 0, UIntPtr.Zero); // Alt down
+        keybd_event(0x72, 0, 0, UIntPtr.Zero); // F3 down
+        keybd_event(0x72, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // F3 up
+        keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Alt up
+
+        Thread.Sleep(2000); // Đợi một chút để hộp thoại mở
+
+        EnumChildWindows(proShowHandle, (hwnd, lParam) =>
+        {
+            StringBuilder className = new StringBuilder(256);
+            GetClassName(hwnd, className, className.Capacity);
+            if (className.ToString() == "Button")
+            {
+                StringBuilder windowText = new StringBuilder(256);
+                GetWindowText(hwnd, windowText, windowText.Capacity);
+                if (windowText.ToString() == "Video")
                 {
-                    StringBuilder windowText = new StringBuilder(256);
-                    GetWindowText(hwnd, windowText, windowText.Capacity);
-                    if (windowText.ToString() == "Video")
-                    {
-                        PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
-                        return false; // Stop enumerating
-                    }
+                    PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
+                    return false; // Stop enumerating
                 }
-                return true; // Continue enumerating
-            }, IntPtr.Zero);
+            }
+            return true; // Continue enumerating
+        }, IntPtr.Zero);
 
-            Thread.Sleep(3000); // Đợi một chút để hộp thoại mở
-
-            IntPtr showOptionHandle = FindWindow(null, "Video for Web, Devices and Computers");
+        elapsed = 0;
+        IntPtr showOptionHandle = IntPtr.Zero;
+        while (elapsed < timeout)
+        {
+            showOptionHandle = FindWindow(null, "Video for Web, Devices and Computers");
             if (showOptionHandle != IntPtr.Zero)
             {
-                EnumChildWindows(showOptionHandle, (hwnd, lParam) =>
-            {
-                StringBuilder className = new StringBuilder(256);
-                GetClassName(hwnd, className, className.Capacity);
-                if (className.ToString() == "Button")
-                {
-                    StringBuilder windowText = new StringBuilder(256);
-                    GetWindowText(hwnd, windowText, windowText.Capacity);
-                    if (windowText.ToString() == "Create")
-                    {
-                        PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
-                        return false; // Stop enumerating
-                    }
-                }
-                return true; // Continue enumerating
-            }, IntPtr.Zero);
+                break;
             }
-
+            // Chờ 100ms trước khi kiểm tra lại
+            Thread.Sleep(interval);
+            elapsed += interval;
         }
+
+        Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
+        EnumChildWindows(showOptionHandle, (hwnd, lParam) =>
+        {
+            StringBuilder className = new StringBuilder(256);
+            GetClassName(hwnd, className, className.Capacity);
+            if (className.ToString() == "Button")
+            {
+                StringBuilder windowText = new StringBuilder(256);
+                GetWindowText(hwnd, windowText, windowText.Capacity);
+                if (windowText.ToString() == "Create")
+                {
+                    PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
+                    return false; // Stop enumerating
+                }
+            }
+            return true; // Continue enumerating
+        }, IntPtr.Zero);
     }
 
     private void AddButtons(int buttonCount)
