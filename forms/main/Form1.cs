@@ -295,9 +295,17 @@ public partial class Form1 : Form
             MessageBox.Show("Please select audio files!");
             return;
         }
-        if (selectedFileImagePaths.Count == 0)
+        for (int i = 0; i < selectedFileImagePaths.Count; i++)
         {
-            MessageBox.Show("Please select image files!");
+            if (selectedFileImagePaths[i].Length == 0)
+            {
+                MessageBox.Show($"Please select images for segment {i + 1}!");
+                return;
+            }
+        }
+        if (selectedGroupPaths.Count < selectedFileAudioPaths.Count)
+        {
+            MessageBox.Show("Please select groups!");
             return;
         }
         int length_selectedFileAudioPaths = selectedFileAudioPaths.Count;

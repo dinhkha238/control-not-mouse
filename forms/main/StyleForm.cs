@@ -37,7 +37,7 @@ public class StylesForm : Form
         // 
         // nameTextBox
         // 
-        this.nameTextBox.Location = new System.Drawing.Point(12, 227);
+        this.nameTextBox.Location = new System.Drawing.Point(12, 230);
         this.nameTextBox.Name = "nameTextBox";
         this.nameTextBox.Size = new System.Drawing.Size(179, 20);
         this.nameTextBox.TabIndex = 1;
@@ -45,7 +45,7 @@ public class StylesForm : Form
         // nameLabel
         // 
         this.nameLabel.AutoSize = true;
-        this.nameLabel.Location = new System.Drawing.Point(12, 211);
+        this.nameLabel.Location = new System.Drawing.Point(12, 215);
         this.nameLabel.Name = "nameLabel";
         this.nameLabel.Size = new System.Drawing.Size(35, 13);
         this.nameLabel.TabIndex = 2;
@@ -53,7 +53,7 @@ public class StylesForm : Form
         // 
         // saveButton
         // 
-        this.saveButton.Location = new System.Drawing.Point(197, 253);
+        this.saveButton.Location = new System.Drawing.Point(197, 229);
         this.saveButton.Name = "saveButton";
         this.saveButton.Size = new System.Drawing.Size(75, 23);
         this.saveButton.TabIndex = 3;

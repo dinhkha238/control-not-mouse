@@ -59,7 +59,7 @@ partial class Form1
         // 
         // openFileButton
         //
-        this.generateSlideButton.Location = new System.Drawing.Point(250, 100);
+        this.generateSlideButton.Location = new System.Drawing.Point(400, 100);
         this.generateSlideButton.Name = "generateSlideButton";
         this.generateSlideButton.Size = new System.Drawing.Size(120, 50);
         this.generateSlideButton.TabIndex = 6;
@@ -70,7 +70,7 @@ partial class Form1
         // 
         // button7
         // 
-        this.button7.Location = new System.Drawing.Point(400, 100);
+        this.button7.Location = new System.Drawing.Point(550, 100);
         this.button7.Name = "button7";
         this.button7.Size = new System.Drawing.Size(120, 50);
         this.button7.TabIndex = 7;
@@ -80,11 +80,11 @@ partial class Form1
         // 
         // showStylesButton
         // 
-        this.showStylesButton.Location = new System.Drawing.Point(12, 12);
+        this.showStylesButton.Location = new System.Drawing.Point(250, 100);
         this.showStylesButton.Name = "showStylesButton";
-        this.showStylesButton.Size = new System.Drawing.Size(75, 23);
+        this.showStylesButton.Size = new System.Drawing.Size(120, 50);
         this.showStylesButton.TabIndex = 0;
-        this.showStylesButton.Text = "Show Styles";
+        this.showStylesButton.Text = "Group Styles";
         this.showStylesButton.UseVisualStyleBackColor = true;
         this.showStylesButton.Click += new System.EventHandler(this.showStylesButton_Click);
         // 
