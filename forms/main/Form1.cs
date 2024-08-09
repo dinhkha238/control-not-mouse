@@ -424,6 +424,8 @@ public partial class Form1 : Form
                 string insertImage = $"cell[0].images[{n}]";
                 string searchPattern = $"cell[0].images[{n}].imageEnable=1";
                 string searchPattern2 = $"cell[0].images[{n}].image=";
+                string searchPattern3 = $"cell[0].images[{n}].videoVolume=100";
+
 
                 if (extractedContent.Contains(searchPattern))
                 {
@@ -432,6 +434,10 @@ public partial class Form1 : Form
                         string newLine = $"{insertImage}.image={path_image}";
                         int insertIndex = extractedContent.IndexOf(searchPattern) + searchPattern.Length;
                         extractedContent = extractedContent.Insert(insertIndex, Environment.NewLine + newLine);
+                    }
+                    if (extractedContent.Contains(searchPattern3))
+                    {
+                        extractedContent = extractedContent.Replace(searchPattern3, $"{insertImage}.videoVolume=0");
                     }
                 }
                 else

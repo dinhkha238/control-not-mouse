@@ -55,7 +55,7 @@ public partial class DetailImageForm : Form
         using (OpenFileDialog openFileDialog = new OpenFileDialog())
         {
             openFileDialog.Multiselect = true; // Cho phép chọn nhiều tệp
-            openFileDialog.Filter = "Image files (*.jpg, *.jpeg, *.png, *.gif)|*.jpg;*.jpeg;*.png;*.gif"; // Bộ lọc tệp (các tệp hình ảnh)
+            openFileDialog.Filter = "Image and Video Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.mp4;*.avi;*.mov;*.wmv";
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
