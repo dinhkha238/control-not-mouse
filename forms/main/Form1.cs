@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using NAudio.Wave;
+using Newtonsoft.Json;
 
 namespace WinFormsApp;
 
@@ -216,7 +217,7 @@ public partial class Form1 : Form
             label.Location = new System.Drawing.Point(x + numberLabelWidth + spacing, y);
             label.Name = "label" + (i + 1);
             label.Size = new System.Drawing.Size(buttonWidth, labelHeight);
-            label.Text = "Đoạn " + (i + 1);
+            label.Text = "Select Image";
             label.Tag = "LabelSelectImageButton"; // Gán thuộc tính Tag để nhận diện label động
             panel.Controls.Add(label);
 
@@ -225,7 +226,7 @@ public partial class Form1 : Form
             button.Name = "button" + (i + 1);
             button.Size = new System.Drawing.Size(buttonWidth, buttonHeight);
             button.TabIndex = i + 2; // Điều chỉnh TabIndex để tránh xung đột với các điều khiển hiện có
-            button.Text = "Select Image";
+            button.Text = "Open";
             button.UseVisualStyleBackColor = true;
             button.Click += (sender, e) => selectedFileImagePaths_Click(sender, e, button.TabIndex - 2);
             button.Tag = "SelectImageButton"; // Gán thuộc tính Tag để nhận diện button động
@@ -346,12 +347,24 @@ public partial class Form1 : Form
                 return;
             }
         }
-        if (selectedGroupPaths.Count < selectedFileAudioPaths.Count)
+
+
+        int length_selectedFileAudioPaths = selectedFileAudioPaths.Count;
+        string settingsFilePath = "settings.json";
+        if (!File.Exists(settingsFilePath))
         {
-            MessageBox.Show("Please select groups!");
+            MessageBox.Show("Settings file not found.");
             return;
         }
-        int length_selectedFileAudioPaths = selectedFileAudioPaths.Count;
+        string settingsContent = File.ReadAllText(settingsFilePath);
+        dynamic settings = JsonConvert.DeserializeObject(settingsContent);
+        string groupStyle = settings.GroupStyle;
+        string groupFilePath = System.IO.Path.Combine("groups", groupStyle);
+        if (!File.Exists(groupFilePath))
+        {
+            MessageBox.Show("Group file not found.");
+            return;
+        }
 
         string file2Path = @"files/FileProShow_2.txt";
         int totalCount = 0;
@@ -374,8 +387,6 @@ public partial class Form1 : Form
 
             string[] att_in_selectedFileImagePaths = selectedFileImagePaths[x];
             int length_att_in_selectedFileImagePaths = att_in_selectedFileImagePaths.Length;
-            // Đọc tất cả các dòng từ file group/selectedGroupPaths[x]
-            string groupFilePath = System.IO.Path.Combine("groups", selectedGroupPaths[x]);
             string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
             // Tạo đối tượng Random
             Random random = new Random();

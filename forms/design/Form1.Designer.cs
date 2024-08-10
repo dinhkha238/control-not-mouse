@@ -16,7 +16,7 @@ partial class Form1
 
     private List<string[]> selectedFileImagePaths = new List<string[]>();
     private List<string> selectedFileAudioPaths = new List<string>();
-    private List<string> selectedGroupPaths = new List<string>();
+    // private List<string> selectedGroupPaths = new List<string>();
 
 
     /// <summary>
