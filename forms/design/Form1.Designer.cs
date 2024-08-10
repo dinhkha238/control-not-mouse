@@ -10,6 +10,7 @@ partial class Form1
     private Button button7;
     private Button generateSlideButton;
     private Button showStylesButton;
+    private Button settingsButton;
 
     // private Button openFileButton;
 
@@ -43,6 +44,7 @@ partial class Form1
         this.button7 = new Button();
         this.generateSlideButton = new Button();
         this.showStylesButton = new System.Windows.Forms.Button();
+        this.settingsButton = new System.Windows.Forms.Button();
         this.SuspendLayout();
 
         // 
@@ -56,6 +58,16 @@ partial class Form1
         this.button3.UseVisualStyleBackColor = true;
         this.button3.Click += new System.EventHandler(this.OpenAudioButton_Click);
 
+        // 
+        // settingsButton
+        // 
+        this.settingsButton.Location = new System.Drawing.Point(700, 100); // Đặt vị trí cho nút Setting
+        this.settingsButton.Name = "settingsButton";
+        this.settingsButton.Size = new System.Drawing.Size(120, 50);
+        this.settingsButton.TabIndex = 3;
+        this.settingsButton.Text = "Setting";
+        this.settingsButton.UseVisualStyleBackColor = true;
+        this.settingsButton.Click += new System.EventHandler(this.SettingsButton_Click);
         // 
         // openFileButton
         //
@@ -97,6 +109,7 @@ partial class Form1
         this.Controls.Add(this.button7);
         this.Controls.Add(this.generateSlideButton);
         this.Controls.Add(this.showStylesButton);
+        this.Controls.Add(this.settingsButton);
         this.Name = "Form1";
         this.Text = "Notepad Example";
         this.ResumeLayout(false);

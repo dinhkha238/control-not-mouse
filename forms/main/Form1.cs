@@ -47,30 +47,6 @@ public partial class Form1 : Form
     {
         InitializeComponent();
     }
-    // Phương thức công khai để cập nhật ComboBox
-    public void UpdateComboBoxes()
-    {
-        // Lấy danh sách các file trong thư mục
-        string folderPath = @"groups"; // Thay đổi đường dẫn đến thư mục của bạn
-        string[] files = System.IO.Directory.GetFiles(folderPath);
-
-        // Lặp qua tất cả các điều khiển trong form
-        foreach (Control control in this.Controls)
-        {
-            if (control is ComboBox comboBox)
-            {
-                // Xóa các mục cũ trong ComboBox
-                comboBox.Items.Clear();
-
-                // Thêm tên file vào ComboBox
-                foreach (string file in files)
-                {
-                    comboBox.Items.Add(System.IO.Path.GetFileName(file));
-                }
-            }
-        }
-    }
-
     private void button7_Click(object sender, EventArgs e)
     {
         string filePath = Path.Combine(Directory.GetCurrentDirectory(), @"finals\combined.psh");
@@ -189,43 +165,63 @@ public partial class Form1 : Form
 
     private void AddButtons(int buttonCount)
     {
-        int buttonsPerRow = 10; // Số nút bấm mỗi hàng
-        int buttonWidth = 90; // Chiều rộng của nút bấm
-        int buttonHeight = 30; // Chiều cao của nút bấm
-        int labelHeight = 20; // Chiều cao của nhãn
-        int comboBoxHeight = 30; // Chiều cao của ComboBox
+        // Tạo Panel để chứa các Label và Button
+        Panel panel = new Panel();
+        panel.AutoScroll = true;
+        panel.Location = new System.Drawing.Point(100, 200); // Vị trí của Panel
+        panel.Size = new System.Drawing.Size(1000, 400); // Kích thước của Panel
+        this.Controls.Add(panel);
 
-        int horizontalSpacing = 20; // Khoảng cách ngang giữa các nút bấm
-        int verticalSpacing = 60; // Khoảng cách dọc giữa các hàng nút bấm (bao gồm cả khoảng cách cho nhãn)
-        int startX = 100; // Vị trí bắt đầu theo trục X
-        int startY = 200; // Vị trí bắt đầu theo trục Y
+        int maxRows = 8;
+        int labelHeight = 20;
+        int buttonHeight = 30;
+        int spacing = 10;
+        int buttonWidth = 100;
+        int checkBoxWidth = 20;
+        int textBoxWidth = 50;
+        int numberLabelWidth = 30;
 
-        // Lấy danh sách các file trong thư mục
-        string folderPath = @"groups"; // Thay đổi đường dẫn đến thư mục của bạn
-        string[] files = System.IO.Directory.GetFiles(folderPath);
-        // Tạo các nút bấm động và nhãn
-        for (int i = 0; i < buttonCount; i++)
+        for (int i = 0; i < buttonCount; i++) // Sử dụng buttonCount để xác định số hàng
         {
-            Button button = new Button();
+            Label sttLabel = new Label();
+            Label numberLabel = new Label();
             Label label = new Label();
-            ComboBox comboBox = new ComboBox();
+            Button button = new Button();
+            Label randomLabel = new Label();
+            CheckBox checkBox = new CheckBox();
+            TextBox textBox = new TextBox();
+            Label videoLabel = new Label();
+            Button videoButton = new Button();
+            Button reviewButton = new Button();
+            Button randomButton = new Button();
 
-            int row = i / buttonsPerRow; // Xác định hàng
-            int col = i % buttonsPerRow; // Xác định cột
+            int x = 10;
+            int y = (labelHeight + buttonHeight + spacing) * i;
 
-            int x = startX + (col * (buttonWidth + horizontalSpacing));
-            int y = startY + (row * verticalSpacing);
+            // Thiết lập nhãn "STT"
+            sttLabel.Location = new System.Drawing.Point(x, y);
+            sttLabel.Name = "sttLabel" + (i + 1);
+            sttLabel.Size = new System.Drawing.Size(numberLabelWidth, labelHeight);
+            sttLabel.Text = "STT";
+            panel.Controls.Add(sttLabel);
+
+            // Thiết lập nhãn số thứ tự
+            numberLabel.Location = new System.Drawing.Point(x, y + labelHeight);
+            numberLabel.Name = "numberLabel" + (i + 1);
+            numberLabel.Size = new System.Drawing.Size(numberLabelWidth, labelHeight);
+            numberLabel.Text = (i + 1).ToString();
+            panel.Controls.Add(numberLabel);
 
             // Thiết lập nhãn
-            label.Location = new System.Drawing.Point(x, y);
+            label.Location = new System.Drawing.Point(x + numberLabelWidth + spacing, y);
             label.Name = "label" + (i + 1);
             label.Size = new System.Drawing.Size(buttonWidth, labelHeight);
             label.Text = "Đoạn " + (i + 1);
             label.Tag = "LabelSelectImageButton"; // Gán thuộc tính Tag để nhận diện label động
-            this.Controls.Add(label);
+            panel.Controls.Add(label);
 
             // Thiết lập nút bấm
-            button.Location = new System.Drawing.Point(x, y + labelHeight);
+            button.Location = new System.Drawing.Point(x + numberLabelWidth + spacing, y + labelHeight);
             button.Name = "button" + (i + 1);
             button.Size = new System.Drawing.Size(buttonWidth, buttonHeight);
             button.TabIndex = i + 2; // Điều chỉnh TabIndex để tránh xung đột với các điều khiển hiện có
@@ -233,40 +229,87 @@ public partial class Form1 : Form
             button.UseVisualStyleBackColor = true;
             button.Click += (sender, e) => selectedFileImagePaths_Click(sender, e, button.TabIndex - 2);
             button.Tag = "SelectImageButton"; // Gán thuộc tính Tag để nhận diện button động
-            this.Controls.Add(button);
+            panel.Controls.Add(button);
 
-            // Thiết lập ComboBox
-            comboBox.Location = new System.Drawing.Point(x, y + labelHeight + buttonHeight);
-            comboBox.Name = "comboBox" + (i + 1);
-            comboBox.Size = new System.Drawing.Size(buttonWidth, comboBoxHeight);
+            // Thiết lập nhãn "Chọn ảnh ngẫu nhiên"
+            randomLabel.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing, y);
+            randomLabel.Name = "randomLabel" + (i + 1);
+            randomLabel.Size = new System.Drawing.Size(buttonWidth, labelHeight);
+            randomLabel.Text = "Image Random";
+            panel.Controls.Add(randomLabel);
 
-            // Xóa các mục cũ trong ComboBox
-            comboBox.Items.Clear();
-
-            // Thêm tên file vào ComboBox
-            foreach (string file in files)
+            // Thiết lập checkbox
+            checkBox.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing, y + labelHeight);
+            checkBox.Name = "checkBox" + (i + 1);
+            checkBox.Size = new System.Drawing.Size(checkBoxWidth, buttonHeight);
+            checkBox.CheckedChanged += (sender, e) =>
             {
-                comboBox.Items.Add(System.IO.Path.GetFileName(file));
-            }
-            // Gán sự kiện SelectedIndexChanged cho ComboBox
-            comboBox.SelectedIndexChanged += (sender, e) =>
-            {
-                ComboBox cb = sender as ComboBox;
-                if (cb != null && cb.SelectedItem != null)
-                {
-                    selectedGroupPaths.Add(cb.SelectedItem.ToString());
-                }
+                button.Enabled = !checkBox.Checked;
+                textBox.Enabled = checkBox.Checked;
+                randomButton.Enabled = checkBox.Checked;
             };
-            this.Controls.Add(comboBox);
+            panel.Controls.Add(checkBox);
+
+            // Thiết lập ô nhập số
+            textBox.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing + checkBoxWidth + spacing - 10, y + labelHeight + 3);
+            textBox.Name = "textBox" + (i + 1);
+            textBox.Size = new System.Drawing.Size(30, 30);
+            textBox.Enabled = false;
+            panel.Controls.Add(textBox);
+
+
+
+            // Thiết lập nhãn "Select Video"
+            videoLabel.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing + checkBoxWidth + textBoxWidth + 3 * spacing, y);
+            videoLabel.Name = "videoLabel" + (i + 1);
+            videoLabel.Size = new System.Drawing.Size(buttonWidth, labelHeight);
+            videoLabel.Text = "Select Video";
+            panel.Controls.Add(videoLabel);
+
+            // Thiết lập nút bấm "Select Video"
+            videoButton.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing + checkBoxWidth + textBoxWidth + 3 * spacing, y + labelHeight);
+            videoButton.Name = "videoButton" + (i + 1);
+            videoButton.Size = new System.Drawing.Size(buttonWidth, buttonHeight);
+            videoButton.TabIndex = i + 3; // Điều chỉnh TabIndex để tránh xung đột với các điều khiển hiện có
+            videoButton.Text = "Open";
+            videoButton.UseVisualStyleBackColor = true;
+            videoButton.Click += (sender, e) => selectedFileVideoPaths_Click(sender, e, videoButton.TabIndex - 3);
+            panel.Controls.Add(videoButton);
+
+            // Thiết lập nút bấm "Review"
+            reviewButton.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing + checkBoxWidth + textBoxWidth + buttonWidth + 4 * spacing, y + labelHeight);
+            reviewButton.Name = "reviewButton" + (i + 1);
+            reviewButton.Size = new System.Drawing.Size(buttonWidth, buttonHeight);
+            reviewButton.TabIndex = i + 4; // Điều chỉnh TabIndex để tránh xung đột với các điều khiển hiện có
+            reviewButton.Text = "Review";
+            reviewButton.UseVisualStyleBackColor = true;
+            reviewButton.Enabled = selectedFileImagePaths.Count > i && selectedFileImagePaths[i].Length > 0;
+            reviewButton.Click += (sender, e) => reviewFileImage(sender, e, reviewButton.TabIndex - 4);
+            panel.Controls.Add(reviewButton);
+
+            // Thiết lập nút bấm "Random"
+            randomButton.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing + checkBoxWidth + 35, y + labelHeight + 2);
+            randomButton.Name = "randomButton" + (i + 1);
+            randomButton.Size = new System.Drawing.Size(35, 25);
+            randomButton.Text = "Lưu";
+            randomButton.UseVisualStyleBackColor = true;
+            randomButton.Enabled = false;
+            randomButton.TabIndex = i + 5; // Điều chỉnh TabIndex để tránh xung đột với các điều khiển hiện có
+            randomButton.Click += (sender, e) => randomButton_Click(sender, e, randomButton.TabIndex - 5);
+            panel.Controls.Add(randomButton);
         }
     }
+
+
     private void OpenAudioButton_Click(object sender, EventArgs e)
     {
+        // Tìm panel và xóa
         foreach (Control control in this.Controls)
         {
-            if (control.Tag != null && (control.Tag.ToString() == "SelectImageButton"))
+            if (control is Panel)
             {
                 this.Controls.Remove(control);
+                break;
             }
         }
         selectedFileImagePaths.Clear();
@@ -506,10 +549,10 @@ public partial class Form1 : Form
     }
     private void showStylesButton_Click(object sender, EventArgs e)
     {
-        StylesForm stylesForm = new StylesForm(this);
+        StylesForm stylesForm = new StylesForm();
         stylesForm.ShowDialog();
     }
-    private void selectedFileImagePaths_Click(object sender, EventArgs e, int index)
+    private void reviewFileImage(object sender, EventArgs e, int index)
     {
         // Thực hiện các thao tác với phần tử tại index
         List<string> variables = selectedFileImagePaths[index]?.ToList() ?? new List<string>();
@@ -524,7 +567,110 @@ public partial class Form1 : Form
         // Update your data in Form A
         selectedFileImagePaths[index] = updatedVariables.ToArray();
     }
+    private void SettingsButton_Click(object sender, EventArgs e)
+    {
+        SettingsForm settingsForm = new SettingsForm();
+        settingsForm.ShowDialog();
+    }
 
+    private void selectedFileVideoPaths_Click(object sender, EventArgs e, int index)
+    {
+        using (OpenFileDialog openFileDialog = new OpenFileDialog())
+        {
+            openFileDialog.Filter = "Video files (*.mp4, *.avi, *.wmv)|*.mp4;*.avi;*.wmv"; // Bộ lọc tệp (các tệp video)
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                // Tạo một danh sách từ mảng tại chỉ mục index
+                List<string> fileCurrentList = new List<string>(selectedFileImagePaths[index]);
+
+                // Thêm tệp được chọn vào danh sách
+                fileCurrentList.Add(openFileDialog.FileName);
+
+                // Cập nhật lại mảng tại chỉ mục index
+                selectedFileImagePaths[index] = fileCurrentList.ToArray();
+
+                UpdateReviewButtonState(index);
+            }
+        }
+
+    }
+    private void selectedFileImagePaths_Click(object sender, EventArgs e, int index)
+    {
+        using (OpenFileDialog openFileDialog = new OpenFileDialog())
+        {
+            openFileDialog.Multiselect = true; // Cho phép chọn nhiều tệp
+            openFileDialog.Filter = "Image files (*.jpg, *.jpeg, *.png, *.gif, *.bmp)|*.jpg;*.jpeg;*.png;*.gif;*.bmp"; // Bộ lọc tệp (các tệp hình ảnh)
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                selectedFileImagePaths[index] = openFileDialog.FileNames; // Lưu các đường dẫn của các tệp đã chọn
+                UpdateReviewButtonState(index);
+            }
+        }
+    }
+    private void UpdateReviewButtonState(int index)
+    {
+        // Tìm nút "Review" tương ứng với index
+        Button reviewButton = this.Controls.Find("reviewButton" + (index + 1), true).FirstOrDefault() as Button;
+        if (reviewButton != null)
+        {
+            // Kiểm tra và cập nhật trạng thái của nút "Review"
+            reviewButton.Enabled = selectedFileImagePaths.Count > index && selectedFileImagePaths[index].Length > 0;
+        }
+    }
+    private void randomButton_Click(object sender, EventArgs e, int index)
+    {
+        string settingsFilePath = "settings.json";
+        string folderImagePath = string.Empty;
+
+        // lấy giá trị từ ô nhập số
+        TextBox textBox = this.Controls.Find("textBox" + (index + 1), true).FirstOrDefault() as TextBox;
+        if (textBox != null)
+        {
+            int number = 0;
+            if (int.TryParse(textBox.Text, out number))
+            {
+                // Đọc file settings.json
+                try
+                {
+                    string jsonContent = File.ReadAllText(settingsFilePath);
+                    var jsonObject = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonContent);
+                    if (jsonObject.TryGetValue("FolderImage", out folderImagePath))
+                    {
+                        string[] imageFiles = Directory.GetFiles(folderImagePath, "*.*", SearchOption.TopDirectoryOnly)
+                                                       .ToArray();
+                        if (imageFiles.Length < number)
+                        {
+                            MessageBox.Show("The folder does not contain enough images.");
+                            return;
+                        }
+                        Random random = new Random();
+                        string[] selectedImages = imageFiles.OrderBy(x => random.Next()).Take(number).ToArray();
+                        selectedFileImagePaths[index] = selectedImages;
+                        UpdateReviewButtonState(index);
+                    }
+                    else
+                    {
+                        MessageBox.Show("The FolderImage attribute is not found in the settings.json file.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("An error occurred: " + ex.Message);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please enter a valid number.");
+            }
+        }
+        else
+        {
+            MessageBox.Show("The TextBox is not found.");
+        }
+
+    }
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
     static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);

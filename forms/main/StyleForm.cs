@@ -9,13 +9,11 @@ public class StylesForm : Form
     private Button saveButton;
     private TextBox nameTextBox;
     private Label nameLabel;
-    private Form1 form1;
 
-    public StylesForm(Form1 form1)
+    public StylesForm()
     {
         InitializeComponent();
         LoadStyles();
-        this.form1 = form1;
     }
 
     private void InitializeComponent()
@@ -113,8 +111,7 @@ public class StylesForm : Form
                 writer.WriteLine(item.ToString());
             }
         }
-        // Gọi phương thức UpdateComboBox của Form1 để cập nhật ComboBox
-        form1.UpdateComboBoxes();
+
         MessageBox.Show("Selected items saved.");
     }
 }
