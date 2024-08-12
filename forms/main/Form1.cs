@@ -340,8 +340,7 @@ public partial class Form1 : Form
         }
     }
 
-
-    private void OpenAudioButton_Click(object sender, EventArgs e)
+    private void openImage_Click(object sender, EventArgs e)
     {
         // Tìm panel và xóa
         foreach (Control control in this.Controls)
@@ -353,134 +352,161 @@ public partial class Form1 : Form
             }
         }
         selectedFileImagePaths.Clear();
-
-        using (OpenFileDialog openFileDialog = new OpenFileDialog())
+        // // Check if selectedFolderAudioPaths contains at least one folder
+        if (selectedFolderAudioPaths.Count > 0)
         {
-            openFileDialog.Multiselect = true; // Cho phép chọn nhiều tệp
-            openFileDialog.Filter = "Audio files (*.wav, *.mp3, *.ogg)|*.wav;*.mp3;*.ogg"; // Bộ lọc tệp (các tệp âm thanh)
+            // Dictionary to store folder path and its audio file count
+            Dictionary<string, int> folderAudioFileCounts = new Dictionary<string, int>();
 
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            foreach (var folderPath in selectedFolderAudioPaths)
             {
-                selectedFileAudioPaths = new List<string>(openFileDialog.FileNames); // Lưu các đường dẫn của các tệp đã chọn
-                AddButtons(selectedFileAudioPaths.Count);
-                // Khởi tạo phần tử cho selectedFileImagePaths
-                for (int i = 0; i < selectedFileAudioPaths.Count; i++)
+                // Get the count of audio files in the folder
+                int audioFileCount = Directory.GetFiles(folderPath, "*.mp3").Length +
+                                     Directory.GetFiles(folderPath, "*.wav").Length +
+                                     Directory.GetFiles(folderPath, "*.flac").Length;
+
+                folderAudioFileCounts[folderPath] = audioFileCount;
+            }
+
+            if (selectedFolderAudioPaths.Count == 1)
+            {
+                // Check if the single folder contains any audio files
+                if (folderAudioFileCounts.Values.First() <= 0)
                 {
-                    selectedFileImagePaths.Add([]);
+                    MessageBox.Show("The folder does not contain any audio files.");
+                    return;
+
                 }
             }
+            else
+            {
+                // Check if all folders have the same number of audio files
+                bool allFoldersHaveSameCount = folderAudioFileCounts.Values.Distinct().Count() == 1;
+
+                if (!allFoldersHaveSameCount)
+                {
+                    MessageBox.Show("Folders contain different numbers of audio files.");
+                    return;
+
+                }
+            }
+        }
+        else
+        {
+            MessageBox.Show("Please select at least one audio folder.");
+            return;
+        }
+        foreach (var folderPath in selectedFolderAudioPaths)
+        {
+            string[] audioFiles = Directory.GetFiles(folderPath, "*.mp3").Concat(Directory.GetFiles(folderPath, "*.wav")).Concat(Directory.GetFiles(folderPath, "*.flac")).ToArray();
+            selectedFileAudioPaths.Add(audioFiles);
+        }
+        AddButtons(selectedFileAudioPaths[0].Length);
+        // Khởi tạo phần tử cho selectedFileImagePaths
+        for (int i = 0; i < selectedFileAudioPaths[0].Length; i++)
+        {
+            selectedFileImagePaths.Add([]);
         }
     }
     private void generateSlideButton_Click(object sender, EventArgs e)
     {
-        if (selectedFileAudioPaths.Count == 0)
+        for (int number = 0; number < selectedFolderAudioPaths.Count; number++)
         {
-            MessageBox.Show("Please select audio files!");
-            return;
-        }
-        for (int i = 0; i < selectedFileImagePaths.Count; i++)
-        {
-            if (selectedFileImagePaths[i].Length == 0)
+            for (int i = 0; i < selectedFileImagePaths.Count; i++)
             {
-                MessageBox.Show($"Please select images for segment {i + 1}!");
+                if (selectedFileImagePaths[i].Length == 0)
+                {
+                    MessageBox.Show($"Please select images for segment {i + 1}!");
+                    return;
+                }
+            }
+
+
+            int length_selectedFileAudioPaths = selectedFileAudioPaths[number].Length;
+            string settingsFilePath = "settings.json";
+            if (!File.Exists(settingsFilePath))
+            {
+                MessageBox.Show("Settings file not found.");
                 return;
             }
-        }
-
-
-        int length_selectedFileAudioPaths = selectedFileAudioPaths.Count;
-        string settingsFilePath = "settings.json";
-        if (!File.Exists(settingsFilePath))
-        {
-            MessageBox.Show("Settings file not found.");
-            return;
-        }
-        string settingsContent = File.ReadAllText(settingsFilePath);
-        dynamic settings = JsonConvert.DeserializeObject(settingsContent);
-        string groupStyle = settings.GroupStyle;
-        string groupFilePath = System.IO.Path.Combine("groups", groupStyle);
-        if (!File.Exists(groupFilePath))
-        {
-            MessageBox.Show("Group file not found.");
-            return;
-        }
-
-        string file2Path = @"files/FileProShow_2.txt";
-        int totalCount = 0;
-
-        foreach (var array in selectedFileImagePaths)
-        {
-            totalCount += array.Length;
-        }
-        using (StreamWriter writer1 = new StreamWriter(file2Path))
-        {
-            writer1.WriteLine($"cells={totalCount}");
-            writer1.Close();
-        }
-        string file3Path = @"files/extractedContent.txt";
-        // clear content of file3Path
-        System.IO.File.WriteAllText(file3Path, string.Empty);
-        int index_cell = 0;
-        for (int x = 0; x < length_selectedFileAudioPaths; x++)
-        {
-
-            string[] att_in_selectedFileImagePaths = selectedFileImagePaths[x];
-            int length_att_in_selectedFileImagePaths = att_in_selectedFileImagePaths.Length;
-            string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
-            // Tạo đối tượng Random
-            Random random = new Random();
-            // 
-
-            for (int i = 0; i < length_att_in_selectedFileImagePaths; i++)
+            string settingsContent = File.ReadAllText(settingsFilePath);
+            dynamic settings = JsonConvert.DeserializeObject(settingsContent);
+            string groupStyle = settings.GroupStyle;
+            string groupFilePath = System.IO.Path.Combine("groups", groupStyle);
+            if (!File.Exists(groupFilePath))
             {
-                // Lấy ngẫu nhiên một dòng từ groupFileLines
-                string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
-                string path_image = "../../../../" + att_in_selectedFileImagePaths[i];
-                string path_audio = "../../../../" + selectedFileAudioPaths[x];
-                int length_audio = GetAudioFileLength(selectedFileAudioPaths[x]);
-                float segment = length_audio / length_att_in_selectedFileImagePaths;
-                WriteCellToFile(selectedFile, index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
-                index_cell++;
+                MessageBox.Show("Group file not found.");
+                return;
             }
-        }
-        string file4Path = @"files/FileProShow_4.txt";
-        using (StreamWriter writer1 = new StreamWriter(file4Path))
-        {
-            writer1.WriteLine($"modifierCount=0");
-            writer1.Close();
-        }
 
-        string file1Path = @"files/FileProShow.txt";
-        string folderContainFileProShow = Path.Combine(Directory.GetCurrentDirectory(), @"finals");
-        if (Directory.Exists(folderContainFileProShow))
-        {
-            // // Delete all files in the folder
-            // foreach (string file in Directory.GetFiles(folderContainFileProShow))
-            // {
-            //     File.Delete(file);
-            // }
-        }
-        else
-        {
-            // Create the folder if it does not exist
-            Directory.CreateDirectory(folderContainFileProShow);
-        }
-        string combinedFilePath = @"finals/combined.psh"; // Replace with your combined file path
-        // Open the combined file for writing
-        using (StreamWriter writer = new StreamWriter(combinedFilePath))
-        {
-            WriteFileContent(writer, file1Path);
+            string file2Path = @"files/FileProShow_2.txt";
+            int totalCount = 0;
 
-            // Write the content of the first file
-            WriteFileContent(writer, file2Path);
+            foreach (var array in selectedFileImagePaths)
+            {
+                totalCount += array.Length;
+            }
+            using (StreamWriter writer1 = new StreamWriter(file2Path))
+            {
+                writer1.WriteLine($"cells={totalCount}");
+                writer1.Close();
+            }
+            string file3Path = @"files/extractedContent.txt";
+            // clear content of file3Path
+            System.IO.File.WriteAllText(file3Path, string.Empty);
+            int index_cell = 0;
+            for (int x = 0; x < length_selectedFileAudioPaths; x++)
+            {
 
-            // Write the content of the second file
-            WriteFileContent(writer, file3Path);
+                string[] att_in_selectedFileImagePaths = selectedFileImagePaths[x];
+                int length_att_in_selectedFileImagePaths = att_in_selectedFileImagePaths.Length;
+                string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
+                // Tạo đối tượng Random
+                Random random = new Random();
+                // 
 
-            // Write the content of the third file
-            WriteFileContent(writer, file4Path);
+                for (int i = 0; i < length_att_in_selectedFileImagePaths; i++)
+                {
+                    // Lấy ngẫu nhiên một dòng từ groupFileLines
+                    string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
+                    string path_image = "../../../../" + att_in_selectedFileImagePaths[i];
+                    string path_audio = "../../../../" + selectedFileAudioPaths[number][x];
+                    int length_audio = GetAudioFileLength(selectedFileAudioPaths[number][x]);
+                    float segment = length_audio / length_att_in_selectedFileImagePaths;
+                    WriteCellToFile(selectedFile, index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
+                    index_cell++;
+                }
+            }
+            string file4Path = @"files/FileProShow_4.txt";
+            using (StreamWriter writer1 = new StreamWriter(file4Path))
+            {
+                writer1.WriteLine($"modifierCount=0");
+                writer1.Close();
+            }
+
+            string file1Path = @"files/FileProShow.txt";
+            string folderContainFileProShow = Path.Combine(Directory.GetCurrentDirectory(), @"finals");
+            if (!Directory.Exists(folderContainFileProShow))
+            {
+                Directory.CreateDirectory(folderContainFileProShow);
+            }
+            string combinedFilePath = $"finals/combined_{number}.psh"; // Replace with your combined file path
+                                                                       // Open the combined file for writing
+            using (StreamWriter writer = new StreamWriter(combinedFilePath))
+            {
+                WriteFileContent(writer, file1Path);
+
+                // Write the content of the first file
+                WriteFileContent(writer, file2Path);
+
+                // Write the content of the second file
+                WriteFileContent(writer, file3Path);
+
+                // Write the content of the third file
+                WriteFileContent(writer, file4Path);
+            }
+            MessageBox.Show("Done!");
         }
-        MessageBox.Show("Done!");
     }
     static int GetAudioFileLength(string filePath)
     {
@@ -623,6 +649,21 @@ public partial class Form1 : Form
         settingsForm.ShowDialog();
     }
 
+    private void reviewFolderAudioButton_Click(object sender, EventArgs e)
+    {
+        // Thực hiện các thao tác với phần tử tại index
+        List<string> variables = selectedFolderAudioPaths?.ToList() ?? new List<string>();
+        DetailFolderForm detailImageForm = new DetailFolderForm(variables);
+
+        // Show the form as a dialog
+        detailImageForm.ShowDialog();
+
+        // After the form is closed, get the updated variables
+        List<string> updatedVariables = detailImageForm.UpdatedVariables;
+
+        // Update your data in Form A
+        selectedFolderAudioPaths = updatedVariables;
+    }
     private void selectedFileVideoPaths_Click(object sender, EventArgs e, int index)
     {
         using (OpenFileDialog openFileDialog = new OpenFileDialog())
