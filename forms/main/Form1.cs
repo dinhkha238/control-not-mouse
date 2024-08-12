@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using NAudio.Wave;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace WinFormsApp;
 
@@ -352,6 +353,7 @@ public partial class Form1 : Form
             }
         }
         selectedFileImagePaths.Clear();
+        selectedFileAudioPaths.Clear();
         // // Check if selectedFolderAudioPaths contains at least one folder
         if (selectedFolderAudioPaths.Count > 0)
         {
@@ -439,18 +441,7 @@ public partial class Form1 : Form
                 return;
             }
 
-            string file2Path = @"files/FileProShow_2.txt";
-            int totalCount = 0;
 
-            foreach (var array in selectedFileImagePaths)
-            {
-                totalCount += array.Length;
-            }
-            using (StreamWriter writer1 = new StreamWriter(file2Path))
-            {
-                writer1.WriteLine($"cells={totalCount}");
-                writer1.Close();
-            }
             string file3Path = @"files/extractedContent.txt";
             // clear content of file3Path
             System.IO.File.WriteAllText(file3Path, string.Empty);
@@ -473,10 +464,17 @@ public partial class Form1 : Form
                     string path_audio = "../../../../" + selectedFileAudioPaths[number][x];
                     int length_audio = GetAudioFileLength(selectedFileAudioPaths[number][x]);
                     float segment = length_audio / length_att_in_selectedFileImagePaths;
-                    WriteCellToFile(selectedFile, index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
-                    index_cell++;
+                    WriteCellToFile(selectedFile, ref index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
                 }
             }
+
+            string file2Path = @"files/FileProShow_2.txt";
+            using (StreamWriter writer1 = new StreamWriter(file2Path))
+            {
+                writer1.WriteLine($"cells={index_cell}");
+                writer1.Close();
+            }
+
             string file4Path = @"files/FileProShow_4.txt";
             using (StreamWriter writer1 = new StreamWriter(file4Path))
             {
@@ -515,7 +513,7 @@ public partial class Form1 : Form
         int[] timeArray = { duration.Hours, duration.Minutes, duration.Seconds, duration.Milliseconds };
         return (timeArray[0] * 60 * 60 + timeArray[1] * 60 + timeArray[2]) * 1000 + timeArray[3];
     }
-    static void WriteCellToFile(string style_file_name, int index, string path_image, string path_audio, int length_audio, float segment, int i, int length_att_in_selectedFileImagePaths, string outputFilePath)
+    static void WriteCellToFile(string style_file_name, ref int index, string path_image, string path_audio, int length_audio, float segment, int i, int length_att_in_selectedFileImagePaths, string outputFilePath)
     {
         string fileContent = System.IO.File.ReadAllText(style_file_name);
 
@@ -577,27 +575,56 @@ public partial class Form1 : Form
             extractedContent = extractedContent.Replace("cell[0]", $"cell[{index}]");
             // Tìm và thay thế dòng chứa "cell[0].transTime" bằng "cell[0].transTime=1000"
             extractedContent = System.Text.RegularExpressions.Regex.Replace(extractedContent, $@"cell\[{index}\]\.transTime=\d+", $"cell[{index}].transTime=1000");
-
-            string soundFile = $"cell[{index}].sound.file={path_audio}";
-            string soundLength = $"cell[{index}].sound.length={length_audio}";
-            string soundStartTime = $"cell[{index}].sound.startTime={i * segment}";
-            string soundEndTime, cellTime;
-
-            if (i == length_att_in_selectedFileImagePaths - 1)
+            int video_length = 6000;
+            if (IsVideoFile(path_image) && segment > video_length + 1000)
             {
-                soundEndTime = $"cell[{index}].sound.endTime={length_audio}";
-                cellTime = $"cell[{index}].time={length_audio - i * segment - 1000}";
+                string soundFile = $"cell[{index}].sound.file={path_audio}";
+                string soundLength = $"cell[{index}].sound.length={length_audio}";
+                string soundStartTime = $"cell[{index}].sound.startTime={i * segment}";
+                string soundEndTime, cellTime;
+
+                soundEndTime = $"cell[{index}].sound.endTime={i * segment + video_length}";
+                cellTime = $"cell[{index}].time={video_length - 1000}";
+
+                extractedContent += Environment.NewLine + soundFile + Environment.NewLine + soundLength + Environment.NewLine + soundStartTime + Environment.NewLine + soundEndTime + Environment.NewLine + cellTime;
+                // Ghi nội dung đã cắt vào một file khác
+                // string outputFilePath = System.IO.Path.Combine("files", "extractedContent.txt");
+                System.IO.File.AppendAllText(outputFilePath, extractedContent + Environment.NewLine);
+                index++;
+
+                string path_image_replace = @"../../../../" + RandomImage();
+
+
+                WriteCellToFile(style_file_name, ref index, path_image_replace, path_audio, length_audio, (i * segment + video_length) / i, i, length_att_in_selectedFileImagePaths, outputFilePath);
+
+
+
             }
             else
             {
-                soundEndTime = $"cell[{index}].sound.endTime={(i + 1) * segment}";
-                cellTime = $"cell[{index}].time={segment - 1000}";
-            }
+                string soundFile = $"cell[{index}].sound.file={path_audio}";
+                string soundLength = $"cell[{index}].sound.length={length_audio}";
+                string soundStartTime = $"cell[{index}].sound.startTime={i * segment}";
+                string soundEndTime, cellTime;
 
-            extractedContent += Environment.NewLine + soundFile + Environment.NewLine + soundLength + Environment.NewLine + soundStartTime + Environment.NewLine + soundEndTime + Environment.NewLine + cellTime;
-            // Ghi nội dung đã cắt vào một file khác
-            // string outputFilePath = System.IO.Path.Combine("files", "extractedContent.txt");
-            System.IO.File.AppendAllText(outputFilePath, extractedContent + Environment.NewLine);
+                if (i == length_att_in_selectedFileImagePaths - 1)
+                {
+                    soundEndTime = $"cell[{index}].sound.endTime={length_audio}";
+                    cellTime = $"cell[{index}].time={length_audio - i * segment - 1000}";
+                }
+                else
+                {
+                    soundEndTime = $"cell[{index}].sound.endTime={(i + 1) * segment}";
+                    cellTime = $"cell[{index}].time={segment - 1000}";
+                }
+
+                extractedContent += Environment.NewLine + soundFile + Environment.NewLine + soundLength + Environment.NewLine + soundStartTime + Environment.NewLine + soundEndTime + Environment.NewLine + cellTime;
+                // Ghi nội dung đã cắt vào một file khác
+                // string outputFilePath = System.IO.Path.Combine("files", "extractedContent.txt");
+                System.IO.File.AppendAllText(outputFilePath, extractedContent + Environment.NewLine);
+                index++;
+
+            }
 
         }
         else
@@ -815,6 +842,55 @@ public partial class Form1 : Form
         {
             MessageBox.Show("The TextBox is not found.");
         }
+    }
+
+    public static bool IsVideoFile(string filePath)
+    {
+        // List of common video file extensions
+        string[] videoExtensions = { ".mp4", ".avi", ".mov", ".wmv", ".flv", ".mkv", ".webm" };
+
+        // Get the file extension
+        string fileExtension = Path.GetExtension(filePath).ToLower();
+
+        // Check if the file extension is in the list of video extensions
+        foreach (string extension in videoExtensions)
+        {
+            if (fileExtension == extension)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static string RandomImage()
+    {
+        // Read the settings.json file
+        string settingsPath = "settings.json";
+        string jsonContent = File.ReadAllText(settingsPath);
+        JObject settings = JObject.Parse(jsonContent);
+
+        // Get the FolderImage path from settings.json
+        string folderImagePath = settings["FolderImage"].ToString();
+
+        // List all image files in the FolderImage directory
+        string[] imageFiles = Directory.GetFiles(folderImagePath, "*.*", SearchOption.TopDirectoryOnly)
+                                        .Where(file => file.EndsWith(".jpg") || file.EndsWith(".jpeg") || file.EndsWith(".png") || file.EndsWith(".bmp") || file.EndsWith(".gif"))
+                                        .ToArray();
+
+        // Check if there are any image files
+        if (imageFiles.Length == 0)
+        {
+            throw new Exception("No image files found in the specified directory.");
+        }
+
+        // Select a random image file
+        Random random = new Random();
+        int randomIndex = random.Next(imageFiles.Length);
+        string randomImagePath = imageFiles[randomIndex];
+
+        return randomImagePath;
     }
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
