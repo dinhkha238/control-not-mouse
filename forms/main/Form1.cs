@@ -195,6 +195,10 @@ public partial class Form1 : Form
             Button videoButton = new Button();
             Button reviewButton = new Button();
             Button randomButton = new Button();
+            Label videoRandomLabel = new Label();
+            CheckBox videoRandomCheckBox = new CheckBox();
+            TextBox videoRandomTextBox = new TextBox();
+            Button videoRandomButton = new Button();
 
             int x = 10;
             int y = (labelHeight + buttonHeight + spacing) * i;
@@ -258,7 +262,16 @@ public partial class Form1 : Form
             textBox.Enabled = false;
             panel.Controls.Add(textBox);
 
-
+            // Thiết lập nút bấm "Random"
+            randomButton.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing + checkBoxWidth + 35, y + labelHeight + 2);
+            randomButton.Name = "randomButton" + (i + 1);
+            randomButton.Size = new System.Drawing.Size(35, 25);
+            randomButton.Text = "Lưu";
+            randomButton.UseVisualStyleBackColor = true;
+            randomButton.Enabled = false;
+            randomButton.TabIndex = i + 5; // Điều chỉnh TabIndex để tránh xung đột với các điều khiển hiện có
+            randomButton.Click += (sender, e) => randomButton_Click(sender, e, randomButton.TabIndex - 5);
+            panel.Controls.Add(randomButton);
 
             // Thiết lập nhãn "Select Video"
             videoLabel.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing + checkBoxWidth + textBoxWidth + 3 * spacing, y);
@@ -277,8 +290,45 @@ public partial class Form1 : Form
             videoButton.Click += (sender, e) => selectedFileVideoPaths_Click(sender, e, videoButton.TabIndex - 3);
             panel.Controls.Add(videoButton);
 
+            // Thiết lập nhãn "Video Random"
+            videoRandomLabel.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing + checkBoxWidth + textBoxWidth + buttonWidth + 4 * spacing, y);
+            videoRandomLabel.Name = "videoRandomLabel" + (i + 1);
+            videoRandomLabel.Size = new System.Drawing.Size(buttonWidth, labelHeight);
+            videoRandomLabel.Text = "Video Random";
+            panel.Controls.Add(videoRandomLabel);
+
+            // Thiết lập checkbox "Video Random"
+            videoRandomCheckBox.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing + checkBoxWidth + textBoxWidth + buttonWidth + 4 * spacing, y + labelHeight);
+            videoRandomCheckBox.Name = "videoRandomCheckBox" + (i + 1);
+            videoRandomCheckBox.Size = new System.Drawing.Size(checkBoxWidth, buttonHeight);
+            videoRandomCheckBox.CheckedChanged += (sender, e) =>
+            {
+                videoButton.Enabled = !videoRandomCheckBox.Checked;
+                videoRandomTextBox.Enabled = videoRandomCheckBox.Checked;
+                videoRandomButton.Enabled = videoRandomCheckBox.Checked;
+            };
+            panel.Controls.Add(videoRandomCheckBox);
+
+            // Thiết lập ô nhập số "Video Random"
+            videoRandomTextBox.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing + checkBoxWidth + textBoxWidth + buttonWidth + 4 * spacing + checkBoxWidth + spacing - 10, y + labelHeight + 3);
+            videoRandomTextBox.Name = "videoRandomTextBox" + (i + 1);
+            videoRandomTextBox.Size = new System.Drawing.Size(30, 30);
+            videoRandomTextBox.Enabled = false;
+            panel.Controls.Add(videoRandomTextBox);
+
+            // Thiết lập nút bấm "Video Random"
+            videoRandomButton.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing + checkBoxWidth + textBoxWidth + buttonWidth + 4 * spacing + checkBoxWidth + 35, y + labelHeight + 2);
+            videoRandomButton.Name = "videoRandomButton" + (i + 1);
+            videoRandomButton.Size = new System.Drawing.Size(35, 25);
+            videoRandomButton.Text = "Lưu";
+            videoRandomButton.UseVisualStyleBackColor = true;
+            videoRandomButton.Enabled = false;
+            videoRandomButton.TabIndex = i + 6; // Điều chỉnh TabIndex để tránh xung đột với các điều khiển hiện có
+            videoRandomButton.Click += (sender, e) => videoRandomButton_Click(sender, e, videoRandomButton.TabIndex - 6);
+            panel.Controls.Add(videoRandomButton);
+
             // Thiết lập nút bấm "Review"
-            reviewButton.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing + checkBoxWidth + textBoxWidth + buttonWidth + 4 * spacing, y + labelHeight);
+            reviewButton.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing + checkBoxWidth + textBoxWidth + buttonWidth + 4 * spacing + checkBoxWidth + textBoxWidth + 2 * spacing + checkBoxWidth + 35, y + labelHeight);
             reviewButton.Name = "reviewButton" + (i + 1);
             reviewButton.Size = new System.Drawing.Size(buttonWidth, buttonHeight);
             reviewButton.TabIndex = i + 4; // Điều chỉnh TabIndex để tránh xung đột với các điều khiển hiện có
@@ -287,17 +337,6 @@ public partial class Form1 : Form
             reviewButton.Enabled = selectedFileImagePaths.Count > i && selectedFileImagePaths[i].Length > 0;
             reviewButton.Click += (sender, e) => reviewFileImage(sender, e, reviewButton.TabIndex - 4);
             panel.Controls.Add(reviewButton);
-
-            // Thiết lập nút bấm "Random"
-            randomButton.Location = new System.Drawing.Point(x + numberLabelWidth + buttonWidth + 2 * spacing + checkBoxWidth + 35, y + labelHeight + 2);
-            randomButton.Name = "randomButton" + (i + 1);
-            randomButton.Size = new System.Drawing.Size(35, 25);
-            randomButton.Text = "Lưu";
-            randomButton.UseVisualStyleBackColor = true;
-            randomButton.Enabled = false;
-            randomButton.TabIndex = i + 5; // Điều chỉnh TabIndex để tránh xung đột với các điều khiển hiện có
-            randomButton.Click += (sender, e) => randomButton_Click(sender, e, randomButton.TabIndex - 5);
-            panel.Controls.Add(randomButton);
         }
     }
 
@@ -615,7 +654,7 @@ public partial class Form1 : Form
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                selectedFileImagePaths[index] = openFileDialog.FileNames; // Lưu các đường dẫn của các tệp đã chọn
+                selectedFileImagePaths[index] = openFileDialog.FileNames.OrderBy(x => Guid.NewGuid()).ToArray(); // Lưu các đường dẫn của các tệp đã chọn và sắp xếp ngẫu nhiên
                 UpdateReviewButtonState(index);
             }
         }
@@ -681,6 +720,60 @@ public partial class Form1 : Form
             MessageBox.Show("The TextBox is not found.");
         }
 
+    }
+
+    private void videoRandomButton_Click(object sender, EventArgs e, int index)
+    {
+        string settingsFilePath = "settings.json";
+        string folderVideoPath = string.Empty;
+
+        // lấy giá trị từ ô nhập số
+        TextBox textBox = this.Controls.Find("videoRandomTextBox" + (index + 1), true).FirstOrDefault() as TextBox;
+        if (textBox != null)
+        {
+            int number = 0;
+            if (int.TryParse(textBox.Text, out number))
+            {
+                // Đọc file settings.json
+                try
+                {
+                    string jsonContent = File.ReadAllText(settingsFilePath);
+                    var jsonObject = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonContent);
+                    if (jsonObject.TryGetValue("FolderVideo", out folderVideoPath))
+                    {
+                        string[] videoFiles = Directory.GetFiles(folderVideoPath, "*.*", SearchOption.TopDirectoryOnly)
+                                                       .ToArray();
+                        if (videoFiles.Length < number)
+                        {
+                            MessageBox.Show("The folder does not contain enough videos.");
+                            return;
+                        }
+                        Random random = new Random();
+                        string[] selectedVideos = videoFiles.OrderBy(x => random.Next()).Take(number).ToArray();
+                        List<string> fileCurrentList = new List<string>(selectedFileImagePaths[index]);
+                        fileCurrentList.Add(selectedVideos[0]);
+                        selectedFileImagePaths[index] = fileCurrentList.ToArray();
+                        UpdateReviewButtonState(index);
+                    }
+                    else
+                    {
+                        MessageBox.Show("The FolderVideo attribute is not found in the settings.json file.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("An error occurred: " + ex.Message);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please enter a valid number.");
+            }
+        }
+        else
+        {
+            MessageBox.Show("The TextBox is not found.");
+        }
     }
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
