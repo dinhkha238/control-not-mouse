@@ -398,6 +398,15 @@ public partial class Form1 : Form
             MessageBox.Show("Please select at least one audio folder.");
             return;
         }
+        for (int i = 0; i < selectedFolderAudioPaths.Count; i++)
+        {
+            if (selectedFolderSavePaths[i] == "")
+            {
+                MessageBox.Show("Please select save path for segment " + (i + 1) + "!");
+                return;
+            }
+        }
+
         foreach (var folderPath in selectedFolderAudioPaths)
         {
             string[] audioFiles = Directory.GetFiles(folderPath, "*.mp3").Concat(Directory.GetFiles(folderPath, "*.wav")).Concat(Directory.GetFiles(folderPath, "*.flac")).ToArray();
