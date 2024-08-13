@@ -637,8 +637,9 @@ public partial class Form1 : Form
                 // Write the content of the third file
                 WriteFileContent(writer, file4Path);
             }
-            MessageBox.Show("Done!");
         }
+        button7_Click(sender, e);
+        MessageBox.Show("Done!");
     }
     static int GetAudioFileLength(string filePath)
     {

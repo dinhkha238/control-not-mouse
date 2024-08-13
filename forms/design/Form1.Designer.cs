@@ -91,26 +91,26 @@ partial class Form1
         this.generateSlideButton.Name = "generateSlideButton";
         this.generateSlideButton.Size = new System.Drawing.Size(120, 50);
         this.generateSlideButton.TabIndex = 6;
-        this.generateSlideButton.Text = "Generate Slide";
+        this.generateSlideButton.Text = "Generate and Save";
         this.generateSlideButton.UseVisualStyleBackColor = true;
         this.generateSlideButton.Click += new System.EventHandler(generateSlideButton_Click);
 
-        // 
-        // button7
-        // 
-        this.button7.Location = new System.Drawing.Point(700, 100);
-        this.button7.Name = "button7";
-        this.button7.Size = new System.Drawing.Size(120, 50);
-        this.button7.TabIndex = 7;
-        this.button7.Text = "Save to video";
-        this.button7.UseVisualStyleBackColor = true;
-        this.button7.Click += new System.EventHandler(this.button7_Click);
+        // // 
+        // // button7
+        // // 
+        // this.button7.Location = new System.Drawing.Point(700, 100);
+        // this.button7.Name = "button7";
+        // this.button7.Size = new System.Drawing.Size(120, 50);
+        // this.button7.TabIndex = 7;
+        // this.button7.Text = "Save to video";
+        // this.button7.UseVisualStyleBackColor = true;
+        // this.button7.Click += new System.EventHandler(this.button7_Click);
 
 
         // 
         // settingsButton
         // 
-        this.settingsButton.Location = new System.Drawing.Point(850, 100); // Đặt vị trí cho nút Setting
+        this.settingsButton.Location = new System.Drawing.Point(700, 100); // Đặt vị trí cho nút Setting
         this.settingsButton.Name = "settingsButton";
         this.settingsButton.Size = new System.Drawing.Size(120, 50);
         this.settingsButton.TabIndex = 3;
@@ -124,7 +124,7 @@ partial class Form1
         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         this.WindowState = FormWindowState.Maximized;
         this.Controls.Add(this.openImage);
-        this.Controls.Add(this.button7);
+        // this.Controls.Add(this.button7);
         this.Controls.Add(this.generateSlideButton);
         this.Controls.Add(this.showStylesButton);
         this.Controls.Add(this.settingsButton);
