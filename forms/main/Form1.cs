@@ -42,8 +42,8 @@ public partial class Form1 : Form
     const byte VK_MENU = 0x12; // Alt key
     const uint KEYEVENTF_KEYUP = 0x0002;
     const int BM_CLICK = 0x00F5;
+    const int WM_SETTEXT = 0x000C;
 
-    const string PROSHOW_TITLE = "ProShow Producer - I Love You - combined.psh"; // Cập nhật tiêu đề cửa sổ nếu cần thiết
 
     public Form1()
     {
@@ -51,118 +51,238 @@ public partial class Form1 : Form
     }
     private void button7_Click(object sender, EventArgs e)
     {
-        string filePath = Path.Combine(Directory.GetCurrentDirectory(), @"finals\combined.psh");
-        string proShowPath = "";
-        // Kiểm tra và đọc file pathProshow.txt
-        if (File.Exists("pathProshow.txt"))
+        for (int index_final = 0; index_final < selectedFolderAudioPaths.Count; index_final++)
         {
-            proShowPath = File.ReadAllText("pathProshow.txt");
-        }
-        // Kiểm tra xem tệp thực thi và tệp .psh có tồn tại không
-        if (!System.IO.File.Exists(proShowPath))
-        {
-            MessageBox.Show("Đường dẫn tới ProShow không đúng.");
-            return;
-        }
+            string PROSHOW_TITLE = $"ProShow Producer - I Love You - combined_{index_final}.psh"; // Cập nhật tiêu đề cửa sổ nếu cần thiết
 
-        if (!System.IO.File.Exists(filePath))
-        {
-            MessageBox.Show("Đường dẫn tới tệp .psh không đúng.");
-            return;
-        }
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), $@"finals\combined_{index_final}.psh");
+            string proShowPath = "";
 
-        // Tạo một đối tượng ProcessStartInfo để khởi động ProShow với tệp .psh
-        ProcessStartInfo startInfo = new ProcessStartInfo
-        {
-            FileName = proShowPath,
-            Arguments = filePath,
-            UseShellExecute = true
-        };
+            int timeout = 10000; // 20 giây
+            int timeoutSave = 20000; // 5 giây
+            int interval = 100; // Kiểm tra mỗi 100ms
+            int elapsed = 0;
 
-        // Khởi động ProShow với tệp .psh
-        try
-        {
-            Process process = Process.Start(startInfo);
-            Console.WriteLine("ProShow đã được khởi động.");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Đã xảy ra lỗi khi khởi động ProShow: " + ex.Message);
-        }
-        IntPtr proShowHandle = IntPtr.Zero;
-        int timeout = 20000; // 20 giây
-        int interval = 100; // Kiểm tra mỗi 100ms
-        int elapsed = 0;
-        while (elapsed < timeout)
-        {
-            proShowHandle = FindWindow(null, PROSHOW_TITLE); // Cập nhật tiêu đề cửa sổ nếu cần thiết
-            if (proShowHandle != IntPtr.Zero)
+            bool isFindWindow = false;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTimeOffset vietnamTime = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, vietnamTimeZone);
+            long timestamp = vietnamTime.ToUnixTimeSeconds();
+
+            // Kiểm tra và đọc file pathProshow.txt
+            if (File.Exists("pathProshow.txt"))
             {
-                break;
+                proShowPath = File.ReadAllText("pathProshow.txt");
             }
-            // Chờ 100ms trước khi kiểm tra lại
-            Thread.Sleep(interval);
-            elapsed += interval;
-        }
-        SetForegroundWindow(proShowHandle);
-        Thread.Sleep(2000); // Đợi một chút để hộp thoại mở
-
-        // Nhấn tổ hợp phím alt+f3
-        keybd_event(VK_MENU, 0, 0, UIntPtr.Zero); // Alt down
-        keybd_event(0x72, 0, 0, UIntPtr.Zero); // F3 down
-        keybd_event(0x72, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // F3 up
-        keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Alt up
-
-        Thread.Sleep(2000); // Đợi một chút để hộp thoại mở
-
-        EnumChildWindows(proShowHandle, (hwnd, lParam) =>
-        {
-            StringBuilder className = new StringBuilder(256);
-            GetClassName(hwnd, className, className.Capacity);
-            if (className.ToString() == "Button")
+            // Kiểm tra xem tệp thực thi và tệp .psh có tồn tại không
+            if (!System.IO.File.Exists(proShowPath))
             {
-                StringBuilder windowText = new StringBuilder(256);
-                GetWindowText(hwnd, windowText, windowText.Capacity);
-                if (windowText.ToString() == "Video")
+                MessageBox.Show("Đường dẫn tới ProShow không đúng.");
+                return;
+            }
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                MessageBox.Show("Đường dẫn tới tệp .psh không đúng.");
+                return;
+            }
+
+            // Tạo một đối tượng ProcessStartInfo để khởi động ProShow với tệp .psh
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = proShowPath,
+                Arguments = filePath,
+                UseShellExecute = true
+            };
+
+            // Khởi động ProShow với tệp .psh
+            try
+            {
+                Process process = Process.Start(startInfo);
+                Console.WriteLine("ProShow đã được khởi động.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Đã xảy ra lỗi khi khởi động ProShow: " + ex.Message);
+            }
+            IntPtr proShowHandle = IntPtr.Zero;
+
+            while (elapsed < timeout)
+            {
+                proShowHandle = FindWindow(null, PROSHOW_TITLE); // Cập nhật tiêu đề cửa sổ nếu cần thiết
+                if (proShowHandle != IntPtr.Zero)
                 {
-                    PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
+                    isFindWindow = true;
+                    break;
+                }
+                // Chờ 100ms trước khi kiểm tra lại
+                Thread.Sleep(interval);
+                elapsed += interval;
+            }
+            if (!isFindWindow)
+            {
+                return;
+            }
+            isFindWindow = false;
+
+            SetForegroundWindow(proShowHandle);
+            Thread.Sleep(2000); // Đợi một chút để hộp thoại mở
+
+            // Nhấn tổ hợp phím alt+f3
+            keybd_event(VK_MENU, 0, 0, UIntPtr.Zero); // Alt down
+            keybd_event(0x72, 0, 0, UIntPtr.Zero); // F3 down
+            keybd_event(0x72, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // F3 up
+            keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Alt up
+
+            Thread.Sleep(2000); // Đợi một chút để hộp thoại mở
+
+            EnumChildWindows(proShowHandle, (hwnd, lParam) =>
+            {
+                StringBuilder className = new StringBuilder(256);
+                GetClassName(hwnd, className, className.Capacity);
+                if (className.ToString() == "Button")
+                {
+                    StringBuilder windowText = new StringBuilder(256);
+                    GetWindowText(hwnd, windowText, windowText.Capacity);
+                    if (windowText.ToString() == "Video")
+                    {
+                        PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
+                        return false; // Stop enumerating
+                    }
+                }
+                return true; // Continue enumerating
+            }, IntPtr.Zero);
+
+            elapsed = 0;
+            IntPtr showOptionHandle = IntPtr.Zero;
+            while (elapsed < timeout)
+            {
+                showOptionHandle = FindWindow(null, "Video for Web, Devices and Computers");
+                if (showOptionHandle != IntPtr.Zero)
+                {
+                    isFindWindow = true;
+                    break;
+                }
+                // Chờ 100ms trước khi kiểm tra lại
+                Thread.Sleep(interval);
+                elapsed += interval;
+            }
+            if (!isFindWindow)
+            {
+                return;
+            }
+            isFindWindow = false;
+
+            Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
+            EnumChildWindows(showOptionHandle, (hwnd, lParam) =>
+            {
+                StringBuilder className = new StringBuilder(256);
+                GetClassName(hwnd, className, className.Capacity);
+                if (className.ToString() == "Button")
+                {
+                    StringBuilder windowText = new StringBuilder(256);
+                    GetWindowText(hwnd, windowText, windowText.Capacity);
+                    if (windowText.ToString() == "Create")
+                    {
+                        PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
+                        return false; // Stop enumerating
+                    }
+                }
+                return true; // Continue enumerating
+            }, IntPtr.Zero);
+
+            elapsed = 0;
+            IntPtr saveOptionHandle = IntPtr.Zero;
+            while (elapsed < timeout)
+            {
+                saveOptionHandle = FindWindow(null, "Save Video File");
+                if (saveOptionHandle != IntPtr.Zero)
+                {
+                    isFindWindow = true;
+                    break;
+                }
+                // Chờ 100ms trước khi kiểm tra lại
+                Thread.Sleep(interval);
+                elapsed += interval;
+            }
+            if (!isFindWindow)
+            {
+                return;
+            }
+            isFindWindow = false;
+
+            string savePath = $@"{selectedFolderSavePaths[index_final]}\" + $"{timestamp}.mp4";
+
+            Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
+            EnumChildWindows(saveOptionHandle, (hwnd, lParam) =>
+            {
+                StringBuilder className = new StringBuilder(256);
+                GetClassName(hwnd, className, className.Capacity);
+                if (className.ToString() == "Edit")
+                {
+                    SendMessage(hwnd, WM_SETTEXT, IntPtr.Zero, savePath);
                     return false; // Stop enumerating
                 }
-            }
-            return true; // Continue enumerating
-        }, IntPtr.Zero);
+                return true; // Continue enumerating
+            }, IntPtr.Zero);
 
-        elapsed = 0;
-        IntPtr showOptionHandle = IntPtr.Zero;
-        while (elapsed < timeout)
-        {
-            showOptionHandle = FindWindow(null, "Video for Web, Devices and Computers");
-            if (showOptionHandle != IntPtr.Zero)
+            Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
+            EnumChildWindows(saveOptionHandle, (hwnd, lParam) =>
             {
-                break;
+                StringBuilder className = new StringBuilder(256);
+                GetClassName(hwnd, className, className.Capacity);
+                if (className.ToString() == "Button")
+                {
+                    StringBuilder windowText = new StringBuilder(256);
+                    GetWindowText(hwnd, windowText, windowText.Capacity);
+                    if (windowText.ToString() == "&Save")
+                    {
+                        PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
+                        return false; // Stop enumerating
+                    }
+                }
+                return true; // Continue enumerating
+            }, IntPtr.Zero);
+
+            elapsed = 0;
+            IntPtr messageOptionHandle = IntPtr.Zero;
+            while (elapsed < timeoutSave)
+            {
+                showOptionHandle = FindWindow(null, "Message");
+                if (showOptionHandle != IntPtr.Zero)
+                {
+                    isFindWindow = true;
+                    break;
+                }
+                // Chờ 100ms trước khi kiểm tra lại
+                Thread.Sleep(interval);
+                elapsed += interval;
             }
-            // Chờ 100ms trước khi kiểm tra lại
-            Thread.Sleep(interval);
-            elapsed += interval;
+            if (!isFindWindow)
+            {
+                return;
+            }
+            isFindWindow = false;
+
+            Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
+            EnumChildWindows(showOptionHandle, (hwnd, lParam) =>
+            {
+                StringBuilder className = new StringBuilder(256);
+                GetClassName(hwnd, className, className.Capacity);
+                if (className.ToString() == "Button")
+                {
+                    StringBuilder windowText = new StringBuilder(256);
+                    GetWindowText(hwnd, windowText, windowText.Capacity);
+                    if (windowText.ToString() == "Ok")
+                    {
+                        PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
+                        return false; // Stop enumerating
+                    }
+                }
+                return true; // Continue enumerating
+            }, IntPtr.Zero);
         }
 
-        Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
-        EnumChildWindows(showOptionHandle, (hwnd, lParam) =>
-        {
-            StringBuilder className = new StringBuilder(256);
-            GetClassName(hwnd, className, className.Capacity);
-            if (className.ToString() == "Button")
-            {
-                StringBuilder windowText = new StringBuilder(256);
-                GetWindowText(hwnd, windowText, windowText.Capacity);
-                if (windowText.ToString() == "Create")
-                {
-                    PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
-                    return false; // Stop enumerating
-                }
-            }
-            return true; // Continue enumerating
-        }, IntPtr.Zero);
     }
 
     private void AddButtons(int buttonCount)
