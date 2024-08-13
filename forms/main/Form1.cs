@@ -423,6 +423,11 @@ public partial class Form1 : Form
     {
         for (int number = 0; number < selectedFolderAudioPaths.Count; number++)
         {
+            if (selectedFileImagePaths.Count == 0)
+            {
+                MessageBox.Show("Please select images!");
+                return;
+            }
             for (int i = 0; i < selectedFileImagePaths.Count; i++)
             {
                 if (selectedFileImagePaths[i].Length == 0)
