@@ -680,16 +680,20 @@ public partial class Form1 : Form
     {
         // Thực hiện các thao tác với phần tử tại index
         List<string> variables = selectedFolderAudioPaths?.ToList() ?? new List<string>();
-        DetailFolderForm detailImageForm = new DetailFolderForm(variables);
+        List<string> variablesFolderSavePaths = selectedFolderSavePaths?.ToList() ?? new List<string>();
+        DetailFolderForm detailImageForm = new DetailFolderForm(variables, variablesFolderSavePaths);
 
         // Show the form as a dialog
         detailImageForm.ShowDialog();
 
         // After the form is closed, get the updated variables
         List<string> updatedVariables = detailImageForm.UpdatedVariables;
+        List<string> updatedFolderSavePaths = detailImageForm.UpdatedFolderSavePaths;
 
         // Update your data in Form A
         selectedFolderAudioPaths = updatedVariables;
+        selectedFolderSavePaths = updatedFolderSavePaths;
+
     }
     private void selectedFileVideoPaths_Click(object sender, EventArgs e, int index)
     {

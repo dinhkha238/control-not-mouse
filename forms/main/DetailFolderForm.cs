@@ -9,14 +9,18 @@ public partial class DetailFolderForm : Form
     private DataGridView dataGridView;
     private Button deleteButton;
     private Button addButton;
+    private List<string> selectedFolderSavePaths;
 
     public List<string> UpdatedVariables { get; private set; }
+    public List<string> UpdatedFolderSavePaths { get; private set; }
 
-    public DetailFolderForm(List<string> variables)
+    public DetailFolderForm(List<string> variables, List<string> selectedFolderSavePaths)
     {
         InitializeComponent();
         this.variables = new List<string>(variables);
+        this.selectedFolderSavePaths = new List<string>(selectedFolderSavePaths);
         this.UpdatedVariables = new List<string>(variables); // Initialize with a copy of the input list
+        this.UpdatedFolderSavePaths = new List<string>(selectedFolderSavePaths);
         InitializeForm();
     }
 
@@ -24,27 +28,29 @@ public partial class DetailFolderForm : Form
     {
         this.dataGridView = new DataGridView();
         this.dataGridView.Location = new System.Drawing.Point(10, 10);
-        this.dataGridView.Size = new System.Drawing.Size(600, 200);
+        this.dataGridView.Size = new System.Drawing.Size(750, 200);
         this.dataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         this.dataGridView.AllowUserToAddRows = false;
         this.dataGridView.Columns.Add("AudioPath", "Audio Path");
+        this.dataGridView.Columns.Add("SavePath", "Save Path");
         this.dataGridView.Columns.Add(new DataGridViewButtonColumn
         {
-            Name = "SavePath",
-            HeaderText = "Save Path",
+            Name = "SelectSavePath",
+            HeaderText = "Select Save Path",
             Text = "Select",
             UseColumnTextForButtonValue = true
         });
 
         // Adjust column widths
-        this.dataGridView.Columns["AudioPath"].Width = 400;
-        this.dataGridView.Columns["SavePath"].Width = 100;
+        this.dataGridView.Columns["AudioPath"].Width = 300;
+        this.dataGridView.Columns["SavePath"].Width = 300;
+        this.dataGridView.Columns["SelectSavePath"].Width = 100;
         this.dataGridView.CellContentClick += DataGridView_CellContentClick;
         this.Controls.Add(this.dataGridView);
 
-        foreach (var variable in variables)
+        for (int i = 0; i < selectedFolderSavePaths.Count; i++)
         {
-            this.dataGridView.Rows.Add(variable, "Select");
+            this.dataGridView.Rows.Add(variables[i], selectedFolderSavePaths[i], "Select");
         }
 
         this.deleteButton = new Button();
@@ -64,13 +70,14 @@ public partial class DetailFolderForm : Form
 
     private void DataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
     {
-        if (e.ColumnIndex == dataGridView.Columns["SavePath"].Index && e.RowIndex >= 0)
+        if (e.ColumnIndex == dataGridView.Columns["SelectSavePath"].Index && e.RowIndex >= 0)
         {
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
-                    dataGridView.Rows[e.RowIndex].Cells["SavePath"].Value = folderBrowserDialog.SelectedPath;
+                    string selectedFolder = folderBrowserDialog.SelectedPath;
+                    dataGridView.Rows[e.RowIndex].Cells["SavePath"].Value = selectedFolder;
                 }
             }
         }
@@ -94,7 +101,7 @@ public partial class DetailFolderForm : Form
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
                 string selectedFolder = folderBrowserDialog.SelectedPath;
-                dataGridView.Rows.Add(selectedFolder, "Select");
+                dataGridView.Rows.Add(selectedFolder, "", "Select");
             }
         }
     }
@@ -102,12 +109,16 @@ public partial class DetailFolderForm : Form
     private void DetailImageForm_FormClosing(object sender, FormClosingEventArgs e)
     {
         UpdatedVariables = new List<string>();
+        UpdatedFolderSavePaths = new List<string>();
         foreach (DataGridViewRow row in dataGridView.Rows)
         {
             if (!row.IsNewRow)
             {
                 UpdatedVariables.Add(row.Cells["AudioPath"].Value.ToString());
+                UpdatedFolderSavePaths.Add(row.Cells["SavePath"].Value.ToString());
             }
         }
+
     }
+
 }
