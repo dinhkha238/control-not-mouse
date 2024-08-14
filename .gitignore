@@ -3,3 +3,4 @@ finals
 bin
 obj
 groups
+.env
