@@ -58,9 +58,9 @@ public partial class Form1 : Form
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), $@"finals\combined_{index_final}.psh");
             string proShowPath = "";
 
-            int timeout = 1200000; // 20 giây
-            int timeoutSave = 1200000; // 5 giây
-            int interval = 1000; // Kiểm tra mỗi 100ms
+            int timeout = 3600000; // 20 giây
+            int intervalImport = 10000; // Kiểm tra mỗi 100ms
+            int interval = 500; // Kiểm tra mỗi 100ms
             int elapsed = 0;
 
             bool isFindWindow = false;
@@ -116,8 +116,8 @@ public partial class Form1 : Form
                     break;
                 }
                 // Chờ 100ms trước khi kiểm tra lại
-                Thread.Sleep(30000);
-                elapsed += 30000;
+                Thread.Sleep(intervalImport);
+                elapsed += intervalImport;
             }
             if (!isFindWindow)
             {
@@ -246,7 +246,7 @@ public partial class Form1 : Form
 
             elapsed = 0;
             IntPtr messageOptionHandle = IntPtr.Zero;
-            while (elapsed < timeoutSave)
+            while (elapsed < timeout)
             {
                 showOptionHandle = FindWindow(null, "Message");
                 if (showOptionHandle != IntPtr.Zero)
