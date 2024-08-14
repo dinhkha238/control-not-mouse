@@ -583,7 +583,16 @@ public partial class Form1 : Form
             for (int x = 0; x < length_selectedFileAudioPaths; x++)
             {
 
-                string[] att_in_selectedFileImagePaths = selectedFileImagePaths[x];
+                // Lấy phần tử cuối cùng
+                string lastElement = selectedFileImagePaths[x].Last();
+
+                // Lấy các phần tử còn lại (trừ phần tử cuối cùng)
+                string[] remainingElements = selectedFileImagePaths[x].Take(selectedFileImagePaths[x].Length - 1).ToArray();
+
+                // Trộn các phần tử còn lại
+                string[] shuffledElements = remainingElements.OrderBy(x => Guid.NewGuid()).ToArray();
+
+                string[] att_in_selectedFileImagePaths = shuffledElements.Concat(new string[] { lastElement }).ToArray();
                 int length_att_in_selectedFileImagePaths = att_in_selectedFileImagePaths.Length;
                 string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
                 // Tạo đối tượng Random
@@ -861,7 +870,7 @@ public partial class Form1 : Form
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                selectedFileImagePaths[index] = openFileDialog.FileNames.OrderBy(x => Guid.NewGuid()).ToArray(); // Lưu các đường dẫn của các tệp đã chọn và sắp xếp ngẫu nhiên
+                selectedFileImagePaths[index] = openFileDialog.FileNames;
                 UpdateReviewButtonState(index);
             }
         }
