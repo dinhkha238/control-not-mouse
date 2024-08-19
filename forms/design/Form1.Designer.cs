@@ -13,6 +13,16 @@ partial class Form1
     private Button settingsButton;
     private Button reviewFolderAudioButton;
     private Button openImage;
+    private System.Windows.Forms.TextBox textBoxX;
+    private System.Windows.Forms.TextBox textBoxY;
+    private System.Windows.Forms.TextBox textBoxQuantity;
+    private System.Windows.Forms.TextBox textBoxQuantityVideo;
+    private System.Windows.Forms.Button saveButton;
+    private System.Windows.Forms.Label labelX;
+    private System.Windows.Forms.Label labelY;
+    private System.Windows.Forms.Label labelQuantity;
+    private System.Windows.Forms.Label labelQuantityVideo;
+
 
     // private Button openFileButton;
 
@@ -50,7 +60,106 @@ partial class Form1
         this.settingsButton = new System.Windows.Forms.Button();
         this.reviewFolderAudioButton = new System.Windows.Forms.Button();
         this.openImage = new System.Windows.Forms.Button();
+        this.labelX = new System.Windows.Forms.Label();
+        this.labelY = new System.Windows.Forms.Label();
+        this.labelQuantity = new System.Windows.Forms.Label();
+        this.labelQuantityVideo = new System.Windows.Forms.Label();
+        this.textBoxX = new System.Windows.Forms.TextBox();
+        this.textBoxY = new System.Windows.Forms.TextBox();
+        this.textBoxQuantity = new System.Windows.Forms.TextBox();
+        this.textBoxQuantityVideo = new System.Windows.Forms.TextBox();
+        this.saveButton = new System.Windows.Forms.Button();
+
         this.SuspendLayout();
+
+        // 
+        // labelX
+        // 
+        this.labelX.AutoSize = true;
+        this.labelX.Location = new System.Drawing.Point(100, 173);
+        this.labelX.Name = "labelX";
+        this.labelX.Size = new System.Drawing.Size(44, 13);
+        this.labelX.TabIndex = 7;
+        this.labelX.Text = "Ngẫu nhiên từ đoạn";
+        this.labelX.Visible = false;
+
+        // 
+        // labelY
+        // 
+        this.labelY.AutoSize = true;
+        this.labelY.Location = new System.Drawing.Point(280, 173);
+        this.labelY.Name = "labelY";
+        this.labelY.Size = new System.Drawing.Size(44, 13);
+        this.labelY.TabIndex = 8;
+        this.labelY.Text = "đến";
+        this.labelY.Visible = false;
+
+        // 
+        // labelQuantity
+        // 
+        this.labelQuantity.AutoSize = true;
+        this.labelQuantity.Location = new System.Drawing.Point(380, 173);
+        this.labelQuantity.Name = "labelQuantity";
+        this.labelQuantity.Size = new System.Drawing.Size(44, 13);
+        this.labelQuantity.TabIndex = 9;
+        this.labelQuantity.Text = "Số lượng ảnh";
+        this.labelQuantity.Visible = false;
+
+        // labelQuantityVideo
+        this.labelQuantityVideo.AutoSize = true;
+        this.labelQuantityVideo.Location = new System.Drawing.Point(530, 173);
+        this.labelQuantityVideo.Name = "labelQuantityVideo";
+        this.labelQuantityVideo.Size = new System.Drawing.Size(44, 13);
+        this.labelQuantityVideo.TabIndex = 10;
+        this.labelQuantityVideo.Text = "Số lượng video";
+        this.labelQuantityVideo.Visible = false;
+
+        // 
+        // textBoxX
+        // 
+        this.textBoxX.Location = new System.Drawing.Point(230, 170);
+        this.textBoxX.Name = "textBoxStartSegment";
+        this.textBoxX.Size = new System.Drawing.Size(50, 20);
+        this.textBoxX.TabIndex = 3;
+        this.textBoxX.Visible = false;
+
+        // 
+        // textBoxY
+        // 
+        this.textBoxY.Location = new System.Drawing.Point(313, 170);
+        this.textBoxY.Name = "textBoxEndSegment";
+        this.textBoxY.Size = new System.Drawing.Size(50, 20);
+        this.textBoxY.TabIndex = 4;
+        this.textBoxY.Visible = false;
+
+        // 
+        // textBoxQuantity
+        // 
+        this.textBoxQuantity.Location = new System.Drawing.Point(470, 170);
+        this.textBoxQuantity.Name = "textBoxQuantityImageSegment";
+        this.textBoxQuantity.Size = new System.Drawing.Size(50, 20);
+        this.textBoxQuantity.TabIndex = 5;
+        this.textBoxQuantity.Visible = false;
+
+        // textBoxQuantityVideo
+        this.textBoxQuantityVideo.Location = new System.Drawing.Point(630, 170);
+        this.textBoxQuantityVideo.Name = "textBoxQuantityVideoSegment";
+        this.textBoxQuantityVideo.Size = new System.Drawing.Size(50, 20);
+        this.textBoxQuantityVideo.TabIndex = 6;
+        this.textBoxQuantityVideo.Visible = false;
+
+        // 
+        // saveButton
+        // 
+        this.saveButton.Location = new System.Drawing.Point(720, 170);
+        this.saveButton.Name = "saveButton";
+        this.saveButton.Size = new System.Drawing.Size(75, 23);
+        this.saveButton.TabIndex = 7;
+        this.saveButton.Text = "Save";
+        this.saveButton.UseVisualStyleBackColor = true;
+        this.saveButton.Visible = false;
+        this.saveButton.Click += new System.EventHandler(this.saveButtonRandomSegment);
+
 
         // 
         // reviewFolderAudioButton
@@ -129,6 +238,15 @@ partial class Form1
         this.Controls.Add(this.showStylesButton);
         this.Controls.Add(this.settingsButton);
         this.Controls.Add(this.reviewFolderAudioButton);
+        this.Controls.Add(this.labelX);
+        this.Controls.Add(this.labelY);
+        this.Controls.Add(this.labelQuantity);
+        this.Controls.Add(this.labelQuantityVideo);
+        this.Controls.Add(this.textBoxX);
+        this.Controls.Add(this.textBoxY);
+        this.Controls.Add(this.textBoxQuantity);
+        this.Controls.Add(this.textBoxQuantityVideo);
+        this.Controls.Add(this.saveButton);
         this.Name = "Form1";
         this.Text = "Sắp giàu rùii";
         this.ResumeLayout(false);

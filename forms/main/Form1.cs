@@ -226,7 +226,7 @@ public partial class Form1 : Form
                 return true; // Continue enumerating
             }, IntPtr.Zero);
 
-            Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
+            Thread.Sleep(2000); // Đợi một chút để hộp thoại mở
             EnumChildWindows(saveOptionHandle, (hwnd, lParam) =>
             {
                 StringBuilder className = new StringBuilder(256);
@@ -526,7 +526,15 @@ public partial class Form1 : Form
                 return;
             }
         }
-
+        labelX.Visible = true;
+        labelY.Visible = true;
+        labelQuantity.Visible = true;
+        labelQuantityVideo.Visible = true;
+        textBoxX.Visible = true;
+        textBoxY.Visible = true;
+        textBoxQuantity.Visible = true;
+        textBoxQuantityVideo.Visible = true;
+        saveButton.Visible = true;
         foreach (var folderPath in selectedFolderAudioPaths)
         {
             string[] audioFiles = Directory.GetFiles(folderPath, "*.mp3").Concat(Directory.GetFiles(folderPath, "*.wav")).Concat(Directory.GetFiles(folderPath, "*.flac")).ToArray();
@@ -1039,6 +1047,63 @@ public partial class Form1 : Form
         string randomImagePath = imageFiles[randomIndex];
 
         return randomImagePath;
+    }
+
+    public void saveButtonRandomSegment(object sender, EventArgs e)
+    {
+        // Đọc giá trị từ ô nhập số
+        if (!(this.Controls.Find("textBoxStartSegment", true).FirstOrDefault() is TextBox startSegment))
+        {
+            MessageBox.Show("Please enter a valid number.");
+            return;
+        }
+        if (!(this.Controls.Find("textBoxEndSegment", true).FirstOrDefault() is TextBox endSegment))
+        {
+            MessageBox.Show("Please enter a valid number.");
+            return;
+        }
+        if (!(this.Controls.Find("textBoxQuantityImageSegment", true).FirstOrDefault() is TextBox totalImage))
+        {
+            MessageBox.Show("Please enter a valid number.");
+            return;
+        }
+        if (!(this.Controls.Find("textBoxQuantityVideoSegment", true).FirstOrDefault() is TextBox totalVideo))
+        {
+            MessageBox.Show("Please enter a valid number.");
+            return;
+        }
+
+        int start, end;
+        if (!int.TryParse(startSegment.Text, out start) || !int.TryParse(endSegment.Text, out end))
+        {
+            MessageBox.Show("Please enter valid numbers for start and end segments.");
+            return;
+        }
+        // Kiểm tra textBoxQuantityImageSegment
+        if (!int.TryParse(totalImage.Text, out int quantity))
+        {
+            MessageBox.Show("Please enter a valid number for the quantity of images.");
+            return;
+        }
+        // Kiểm tra textBoxQuantityVideoSegment
+        if (!int.TryParse(totalVideo.Text, out int quantityVideo))
+        {
+            MessageBox.Show("Please enter a valid number for the quantity of videos.");
+            return;
+        }
+
+        for (int i = start - 1; i < end; i++)
+        {
+            TextBox textBox = this.Controls.Find("textBox" + (i + 1), true).FirstOrDefault() as TextBox;
+            TextBox videoRandomTextBox = this.Controls.Find("videoRandomTextBox" + (i + 1), true).FirstOrDefault() as TextBox;
+            if (textBox != null)
+            {
+                textBox.Text = totalImage.Text;
+                videoRandomTextBox.Text = totalVideo.Text;
+                randomButton_Click(sender, e, i);
+                videoRandomButton_Click(sender, e, i);
+            }
+        }
     }
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
