@@ -1,7 +1,3 @@
-using dotenv.net;
-using MongoDB.Bson;
-using MongoDB.Driver;
-
 namespace WinFormsApp
 {
     partial class LoginForm
@@ -13,8 +9,6 @@ namespace WinFormsApp
         private System.Windows.Forms.TextBox txtUsername;
         private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.Button btnLogin;
-        // collection
-        private IMongoCollection<BsonDocument> collection;
 
         /// <summary>
         /// Giải phóng tài nguyên đang sử dụng.
@@ -34,16 +28,6 @@ namespace WinFormsApp
         /// </summary>
         private void InitializeComponent()
         {
-            // Tải các biến môi trường từ tệp .env
-            DotEnv.Load();
-
-            var connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING");
-            var client = new MongoClient(connectionString);
-
-            // Lấy cơ sở dữ liệu và collection
-            var database = client.GetDatabase("proshow");
-            this.collection = database.GetCollection<BsonDocument>("user"); ;
-
             // 
             this.lblUsername = new System.Windows.Forms.Label();
             this.lblPassword = new System.Windows.Forms.Label();
