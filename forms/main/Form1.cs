@@ -591,11 +591,14 @@ public partial class Form1 : Form
             for (int x = 0; x < length_selectedFileAudioPaths; x++)
             {
 
-                // Lấy phần tử cuối cùng
-                string lastElement = selectedFileImagePaths[x].Last();
+                // Lọc các phần tử là file Video
+                string[] videoFiles = selectedFileImagePaths[x].Where(IsVideoFile).ToArray();
 
-                // Lấy các phần tử còn lại (trừ phần tử cuối cùng)
-                string[] remainingElements = selectedFileImagePaths[x].Take(selectedFileImagePaths[x].Length - 1).ToArray();
+                // Lấy 1 phần tử ngẫu nhiên trong videoFiles
+                string lastElement = videoFiles.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+
+                // Lấy các phần tử còn lại (trừ phần tử videoFiles)
+                string[] remainingElements = selectedFileImagePaths[x].Except(videoFiles).ToArray();
 
                 // Trộn các phần tử còn lại
                 string[] shuffledElements = remainingElements.OrderBy(x => Guid.NewGuid()).ToArray();
@@ -975,7 +978,7 @@ public partial class Form1 : Form
                         Random random = new Random();
                         string[] selectedVideos = videoFiles.OrderBy(x => random.Next()).Take(number).ToArray();
                         List<string> fileCurrentList = new List<string>(selectedFileImagePaths[index]);
-                        fileCurrentList.Add(selectedVideos[0]);
+                        fileCurrentList.AddRange(selectedVideos);
                         selectedFileImagePaths[index] = fileCurrentList.ToArray();
                         UpdateReviewButtonState(index);
                     }
