@@ -43,6 +43,7 @@ public partial class Form1 : Form
     const uint KEYEVENTF_KEYUP = 0x0002;
     const int BM_CLICK = 0x00F5;
     const int WM_SETTEXT = 0x000C;
+    const int WM_PASTE = 0x0302;
 
 
     public Form1()
@@ -220,7 +221,8 @@ public partial class Form1 : Form
                 GetClassName(hwnd, className, className.Capacity);
                 if (className.ToString() == "Edit")
                 {
-                    SendMessage(hwnd, WM_SETTEXT, IntPtr.Zero, savePath);
+                    Clipboard.SetText(savePath);
+                    SendMessage(hwnd, WM_PASTE, IntPtr.Zero, null);
                     return false; // Stop enumerating
                 }
                 return true; // Continue enumerating
