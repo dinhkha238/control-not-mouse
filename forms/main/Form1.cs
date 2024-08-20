@@ -52,9 +52,21 @@ public partial class Form1 : Form
     }
     private void button7_Click(object sender, EventArgs e)
     {
+        // Đọc dữ liệu từ file settings.json
+        string settingsFilePath = "settings.json";
+        if (!File.Exists(settingsFilePath))
+        {
+            MessageBox.Show("Settings file not found.");
+            return;
+        }
+        string settingsContent = File.ReadAllText(settingsFilePath);
+        dynamic settings = JsonConvert.DeserializeObject(settingsContent);
+
+        string defaultTitle = settings.DefaultTitle;
+
         for (int index_final = 0; index_final < selectedFolderAudioPaths.Count; index_final++)
         {
-            string PROSHOW_TITLE = $"ProShow Producer - I Love You - combined_{index_final}.psh"; // Cập nhật tiêu đề cửa sổ nếu cần thiết
+            string PROSHOW_TITLE = defaultTitle + $" - combined_{index_final}.psh"; // Cập nhật tiêu đề cửa sổ nếu cần thiết
 
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), $@"finals\combined_{index_final}.psh");
             string proShowPath = "";

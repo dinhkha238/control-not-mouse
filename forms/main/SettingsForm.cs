@@ -24,6 +24,8 @@ public partial class SettingsForm : Form
         this.videoFolderPathLabel = new System.Windows.Forms.Label();
         this.videoFolderPathTextBox = new System.Windows.Forms.TextBox();
         this.groupStyleLabel = new System.Windows.Forms.Label();
+        this.defaultTitleLabel = new System.Windows.Forms.Label();
+        this.defaultTitleTextBox = new System.Windows.Forms.TextBox();
         this.saveButton = new System.Windows.Forms.Button();
         this.SuspendLayout();
 
@@ -113,9 +115,27 @@ public partial class SettingsForm : Form
         }
 
         // 
+        // Default title proshow
+        //
+        this.defaultTitleLabel.AutoSize = true;
+        this.defaultTitleLabel.Location = new System.Drawing.Point(50, 310);
+        this.defaultTitleLabel.Name = "defaultTitleLabel";
+        this.defaultTitleLabel.Size = new System.Drawing.Size(80, 17);
+        this.defaultTitleLabel.TabIndex = 5;
+        this.defaultTitleLabel.Text = "Default Title";
+
+        // 
+        // defaultTitleTextBox
+        //
+        this.defaultTitleTextBox.Location = new System.Drawing.Point(50, 330);
+        this.defaultTitleTextBox.Name = "defaultTitleTextBox";
+        this.defaultTitleTextBox.Size = new System.Drawing.Size(300, 22);
+        this.defaultTitleTextBox.TabIndex = 10;
+
+        // 
         // saveButton
         // 
-        this.saveButton.Location = new System.Drawing.Point(50, 310);
+        this.saveButton.Location = new System.Drawing.Point(50, 370);
         this.saveButton.Name = "saveButton";
         this.saveButton.Size = new System.Drawing.Size(150, 30);
         this.saveButton.TabIndex = 6;
@@ -128,7 +148,7 @@ public partial class SettingsForm : Form
         // 
         this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        this.ClientSize = new System.Drawing.Size(500, 400);
+        this.ClientSize = new System.Drawing.Size(500, 500);
         this.Controls.Add(this.saveButton);
         this.Controls.Add(this.groupStyleLabel);
         this.Controls.Add(this.videoFolderPathTextBox);
@@ -137,6 +157,8 @@ public partial class SettingsForm : Form
         this.Controls.Add(this.folderPathLabel);
         this.Controls.Add(this.groupStyleComboBox);
         this.Controls.Add(this.selectFolderVideoButton);
+        this.Controls.Add(this.defaultTitleTextBox);
+        this.Controls.Add(this.defaultTitleLabel);
         this.Controls.Add(this.selectFolderButton);
         this.Name = "SettingsForm";
         this.Text = "Settings";
@@ -152,6 +174,8 @@ public partial class SettingsForm : Form
     private System.Windows.Forms.Label videoFolderPathLabel;
     private System.Windows.Forms.TextBox videoFolderPathTextBox;
     private System.Windows.Forms.Label groupStyleLabel;
+    private System.Windows.Forms.Label defaultTitleLabel;
+    private System.Windows.Forms.TextBox defaultTitleTextBox;
     private System.Windows.Forms.Button saveButton;
 
     private void SelectFolderButton_Click(object sender, EventArgs e)
@@ -185,7 +209,8 @@ public partial class SettingsForm : Form
         {
             FolderImage = folderPathTextBox.Text,
             FolderVideo = videoFolderPathTextBox.Text,
-            GroupStyle = groupStyleComboBox.SelectedItem?.ToString() ?? string.Empty
+            GroupStyle = groupStyleComboBox.SelectedItem?.ToString() ?? string.Empty,
+            DefaultTitle = defaultTitleTextBox.Text
         };
 
         // Chuyển đổi đối tượng thành JSON
@@ -213,6 +238,7 @@ public partial class SettingsForm : Form
             folderPathTextBox.Text = settingsData.FolderImage;
             videoFolderPathTextBox.Text = settingsData.FolderVideo;
             groupStyleComboBox.SelectedItem = settingsData.GroupStyle;
+            defaultTitleTextBox.Text = settingsData.DefaultTitle;
         }
     }
 }
