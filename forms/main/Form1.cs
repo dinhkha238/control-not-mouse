@@ -617,7 +617,16 @@ public partial class Form1 : Form
                 // Trộn các phần tử còn lại
                 string[] shuffledElements = remainingElements.OrderBy(x => Guid.NewGuid()).ToArray();
 
-                string[] att_in_selectedFileImagePaths = shuffledElements.Concat(new string[] { lastElement }).ToArray();
+                string[] att_in_selectedFileImagePaths;
+                if (lastElement != null)
+                {
+                    att_in_selectedFileImagePaths = shuffledElements.Concat(new string[] { lastElement }).ToArray();
+
+                }
+                else
+                {
+                    att_in_selectedFileImagePaths = shuffledElements;
+                }
                 int length_att_in_selectedFileImagePaths = att_in_selectedFileImagePaths.Length;
                 string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
                 // Tạo đối tượng Random
