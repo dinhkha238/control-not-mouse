@@ -73,7 +73,7 @@ public partial class Form1 : Form
 
             int timeout = 3600000; // 20 giây
             int intervalImport = 10000; // Kiểm tra mỗi 100ms
-            int interval = 500; // Kiểm tra mỗi 100ms
+            int interval = 2000; // Kiểm tra mỗi 100ms
             int elapsed = 0;
 
             bool isFindWindow = false;
