@@ -878,6 +878,7 @@ public partial class Form1 : Form
         using (OpenFileDialog openFileDialog = new OpenFileDialog())
         {
             openFileDialog.Filter = "Video files (*.mp4, *.avi, *.wmv)|*.mp4;*.avi;*.wmv"; // Bộ lọc tệp (các tệp video)
+            openFileDialog.Multiselect = true;
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -885,7 +886,7 @@ public partial class Form1 : Form
                 List<string> fileCurrentList = new List<string>(selectedFileImagePaths[index]);
 
                 // Thêm tệp được chọn vào danh sách
-                fileCurrentList.Add(openFileDialog.FileName);
+                fileCurrentList.AddRange(openFileDialog.FileNames);
 
                 // Cập nhật lại mảng tại chỉ mục index
                 selectedFileImagePaths[index] = fileCurrentList.ToArray();
@@ -1105,18 +1106,6 @@ public partial class Form1 : Form
             MessageBox.Show("Please enter valid numbers for start and end segments.");
             return;
         }
-        // Kiểm tra textBoxQuantityImageSegment
-        if (!int.TryParse(totalImage.Text, out int quantity))
-        {
-            MessageBox.Show("Please enter a valid number for the quantity of images.");
-            return;
-        }
-        // Kiểm tra textBoxQuantityVideoSegment
-        if (!int.TryParse(totalVideo.Text, out int quantityVideo))
-        {
-            MessageBox.Show("Please enter a valid number for the quantity of videos.");
-            return;
-        }
 
         for (int i = start - 1; i < end; i++)
         {
@@ -1125,9 +1114,18 @@ public partial class Form1 : Form
             if (textBox != null)
             {
                 textBox.Text = totalImage.Text;
+                if (textBox.Text != "")
+                {
+                    randomButton_Click(sender, e, i);
+                }
+            }
+            if (videoRandomTextBox != null)
+            {
                 videoRandomTextBox.Text = totalVideo.Text;
-                randomButton_Click(sender, e, i);
-                videoRandomButton_Click(sender, e, i);
+                if (videoRandomTextBox.Text != "")
+                {
+                    videoRandomButton_Click(sender, e, i);
+                }
             }
         }
     }
