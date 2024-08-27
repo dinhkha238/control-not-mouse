@@ -6,7 +6,7 @@ partial class DetailImageForm
         // 
         // DetailImageForm
         // 
-        this.ClientSize = new System.Drawing.Size(800, 450);
+        this.ClientSize = new System.Drawing.Size(1000, 450);
         this.Name = "DetailImageForm";
         this.ResumeLayout(false);
     }

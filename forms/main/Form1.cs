@@ -304,7 +304,7 @@ public partial class Form1 : Form
         // Tạo Panel để chứa các Label và Button
         Panel panel = new Panel();
         panel.AutoScroll = true;
-        panel.Location = new System.Drawing.Point(100, 200); // Vị trí của Panel
+        panel.Location = new System.Drawing.Point(100, 300); // Vị trí của Panel
         panel.Size = new System.Drawing.Size(1000, 400); // Kích thước của Panel
         this.Controls.Add(panel);
 
@@ -549,6 +549,8 @@ public partial class Form1 : Form
         textBoxQuantity.Visible = true;
         textBoxQuantityVideo.Visible = true;
         saveButton.Visible = true;
+        labelSelectFolderSegment.Visible = true;
+        openFolderSegmentButton.Visible = true;
         foreach (var folderPath in selectedFolderAudioPaths)
         {
             string[] audioFiles = Directory.GetFiles(folderPath, "*.mp3").Concat(Directory.GetFiles(folderPath, "*.wav")).Concat(Directory.GetFiles(folderPath, "*.flac")).ToArray();
@@ -1024,6 +1026,116 @@ public partial class Form1 : Form
         else
         {
             MessageBox.Show("The TextBox is not found.");
+        }
+    }
+    private void openFolderSegmentButton_Click(object sender, EventArgs e)
+    {
+        using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+        {
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+            {
+                string selectedPath = folderBrowserDialog.SelectedPath;
+                string[] subDirectories = Directory.GetDirectories(selectedPath);
+
+                // Biến kiểm tra xem có đủ các folder từ 1 đến n không
+                bool isValid = true;
+
+                // Kiểm tra các thư mục con
+                for (int i = 1; i <= subDirectories.Length; i++)
+                {
+                    // Tạo đường dẫn folder cần kiểm tra
+                    string expectedFolder = Path.Combine(selectedPath, i.ToString());
+
+                    // Nếu thư mục tương ứng không tồn tại, đặt isValid thành false
+                    if (!Directory.Exists(expectedFolder))
+                    {
+                        isValid = false;
+                        break;
+                    }
+                }
+
+                if (isValid)
+                {
+                    // Nếu tất cả các thư mục đều tồn tại, sắp xếp và in ra
+                    Array.Sort(subDirectories, (dir1, dir2) =>
+                    {
+                        string folderName1 = Path.GetFileName(dir1);
+                        string folderName2 = Path.GetFileName(dir2);
+
+                        int number1 = int.Parse(folderName1);
+                        int number2 = int.Parse(folderName2);
+
+                        return number1.CompareTo(number2);
+                    });
+
+                    // In ra các thư mục đã sắp xếp sử dụng vòng lặp for
+                    for (int i = 0; i < subDirectories.Length; i++)
+                    {
+                        Console.WriteLine(subDirectories[i]);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("The selected folder does not contain all the required subfolders.");
+                    return;
+                }
+
+                int end;
+                if (selectedFileAudioPaths[0].Length > subDirectories.Length)
+                {
+                    end = subDirectories.Length;
+                }
+                else
+                {
+                    end = selectedFileAudioPaths[0].Length;
+                }
+
+
+                for (int i = 0; i < end; i++)
+                {
+                    string[] imageFiles = Directory.GetFiles(subDirectories[i], "*.*")
+                        .Where(file => file.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                       file.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                       file.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                                       file.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase) ||
+                                       file.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                        .ToArray();
+                    string[] videoFiles = Directory.GetFiles(subDirectories[i], "*.*")
+                        .Where(file => file.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ||
+                                       file.EndsWith(".avi", StringComparison.OrdinalIgnoreCase) ||
+                                       file.EndsWith(".mov", StringComparison.OrdinalIgnoreCase) ||
+                                       file.EndsWith(".wmv", StringComparison.OrdinalIgnoreCase) ||
+                                       file.EndsWith(".flv", StringComparison.OrdinalIgnoreCase) ||
+                                       file.EndsWith(".mkv", StringComparison.OrdinalIgnoreCase) ||
+                                       file.EndsWith(".webm", StringComparison.OrdinalIgnoreCase))
+                        .ToArray();
+
+                    if (imageFiles.Length <= 0 && videoFiles.Length <= 0)
+                    {
+                        MessageBox.Show("Segment " + (i + 1) + " does not contain any images and videos.");
+                        return;
+                    }
+
+                    if (imageFiles.Length > 0)
+                    {
+                        selectedFileImagePaths[i] = imageFiles;
+                        UpdateReviewButtonState(i);
+                    }
+                    else
+                    {
+                        selectedFileImagePaths[i] = new string[0];
+                    }
+
+                    if (videoFiles.Length > 0)
+                    {
+                        List<string> fileCurrentList = new List<string>(selectedFileImagePaths[i]);
+                        fileCurrentList.AddRange(videoFiles);
+                        selectedFileImagePaths[i] = fileCurrentList.ToArray();
+                        UpdateReviewButtonState(i);
+                    }
+
+                }
+            }
         }
     }
 

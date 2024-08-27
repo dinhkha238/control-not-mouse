@@ -19,7 +19,7 @@ public partial class DetailImageForm : Form
     {
         this.listBox = new ListBox();
         this.listBox.Location = new System.Drawing.Point(10, 10);
-        this.listBox.Size = new System.Drawing.Size(600, 200);
+        this.listBox.Size = new System.Drawing.Size(950, 200);
         this.listBox.SelectionMode = SelectionMode.MultiExtended;
         this.listBox.DataSource = variables;
         this.Controls.Add(this.listBox);

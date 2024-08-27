@@ -22,6 +22,10 @@ partial class Form1
     private System.Windows.Forms.Label labelY;
     private System.Windows.Forms.Label labelQuantity;
     private System.Windows.Forms.Label labelQuantityVideo;
+    private System.Windows.Forms.Label labelSelectFolderSegment;
+    private Button openFolderSegmentButton;
+
+
 
 
     // private Button openFileButton;
@@ -69,6 +73,8 @@ partial class Form1
         this.textBoxQuantity = new System.Windows.Forms.TextBox();
         this.textBoxQuantityVideo = new System.Windows.Forms.TextBox();
         this.saveButton = new System.Windows.Forms.Button();
+        this.labelSelectFolderSegment = new System.Windows.Forms.Label();
+        this.openFolderSegmentButton = new System.Windows.Forms.Button();
 
         this.SuspendLayout();
 
@@ -160,6 +166,27 @@ partial class Form1
         this.saveButton.Visible = false;
         this.saveButton.Click += new System.EventHandler(this.saveButtonRandomSegment);
 
+        // 
+        // labelSelectFolderSegment
+        // 
+        this.labelSelectFolderSegment.Location = new System.Drawing.Point(100, 220);
+        this.labelSelectFolderSegment.Name = "labelSelectFolderSegment";
+        this.labelSelectFolderSegment.Size = new System.Drawing.Size(150, 40);
+        this.labelSelectFolderSegment.TabIndex = 11;
+        this.labelSelectFolderSegment.Text = "Chọn thư mục chứa ảnh của các đoạn";
+        this.labelSelectFolderSegment.Visible = false;
+
+        //  
+        // openFolderSegmentButton
+        // 
+        this.openFolderSegmentButton.Location = new System.Drawing.Point(250, 220);
+        this.openFolderSegmentButton.Name = "openFolderSegmentButton";
+        this.openFolderSegmentButton.Size = new System.Drawing.Size(100, 40);
+        this.openFolderSegmentButton.TabIndex = 4;
+        this.openFolderSegmentButton.Text = "Open Folder";
+        this.openFolderSegmentButton.UseVisualStyleBackColor = true;
+        this.openFolderSegmentButton.Visible = false;
+        this.openFolderSegmentButton.Click += new System.EventHandler(this.openFolderSegmentButton_Click);
 
         // 
         // reviewFolderAudioButton
@@ -247,6 +274,8 @@ partial class Form1
         this.Controls.Add(this.textBoxQuantity);
         this.Controls.Add(this.textBoxQuantityVideo);
         this.Controls.Add(this.saveButton);
+        this.Controls.Add(this.labelSelectFolderSegment);
+        this.Controls.Add(this.openFolderSegmentButton);
         this.Name = "Form1";
         this.Text = "Sắp giàu rùii";
         this.ResumeLayout(false);
