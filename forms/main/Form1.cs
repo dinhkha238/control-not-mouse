@@ -554,6 +554,18 @@ public partial class Form1 : Form
         foreach (var folderPath in selectedFolderAudioPaths)
         {
             string[] audioFiles = Directory.GetFiles(folderPath, "*.mp3").Concat(Directory.GetFiles(folderPath, "*.wav")).Concat(Directory.GetFiles(folderPath, "*.flac")).ToArray();
+            Array.Sort(audioFiles, (file1, file2) =>
+            {
+                // Lấy tên tệp từ đường dẫn đầy đủ
+                string fileName1 = Path.GetFileNameWithoutExtension(file1);
+                string fileName2 = Path.GetFileNameWithoutExtension(file2);
+
+                // Chuyển tên tệp sang số nguyên để so sánh
+                int number1 = int.Parse(fileName1);
+                int number2 = int.Parse(fileName2);
+
+                return number1.CompareTo(number2);
+            });
             selectedFileAudioPaths.Add(audioFiles);
         }
         AddButtons(selectedFileAudioPaths[0].Length);
