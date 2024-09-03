@@ -1,0 +1,539 @@
+Photodex Presenter Stream
+
+      j                                                                     ¸P         thumbnail                       Ù  ÿØÿà JFIF      ÿþ PFile written with CompuPic(R) - Photodex Corporation (http://www.photodex.com)ÿÛ „ 	!"$"$ÿÀ  U q ÿÄ K                                                                ÿÚ   ? Œ€                                                                                                                           ÿÙstyle                           ‘N  Photodex(R) ProShow(TM) Show File Version=0
+proshowVersion=2440
+title=No Style
+description="Removes any previously applied slide style and resets all layers and captions to their default settings."
+pubName=Photodex Corporation
+pubWebsite=www.photodex.com
+slideStyleFlags=-129
+showSizeX=16
+showSizeY=9
+loop=1
+loopRestart=1
+displaySizeX=704
+displaySizeY=528
+videoSizeX=720
+videoSizeY=480
+videoFrameRate=29970
+videoBitRate=1120000
+videoMuxBitRate=1394400
+outputImageSizeX=1024
+outputImageSizeY=768
+outputQuality=80
+toolbarEnable=1
+allowQuit=1
+allowPlay=1
+allowTime=1
+allowRestart=1
+allowSave=1
+allowSaveAll=1
+allowPrint=1
+allowPrintAll=1
+allowCopy=1
+allowSaver=1
+allowCta=1
+ctaLabel=ProShow Info
+ctaURL=http://www.photodex.com/
+background=1
+bgOutlineColor=0
+bgSizeMode=1
+bgColorizeColor=8421504
+waterOpacity=128
+waterZoom=10000
+waterColorizeColor=8421504
+musicVolumeOffset=100
+defaultCellVolumeOffset=100
+defaultCellFadeIn=100
+defaultCellFadeOut=100
+defaultMusicVolumeOffset=50
+defaultMusicFadeIn=100
+defaultMusicFadeOut=100
+maxDispWidth=800
+maxDispHeight=600
+maxRender=1
+maxRenderWidth=800
+maxRenderHeight=600
+randomTransitions=FFFFFFFF:FFFFFFFF:FFFFFFFF:FFFFFFFF:FFFFFFFF:FFFFFFFF:FFFFFFFF:FFFFFFFF:FFFFFFFF:FFFFFFFF
+nrOfCaptionStyles=10
+captionStyle[0].styleName=Fine Print
+captionStyle[0].styleFlags=-31777
+captionStyle[0].caption.r.left=5000
+captionStyle[0].caption.r.top=8500
+captionStyle[0].caption.logFont.lfHeight=400
+captionStyle[0].caption.logFont.lfWeight=400
+captionStyle[0].caption.logFont.lfFaceName=Arial
+captionStyle[0].caption.color=10921638
+captionStyle[0].caption.outlineColor=0
+captionStyle[0].caption.opacity=255
+captionStyle[0].caption.just=2
+captionStyle[0].caption.shadowOpacity=128
+captionStyle[0].caption.textureScaling=1000
+captionStyle[0].caption.imageSizeMode=1
+captionStyle[0].caption.imageZoom=10000
+captionStyle[0].caption.lineSpacing=13000
+captionStyle[0].caption.charSpacing=11000
+captionStyle[0].caption.excludeStyleFlags=915
+captionStyle[0].caption.internalId=1
+captionStyle[1].styleName=Watermark
+captionStyle[1].styleFlags=-31778
+captionStyle[1].caption.r.left=5009
+captionStyle[1].caption.r.top=4618
+captionStyle[1].caption.logFont.lfHeight=2000
+captionStyle[1].caption.logFont.lfWeight=700
+captionStyle[1].caption.logFont.lfFaceName=Arial
+captionStyle[1].caption.color=3947580
+captionStyle[1].caption.outlineColor=0
+captionStyle[1].caption.opacity=102
+captionStyle[1].caption.just=3
+captionStyle[1].caption.shadowOpacity=128
+captionStyle[1].caption.textureScaling=1000
+captionStyle[1].caption.imageSizeMode=1
+captionStyle[1].caption.imageZoom=10000
+captionStyle[1].caption.lineSpacing=15500
+captionStyle[1].caption.charSpacing=10000
+captionStyle[1].caption.hasCaptionStyle=1
+captionStyle[1].caption.captionStyle=1
+captionStyle[1].caption.rotation=-37912
+captionStyle[1].caption.internalId=1
+captionStyle[2].styleName=Copper
+captionStyle[2].styleFlags=-16256
+captionStyle[2].caption.r.left=4808
+captionStyle[2].caption.r.top=6791
+captionStyle[2].caption.logFont.lfHeight=2000
+captionStyle[2].caption.logFont.lfWeight=700
+captionStyle[2].caption.logFont.lfFaceName=Arial Black
+captionStyle[2].caption.color=3947580
+captionStyle[2].caption.outlineColor=16777215
+captionStyle[2].caption.opacity=255
+captionStyle[2].caption.just=2
+captionStyle[2].caption.shadowColor=16777215
+captionStyle[2].caption.shadowOpacity=128
+captionStyle[2].caption.useImage=1
+captionStyle[2].caption.textureMode=2
+captionStyle[2].caption.gradient.p0x=7187
+captionStyle[2].caption.gradient.p0y=3802
+captionStyle[2].caption.gradient.p1x=7708
+captionStyle[2].caption.gradient.p1y=3385
+captionStyle[2].caption.gradient.defaultResX=512
+captionStyle[2].caption.gradient.defaultResY=512
+captionStyle[2].caption.gradient.colorSpace=1
+captionStyle[2].caption.gradient.colorMapSize=9
+captionStyle[2].caption.gradient.colormap[0].color=-862672694
+captionStyle[2].caption.gradient.colormap[1].color=-13875847
+captionStyle[2].caption.gradient.colormap[1].index=1039
+captionStyle[2].caption.gradient.colormap[2].color=-13875847
+captionStyle[2].caption.gradient.colormap[2].index=2779
+captionStyle[2].caption.gradient.colormap[3].color=-13462588
+captionStyle[2].caption.gradient.colormap[3].index=3819
+captionStyle[2].caption.gradient.colormap[4].color=-13875847
+captionStyle[2].caption.gradient.colormap[4].index=5112
+captionStyle[2].caption.gradient.colormap[5].color=-446258225
+captionStyle[2].caption.gradient.colormap[5].index=7415
+captionStyle[2].caption.gradient.colormap[6].color=-14006628
+captionStyle[2].caption.gradient.colormap[6].index=9071
+captionStyle[2].caption.gradient.colormap[7].color=-15189833
+captionStyle[2].caption.gradient.colormap[7].index=10000
+captionStyle[2].caption.gradient.colormap[8].color=-14391902
+captionStyle[2].caption.gradient.colormap[8].index=10000
+captionStyle[2].caption.textureScaling=1000
+captionStyle[2].caption.imageSizeMode=1
+captionStyle[2].caption.imageZoom=10000
+captionStyle[2].caption.lineSpacing=10000
+captionStyle[2].caption.charSpacing=10000
+captionStyle[2].caption.flyOutDuration=1500
+captionStyle[2].caption.hasCaptionStyle=1
+captionStyle[2].caption.captionStyle=5
+captionStyle[2].caption.excludeStyleFlags=16896
+captionStyle[2].caption.internalId=1213
+captionStyle[3].styleName=Caution
+captionStyle[3].styleFlags=-16256
+captionStyle[3].caption.r.left=5150
+captionStyle[3].caption.r.top=7666
+captionStyle[3].caption.logFont.lfHeight=2000
+captionStyle[3].caption.logFont.lfWeight=700
+captionStyle[3].caption.logFont.lfFaceName=Arial Black
+captionStyle[3].caption.color=16777215
+captionStyle[3].caption.outlineColor=0
+captionStyle[3].caption.opacity=255
+captionStyle[3].caption.just=2
+captionStyle[3].caption.shadowColor=16777215
+captionStyle[3].caption.shadowOpacity=128
+captionStyle[3].caption.useImage=1
+captionStyle[3].caption.textureMode=2
+captionStyle[3].caption.gradient.p0x=8593
+captionStyle[3].caption.gradient.p0y=2708
+captionStyle[3].caption.gradient.p1x=9739
+captionStyle[3].caption.gradient.p1y=3854
+captionStyle[3].caption.gradient.defaultResX=512
+captionStyle[3].caption.gradient.defaultResY=512
+captionStyle[3].caption.gradient.colorSpace=1
+captionStyle[3].caption.gradient.colorMapSize=8
+captionStyle[3].caption.gradient.colormap[0].color=-16717313
+captionStyle[3].caption.gradient.colormap[1].color=-16717313
+captionStyle[3].caption.gradient.colormap[1].index=2500
+captionStyle[3].caption.gradient.colormap[2].color=-16777216
+captionStyle[3].caption.gradient.colormap[2].index=2500
+captionStyle[3].caption.gradient.colormap[3].color=-16777216
+captionStyle[3].caption.gradient.colormap[3].index=5000
+captionStyle[3].caption.gradient.colormap[4].color=-16717313
+captionStyle[3].caption.gradient.colormap[4].index=5000
+captionStyle[3].caption.gradient.colormap[5].color=-16717313
+captionStyle[3].caption.gradient.colormap[5].index=7500
+captionStyle[3].caption.gradient.colormap[6].color=-16777216
+captionStyle[3].caption.gradient.colormap[6].index=7500
+captionStyle[3].caption.gradient.colormap[7].color=-16777216
+captionStyle[3].caption.gradient.colormap[7].index=10000
+captionStyle[3].caption.textureScaling=1170
+captionStyle[3].caption.imageSizeMode=1
+captionStyle[3].caption.imageZoom=10000
+captionStyle[3].caption.lineSpacing=10000
+captionStyle[3].caption.charSpacing=10000
+captionStyle[3].caption.flyOutDuration=1500
+captionStyle[3].caption.hasCaptionStyle=1
+captionStyle[3].caption.captionStyle=3
+captionStyle[3].caption.excludeStyleFlags=19413
+captionStyle[3].caption.internalId=1212
+captionStyle[4].styleName=Metal
+captionStyle[4].styleFlags=-820
+captionStyle[4].caption.r.left=8978
+captionStyle[4].caption.r.top=734
+captionStyle[4].caption.logFont.lfHeight=2000
+captionStyle[4].caption.logFont.lfWeight=700
+captionStyle[4].caption.logFont.lfFaceName=Arial
+captionStyle[4].caption.color=3947580
+captionStyle[4].caption.outlineColor=16777215
+captionStyle[4].caption.opacity=255
+captionStyle[4].caption.just=1
+captionStyle[4].caption.shadowColor=16777215
+captionStyle[4].caption.shadowOpacity=128
+captionStyle[4].caption.behavior=88
+captionStyle[4].caption.useImage=1
+captionStyle[4].caption.textureMode=2
+captionStyle[4].caption.gradient.type=1
+captionStyle[4].caption.gradient.p0x=9947
+captionStyle[4].caption.gradient.p0y=9947
+captionStyle[4].caption.gradient.p1x=8125
+captionStyle[4].caption.gradient.p1y=7083
+captionStyle[4].caption.gradient.defaultResX=512
+captionStyle[4].caption.gradient.defaultResY=512
+captionStyle[4].caption.gradient.colorSpace=1
+captionStyle[4].caption.gradient.colorMapSize=7
+captionStyle[4].caption.gradient.colormap[0].color=-447655599
+captionStyle[4].caption.gradient.colormap[1].color=-449037252
+captionStyle[4].caption.gradient.colormap[1].index=1738
+captionStyle[4].caption.gradient.colormap[2].color=-2631721
+captionStyle[4].caption.gradient.colormap[2].index=3903
+captionStyle[4].caption.gradient.colormap[3].color=-7039852
+captionStyle[4].caption.gradient.colormap[3].index=6542
+captionStyle[4].caption.gradient.colormap[4].color=-11447983
+captionStyle[4].caption.gradient.colormap[4].index=8116
+captionStyle[4].caption.gradient.colormap[5].color=-7960954
+captionStyle[4].caption.gradient.colormap[5].index=10000
+captionStyle[4].caption.gradient.colormap[6].color=-7960954
+captionStyle[4].caption.gradient.colormap[6].index=10000
+captionStyle[4].caption.textureScaling=1000
+captionStyle[4].caption.imageSizeMode=1
+captionStyle[4].caption.imageZoom=10000
+captionStyle[4].caption.lineSpacing=10000
+captionStyle[4].caption.charSpacing=9500
+captionStyle[4].caption.flyOutDuration=1500
+captionStyle[4].caption.hasCaptionStyle=1
+captionStyle[4].caption.captionStyle=2
+captionStyle[4].caption.excludeStyleFlags=19210
+captionStyle[4].caption.internalId=1188
+captionStyle[5].styleName=Fire
+captionStyle[5].styleFlags=-888
+captionStyle[5].caption.r.left=4365
+captionStyle[5].caption.r.top=2737
+captionStyle[5].caption.logFont.lfHeight=5600
+captionStyle[5].caption.logFont.lfWeight=700
+captionStyle[5].caption.logFont.lfFaceName=Arial Black
+captionStyle[5].caption.color=3947580
+captionStyle[5].caption.outlineColor=16777215
+captionStyle[5].caption.opacity=204
+captionStyle[5].caption.just=3
+captionStyle[5].caption.shadowColor=16777215
+captionStyle[5].caption.shadowOpacity=128
+captionStyle[5].caption.behavior=88
+captionStyle[5].caption.useImage=1
+captionStyle[5].caption.textureMode=2
+captionStyle[5].caption.gradient.type=5
+captionStyle[5].caption.gradient.p0x=26500
+captionStyle[5].caption.gradient.p1x=937
+captionStyle[5].caption.gradient.p1y=937
+captionStyle[5].caption.gradient.defaultResX=512
+captionStyle[5].caption.gradient.defaultResY=512
+captionStyle[5].caption.gradient.colorSpace=1
+captionStyle[5].caption.gradient.colorMapSize=3
+captionStyle[5].caption.gradient.colormap[0].color=-452984670
+captionStyle[5].caption.gradient.colormap[1].color=-16348710
+captionStyle[5].caption.gradient.colormap[1].index=7246
+captionStyle[5].caption.gradient.colormap[2].color=-16366630
+captionStyle[5].caption.gradient.colormap[2].index=10000
+captionStyle[5].caption.textureScaling=1000
+captionStyle[5].caption.imageSizeMode=1
+captionStyle[5].caption.imageZoom=10000
+captionStyle[5].caption.lineSpacing=10000
+captionStyle[5].caption.charSpacing=9500
+captionStyle[5].caption.flyOutDuration=1500
+captionStyle[5].caption.hasCaptionStyle=1
+captionStyle[5].caption.captionStyle=2
+captionStyle[5].caption.excludeStyleFlags=2571
+captionStyle[5].caption.internalId=1175
+captionStyle[6].styleName=Next Slide
+captionStyle[6].styleFlags=-7294
+captionStyle[6].caption.r.left=9000
+captionStyle[6].caption.r.top=9000
+captionStyle[6].caption.logFont.lfHeight=1400
+captionStyle[6].caption.logFont.lfWeight=400
+captionStyle[6].caption.logFont.lfFaceName=Verdana
+captionStyle[6].caption.color=16777215
+captionStyle[6].caption.outlineColor=16777215
+captionStyle[6].caption.opacity=255
+captionStyle[6].caption.just=1
+captionStyle[6].caption.shadowColor=16777215
+captionStyle[6].caption.shadowOpacity=128
+captionStyle[6].caption.textureMode=2
+captionStyle[6].caption.gradient.p0x=7708
+captionStyle[6].caption.gradient.p0y=4114
+captionStyle[6].caption.gradient.p1x=8854
+captionStyle[6].caption.gradient.p1y=3489
+captionStyle[6].caption.gradient.defaultResX=512
+captionStyle[6].caption.gradient.defaultResY=512
+captionStyle[6].caption.gradient.colorSpace=1
+captionStyle[6].caption.gradient.colorMapSize=7
+captionStyle[6].caption.gradient.colormap[0].color=-15120746
+captionStyle[6].caption.gradient.colormap[1].color=-15120746
+captionStyle[6].caption.gradient.colormap[1].index=952
+captionStyle[6].caption.gradient.colormap[2].color=-440150022
+captionStyle[6].caption.gradient.colormap[2].index=3201
+captionStyle[6].caption.gradient.colormap[3].color=-13745793
+captionStyle[6].caption.gradient.colormap[3].index=6348
+captionStyle[6].caption.gradient.colormap[4].color=-15127186
+captionStyle[6].caption.gradient.colormap[4].index=8173
+captionStyle[6].caption.gradient.colormap[5].color=-3285776
+captionStyle[6].caption.gradient.colormap[5].index=10000
+captionStyle[6].caption.gradient.colormap[6].color=-3285776
+captionStyle[6].caption.gradient.colormap[6].index=10000
+captionStyle[6].caption.textureScaling=1000
+captionStyle[6].caption.imageSizeMode=1
+captionStyle[6].caption.imageZoom=10000
+captionStyle[6].caption.lineSpacing=10000
+captionStyle[6].caption.charSpacing=10000
+captionStyle[6].caption.flyOutDuration=1500
+captionStyle[6].caption.actionType=4
+captionStyle[6].caption.hasCaptionStyle=1
+captionStyle[6].caption.captionStyle=8
+captionStyle[6].caption.internalId=1233
+captionStyle[7].styleName=Previous Slide
+captionStyle[7].styleFlags=-7294
+captionStyle[7].caption.r.left=1000
+captionStyle[7].caption.r.top=9000
+captionStyle[7].caption.logFont.lfHeight=1400
+captionStyle[7].caption.logFont.lfWeight=400
+captionStyle[7].caption.logFont.lfFaceName=Verdana
+captionStyle[7].caption.color=16777215
+captionStyle[7].caption.outlineColor=16777215
+captionStyle[7].caption.opacity=255
+captionStyle[7].caption.shadowColor=16777215
+captionStyle[7].caption.shadowOpacity=128
+captionStyle[7].caption.textureMode=2
+captionStyle[7].caption.gradient.p0x=7708
+captionStyle[7].caption.gradient.p0y=4114
+captionStyle[7].caption.gradient.p1x=8854
+captionStyle[7].caption.gradient.p1y=3489
+captionStyle[7].caption.gradient.defaultResX=512
+captionStyle[7].caption.gradient.defaultResY=512
+captionStyle[7].caption.gradient.colorSpace=1
+captionStyle[7].caption.gradient.colorMapSize=7
+captionStyle[7].caption.gradient.colormap[0].color=-15120746
+captionStyle[7].caption.gradient.colormap[1].color=-15120746
+captionStyle[7].caption.gradient.colormap[1].index=952
+captionStyle[7].caption.gradient.colormap[2].color=-440150022
+captionStyle[7].caption.gradient.colormap[2].index=3201
+captionStyle[7].caption.gradient.colormap[3].color=-13745793
+captionStyle[7].caption.gradient.colormap[3].index=6348
+captionStyle[7].caption.gradient.colormap[4].color=-15127186
+captionStyle[7].caption.gradient.colormap[4].index=8173
+captionStyle[7].caption.gradient.colormap[5].color=-3285776
+captionStyle[7].caption.gradient.colormap[5].index=10000
+captionStyle[7].caption.gradient.colormap[6].color=-3285776
+captionStyle[7].caption.gradient.colormap[6].index=10000
+captionStyle[7].caption.textureScaling=1000
+captionStyle[7].caption.imageSizeMode=1
+captionStyle[7].caption.imageZoom=10000
+captionStyle[7].caption.lineSpacing=10000
+captionStyle[7].caption.charSpacing=10000
+captionStyle[7].caption.flyOutDuration=1500
+captionStyle[7].caption.actionType=4
+captionStyle[7].caption.hasCaptionStyle=1
+captionStyle[7].caption.captionStyle=7
+captionStyle[7].caption.excludeStyleFlags=516
+captionStyle[7].caption.internalId=1234
+captionStyle[8].styleName=Gold
+captionStyle[8].styleFlags=-16184
+captionStyle[8].caption.r.left=7550
+captionStyle[8].caption.r.top=6250
+captionStyle[8].caption.logFont.lfHeight=3000
+captionStyle[8].caption.logFont.lfWeight=400
+captionStyle[8].caption.logFont.lfFaceName=Bauhaus 93
+captionStyle[8].caption.color=16777215
+captionStyle[8].caption.outlineColor=59903
+captionStyle[8].caption.opacity=255
+captionStyle[8].caption.just=2
+captionStyle[8].caption.shadowColor=16777215
+captionStyle[8].caption.shadowOpacity=128
+captionStyle[8].caption.useImage=1
+captionStyle[8].caption.textureMode=2
+captionStyle[8].caption.gradient.p0x=8125
+captionStyle[8].caption.gradient.p0y=2500
+captionStyle[8].caption.gradient.p1x=9375
+captionStyle[8].caption.gradient.p1y=3750
+captionStyle[8].caption.gradient.defaultResX=512
+captionStyle[8].caption.gradient.defaultResY=512
+captionStyle[8].caption.gradient.colorMapSize=3
+captionStyle[8].caption.gradient.colormap[0].color=-16436410
+captionStyle[8].caption.gradient.colormap[1].color=-1
+captionStyle[8].caption.gradient.colormap[1].index=4939
+captionStyle[8].caption.gradient.colormap[2].color=-16433578
+captionStyle[8].caption.gradient.colormap[2].index=10000
+captionStyle[8].caption.textureScaling=1000
+captionStyle[8].caption.imageSizeMode=1
+captionStyle[8].caption.imageZoom=10000
+captionStyle[8].caption.lineSpacing=10000
+captionStyle[8].caption.charSpacing=10000
+captionStyle[8].caption.flyOutDuration=1500
+captionStyle[8].caption.actionType=4
+captionStyle[8].caption.hasCaptionStyle=1
+captionStyle[8].caption.captionStyle=4
+captionStyle[8].caption.excludeStyleFlags=19271
+captionStyle[8].caption.internalId=1237
+captionStyle[9].styleName=Smoke
+captionStyle[9].styleFlags=-14136
+captionStyle[9].caption.r.left=3700
+captionStyle[9].caption.r.top=4983
+captionStyle[9].caption.logFont.lfHeight=3600
+captionStyle[9].caption.logFont.lfWeight=400
+captionStyle[9].caption.logFont.lfFaceName=Arial Black
+captionStyle[9].caption.color=16777215
+captionStyle[9].caption.outlineColor=59903
+captionStyle[9].caption.opacity=255
+captionStyle[9].caption.just=2
+captionStyle[9].caption.shadowColor=16777215
+captionStyle[9].caption.shadowOpacity=128
+captionStyle[9].caption.behavior=45
+captionStyle[9].caption.behaviorOut=15
+captionStyle[9].caption.useImage=1
+captionStyle[9].caption.textureMode=2
+captionStyle[9].caption.gradient.type=5
+captionStyle[9].caption.gradient.p0x=15724
+captionStyle[9].caption.gradient.p0y=2500
+captionStyle[9].caption.gradient.p1x=9375
+captionStyle[9].caption.gradient.p1y=3750
+captionStyle[9].caption.gradient.defaultResX=512
+captionStyle[9].caption.gradient.defaultResY=512
+captionStyle[9].caption.gradient.colorMapSize=4
+captionStyle[9].caption.gradient.colormap[0].color=-11447983
+captionStyle[9].caption.gradient.colormap[1].color=1715552577
+captionStyle[9].caption.gradient.colormap[1].index=4499
+captionStyle[9].caption.gradient.colormap[2].color=-864717451
+captionStyle[9].caption.gradient.colormap[2].index=6998
+captionStyle[9].caption.gradient.colormap[3].color=865770138
+captionStyle[9].caption.gradient.colormap[3].index=10000
+captionStyle[9].caption.textureScaling=1000
+captionStyle[9].caption.textureMappingMode=1
+captionStyle[9].caption.imageSizeMode=1
+captionStyle[9].caption.imageZoom=10000
+captionStyle[9].caption.lineSpacing=10000
+captionStyle[9].caption.charSpacing=9000
+captionStyle[9].caption.flyOutDuration=1500
+captionStyle[9].caption.actionType=4
+captionStyle[9].caption.captionStyle=-1
+captionStyle[9].caption.excludeStyleFlags=23066
+captionStyle[9].caption.internalId=1238
+cells=1
+cell[0].nrOfImages=1
+cell[0].images[0].imageEnable=1
+cell[0].images[0].name=1-2
+cell[0].images[0].replaceableTemplate=1
+cell[0].images[0].sizeMode=1
+cell[0].images[0].colorizeColor=8421504
+cell[0].images[0].colorizeStrength=10000
+cell[0].images[0].outlineColor=16777215
+cell[0].images[0].aspectX=4
+cell[0].images[0].aspectY=3
+cell[0].images[0].isVideo=1
+cell[0].images[0].videoVolume=100
+cell[0].images[0].videoLength=10038
+cell[0].images[0].objectId=15
+cell[0].images[0].videoSpeed=100
+cell[0].images[0].outlineSize=10
+cell[0].images[0].shadowSize=70
+cell[0].images[0].shadowOpacity=128
+cell[0].images[0].maskChannel=10
+cell[0].images[0].filterName=""
+cell[0].images[0].savedFilterName=""
+cell[0].images[0].motionFilterName=""
+cell[0].images[0].motionFilterNameIn=""
+cell[0].images[0].motionFilterNameOut=""
+cell[0].images[0].nrOfKeyframes=2
+cell[0].images[0].keyframes[0].timeSegment=1
+cell[0].images[0].keyframes[0].attributeMask=-1
+cell[0].images[0].keyframes[0].zoomX=10000
+cell[0].images[0].keyframes[0].zoomY=10000
+cell[0].images[0].keyframes[0].panAccelType=1
+cell[0].images[0].keyframes[0].zoomXAccelType=1
+cell[0].images[0].keyframes[0].zoomYAccelType=1
+cell[0].images[0].keyframes[0].rotationAccelType=1
+cell[0].images[0].keyframes[0].tiltVAccelType=1
+cell[0].images[0].keyframes[0].tiltHAccelType=1
+cell[0].images[0].keyframes[0].motionSmoothness=5000
+cell[0].images[0].keyframes[0].lockAR=1
+cell[0].images[0].keyframes[0].transparency=0
+cell[0].images[0].keyframes[0].audioFade=2000
+cell[0].images[0].keyframes[0].colorizeColor=8421504
+cell[0].images[0].keyframes[0].colorizeStrength=10000
+cell[0].images[0].keyframes[0].shadowOffsetX=70
+cell[0].images[0].keyframes[0].shadowOffsetY=70
+cell[0].images[0].keyframes[1].timestamp=10000
+cell[0].images[0].keyframes[1].timeSegment=3
+cell[0].images[0].keyframes[1].segmentTimestamp=10000
+cell[0].images[0].keyframes[1].attributeMask=-1
+cell[0].images[0].keyframes[1].zoomX=10000
+cell[0].images[0].keyframes[1].zoomY=10000
+cell[0].images[0].keyframes[1].panAccelType=1
+cell[0].images[0].keyframes[1].zoomXAccelType=1
+cell[0].images[0].keyframes[1].zoomYAccelType=1
+cell[0].images[0].keyframes[1].rotationAccelType=1
+cell[0].images[0].keyframes[1].tiltVAccelType=1
+cell[0].images[0].keyframes[1].tiltHAccelType=1
+cell[0].images[0].keyframes[1].motionSmoothness=5000
+cell[0].images[0].keyframes[1].lockAR=1
+cell[0].images[0].keyframes[1].transparency=0
+cell[0].images[0].keyframes[1].audioFade=2000
+cell[0].images[0].keyframes[1].colorizeColor=8421504
+cell[0].images[0].keyframes[1].colorizeStrength=10000
+cell[0].images[0].keyframes[1].shadowOffsetX=70
+cell[0].images[0].keyframes[1].shadowOffsetY=70
+cell[0].background=1
+cell[0].bgDefault=1
+cell[0].bgSizeMode=1
+cell[0].bgColorizeColor=8421504
+cell[0].sound.useDefault=1
+cell[0].sound.volume=100
+cell[0].sound.fadeIn=100
+cell[0].sound.fadeOut=100
+cell[0].sound.async=1
+cell[0].sound.musicUseDefault=1
+cell[0].sound.musicVolume=50
+cell[0].sound.musicFadeIn=100
+cell[0].sound.musicFadeOut=100
+cell[0].sound.normalizeCustom=0
+cell[0].sound.normalizePreset=0
+cell[0].musicVolumeOffset=50
+cell[0].time=6000
+cell[0].transId=2
+cell[0].transTime=1000
+cell[0].includeGlobalCaptions=1
+modifierCount=0

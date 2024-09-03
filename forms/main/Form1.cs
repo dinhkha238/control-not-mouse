@@ -707,7 +707,15 @@ public partial class Form1 : Form
     }
     static void WriteCellToFile(string style_file_name, ref int index, string path_image, string path_audio, int length_audio, float segment, int i, int length_att_in_selectedFileImagePaths, string outputFilePath)
     {
-        string fileContent = System.IO.File.ReadAllText(style_file_name);
+        var fileContent = "";
+        if (IsVideoFile(path_image))
+        {
+            fileContent = System.IO.File.ReadAllText(@"styles\No style.pxs");
+        }
+        else
+        {
+            fileContent = System.IO.File.ReadAllText(style_file_name);
+        }
 
         // Cắt nội dung từ dòng có "cells=" và kết thúc ở dòng "modifierCount="
         string startMarker = "cells=1";
