@@ -63,10 +63,11 @@ public partial class Form1 : Form
         dynamic settings = JsonConvert.DeserializeObject(settingsContent);
 
         string defaultTitle = settings.DefaultTitle;
+        var PROSHOW_TITLE = "";
 
         for (int index_final = 0; index_final < selectedFolderAudioPaths.Count; index_final++)
         {
-            string PROSHOW_TITLE = defaultTitle + $" - combined_{index_final}.psh"; // Cập nhật tiêu đề cửa sổ nếu cần thiết
+            PROSHOW_TITLE = defaultTitle + $" - combined_{index_final}.psh"; // Cập nhật tiêu đề cửa sổ nếu cần thiết
 
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), $@"finals\combined_{index_final}.psh");
             string proShowPath = "";
@@ -296,6 +297,14 @@ public partial class Form1 : Form
                 return true; // Continue enumerating
             }, IntPtr.Zero);
         }
+        // Đóng cửa sổ PROSHOW_TITLE
+        IntPtr proShowCloseHandle = FindWindow(null, PROSHOW_TITLE);
+        if (proShowCloseHandle != IntPtr.Zero)
+        {
+            PostMessage(proShowCloseHandle, 0x0010, IntPtr.Zero, IntPtr.Zero);
+        }
+        Thread.Sleep(2000);
+        ClearFolder("finals");
 
     }
 
@@ -1259,6 +1268,29 @@ public partial class Form1 : Form
                     videoRandomButton_Click(sender, e, i);
                 }
             }
+        }
+    }
+    private void ClearFolder(string folderPath)
+    {
+        string finalsFolderPath = Path.Combine(Directory.GetCurrentDirectory(), folderPath);
+        if (Directory.Exists(finalsFolderPath))
+        {
+            try
+            {
+                string[] files = Directory.GetFiles(finalsFolderPath);
+                foreach (string file in files)
+                {
+                    File.Delete(file);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred while clearing the folder: " + ex.Message, "Error");
+            }
+        }
+        else
+        {
+            MessageBox.Show("The folder does not exist.", "Error");
         }
     }
 
