@@ -6,13 +6,11 @@ partial class Form1
     ///  Required designer variable.
     /// </summary>
     private System.ComponentModel.IContainer components = null;
-    // private Button openImage;
     private Button button7;
     private Button generateSlideButton;
     private Button showStylesButton;
     private Button settingsButton;
     private Button reviewFolderAudioButton;
-    private Button openImage;
     private System.Windows.Forms.TextBox textBoxX;
     private System.Windows.Forms.TextBox textBoxY;
     private System.Windows.Forms.TextBox textBoxQuantity;
@@ -24,6 +22,8 @@ partial class Form1
     private System.Windows.Forms.Label labelQuantityVideo;
     private System.Windows.Forms.Label labelSelectFolderSegment;
     private Button openFolderSegmentButton;
+    private System.Windows.Forms.Button dropdownButton;
+    private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
 
 
 
@@ -34,7 +34,7 @@ partial class Form1
     private List<string[]> selectedFileAudioPaths = new List<string[]>();
     private List<string> selectedFolderAudioPaths = new List<string>();
     private List<string> selectedFolderSavePaths = new List<string>();
-
+    private int optionSelectImage = -1;
 
     /// <summary>
     ///  Clean up any resources being used.
@@ -63,7 +63,6 @@ partial class Form1
         this.showStylesButton = new System.Windows.Forms.Button();
         this.settingsButton = new System.Windows.Forms.Button();
         this.reviewFolderAudioButton = new System.Windows.Forms.Button();
-        this.openImage = new System.Windows.Forms.Button();
         this.labelX = new System.Windows.Forms.Label();
         this.labelY = new System.Windows.Forms.Label();
         this.labelQuantity = new System.Windows.Forms.Label();
@@ -75,8 +74,30 @@ partial class Form1
         this.saveButton = new System.Windows.Forms.Button();
         this.labelSelectFolderSegment = new System.Windows.Forms.Label();
         this.openFolderSegmentButton = new System.Windows.Forms.Button();
-
+        this.dropdownButton = new System.Windows.Forms.Button();
+        this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
         this.SuspendLayout();
+
+        // 
+        // dropdownButton
+        // 
+        this.dropdownButton.Location = new System.Drawing.Point(250, 100);
+        this.dropdownButton.Name = "dropdownButton";
+        this.dropdownButton.Size = new System.Drawing.Size(120, 50);
+        this.dropdownButton.TabIndex = 0;
+        this.dropdownButton.Text = "Open Image";
+        this.dropdownButton.UseVisualStyleBackColor = true;
+        this.dropdownButton.Click += new System.EventHandler(this.dropdownButton_Click);
+
+        // 
+        // contextMenuStrip
+        // 
+        this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            new System.Windows.Forms.ToolStripMenuItem("Segment", null, (sender, e) => this.openImageSegment_Click(sender, e, 0)) { Checked = optionSelectImage == 0 },
+            new System.Windows.Forms.ToolStripMenuItem("Full", null, (sender, e) => this.openImageSegment_Click(sender, e, 1)) { Checked = optionSelectImage == 1 }
+        });
+        this.contextMenuStrip.Name = "contextMenuStrip";
+        this.contextMenuStrip.Size = new System.Drawing.Size(181, 70);
 
         // 
         // labelX
@@ -199,16 +220,6 @@ partial class Form1
         this.reviewFolderAudioButton.UseVisualStyleBackColor = true;
         this.reviewFolderAudioButton.Click += new System.EventHandler(this.reviewFolderAudioButton_Click);
 
-        // 
-        // openImage
-        // 
-        this.openImage.Location = new System.Drawing.Point(250, 100);
-        this.openImage.Name = "openImage";
-        this.openImage.Size = new System.Drawing.Size(120, 50);
-        this.openImage.TabIndex = 2;
-        this.openImage.Text = "Open Image";
-        this.openImage.UseVisualStyleBackColor = true;
-        this.openImage.Click += new System.EventHandler(this.openImage_Click);
 
         // 
         // showStylesButton
@@ -259,7 +270,6 @@ partial class Form1
         this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         this.WindowState = FormWindowState.Maximized;
-        this.Controls.Add(this.openImage);
         // this.Controls.Add(this.button7);
         this.Controls.Add(this.generateSlideButton);
         this.Controls.Add(this.showStylesButton);
@@ -276,6 +286,7 @@ partial class Form1
         this.Controls.Add(this.saveButton);
         this.Controls.Add(this.labelSelectFolderSegment);
         this.Controls.Add(this.openFolderSegmentButton);
+        this.Controls.Add(this.dropdownButton);
         this.Name = "Form1";
         this.Text = "Sắp giàu rùii";
         this.ResumeLayout(false);

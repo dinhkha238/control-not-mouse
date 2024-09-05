@@ -484,7 +484,7 @@ public partial class Form1 : Form
         }
     }
 
-    private void openImage_Click(object sender, EventArgs e)
+    private void openImageSegment_Click(object sender, EventArgs e, int option)
     {
         // Tìm panel và xóa
         foreach (Control control in this.Controls)
@@ -541,6 +541,26 @@ public partial class Form1 : Form
             MessageBox.Show("Please select at least one audio folder.");
             return;
         }
+
+        optionSelectImage = option;
+
+        // Làm nổi bật tùy chọn đã chọn
+        foreach (ToolStripMenuItem item in contextMenuStrip.Items)
+        {
+            item.Checked = false; // Bỏ đánh dấu tất cả các tùy chọn
+        }
+
+        // Đánh dấu tùy chọn đã chọn
+        if (optionSelectImage == 0)
+        {
+            ((ToolStripMenuItem)contextMenuStrip.Items[0]).Checked = true;
+        }
+        else if (optionSelectImage == 1)
+        {
+            ((ToolStripMenuItem)contextMenuStrip.Items[1]).Checked = true;
+        }
+
+        // Kiểm tra xem đã chọn đủ số lượng thư mục chứa file audio chưa
         for (int i = 0; i < selectedFolderAudioPaths.Count; i++)
         {
             if (selectedFolderSavePaths[i] == "")
@@ -625,47 +645,92 @@ public partial class Form1 : Form
             // clear content of file3Path
             System.IO.File.WriteAllText(file3Path, string.Empty);
             int index_cell = 0;
-            for (int x = 0; x < length_selectedFileAudioPaths; x++)
+            if (optionSelectImage == 0)
             {
-
-                // Lọc các phần tử là file Video
-                string[] videoFiles = selectedFileImagePaths[x].Where(IsVideoFile).ToArray();
-
-                // Lấy 1 phần tử ngẫu nhiên trong videoFiles
-                string lastElement = videoFiles.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
-
-                // Lấy các phần tử còn lại (trừ phần tử videoFiles)
-                string[] remainingElements = selectedFileImagePaths[x].Except(videoFiles).ToArray();
-
-                // Trộn các phần tử còn lại
-                string[] shuffledElements = remainingElements.OrderBy(x => Guid.NewGuid()).ToArray();
-
-                string[] att_in_selectedFileImagePaths;
-                if (lastElement != null)
+                for (int x = 0; x < length_selectedFileAudioPaths; x++)
                 {
-                    att_in_selectedFileImagePaths = shuffledElements.Concat(new string[] { lastElement }).ToArray();
 
+                    // Lọc các phần tử là file Video
+                    string[] videoFiles = selectedFileImagePaths[x].Where(IsVideoFile).ToArray();
+
+                    // Lấy 1 phần tử ngẫu nhiên trong videoFiles
+                    string lastElement = videoFiles.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+
+                    // Lấy các phần tử còn lại (trừ phần tử videoFiles)
+                    string[] remainingElements = selectedFileImagePaths[x].Except(videoFiles).ToArray();
+
+                    // Trộn các phần tử còn lại
+                    string[] shuffledElements = remainingElements.OrderBy(x => Guid.NewGuid()).ToArray();
+
+                    string[] att_in_selectedFileImagePaths;
+                    if (lastElement != null)
+                    {
+                        att_in_selectedFileImagePaths = shuffledElements.Concat(new string[] { lastElement }).ToArray();
+
+                    }
+                    else
+                    {
+                        att_in_selectedFileImagePaths = shuffledElements;
+                    }
+                    int length_att_in_selectedFileImagePaths = att_in_selectedFileImagePaths.Length;
+                    string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
+                    // Tạo đối tượng Random
+                    Random random = new Random();
+                    // 
+
+                    for (int i = 0; i < length_att_in_selectedFileImagePaths; i++)
+                    {
+                        // Lấy ngẫu nhiên một dòng từ groupFileLines
+                        string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
+                        string path_image = "../../../../" + att_in_selectedFileImagePaths[i];
+                        string path_audio = "../../../../" + selectedFileAudioPaths[number][x];
+                        int length_audio = GetAudioFileLength(selectedFileAudioPaths[number][x]);
+                        float segment = length_audio / length_att_in_selectedFileImagePaths;
+                        WriteCellToFile(selectedFile, ref index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
+                    }
                 }
-                else
+            }
+            else
+            {
+                int segment = 5000;
+                for (int x = 0; x < length_selectedFileAudioPaths; x++)
                 {
-                    att_in_selectedFileImagePaths = shuffledElements;
-                }
-                int length_att_in_selectedFileImagePaths = att_in_selectedFileImagePaths.Length;
-                string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
-                // Tạo đối tượng Random
-                Random random = new Random();
-                // 
-
-                for (int i = 0; i < length_att_in_selectedFileImagePaths; i++)
-                {
-                    // Lấy ngẫu nhiên một dòng từ groupFileLines
-                    string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
-                    string path_image = "../../../../" + att_in_selectedFileImagePaths[i];
-                    string path_audio = "../../../../" + selectedFileAudioPaths[number][x];
+                    // Lọc các phần tử là file Video
+                    string[] videoFiles = selectedFileImagePaths[x].Where(IsVideoFile).ToArray();
+                    //  Các phần tử còn lại (trừ phần tử videoFiles)
+                    string[] imageFiles = selectedFileImagePaths[x].Except(videoFiles).ToArray();
+                    // Lấy length audio của file audio
                     int length_audio = GetAudioFileLength(selectedFileAudioPaths[number][x]);
-                    float segment = length_audio / length_att_in_selectedFileImagePaths;
-                    WriteCellToFile(selectedFile, ref index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
+
+                    int length_att_in_selectedFileImagePaths = length_audio / segment;
+                    // Lấy phần dư sau khi 
+                    int remaining = length_audio - length_att_in_selectedFileImagePaths * segment;
+
+                    string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
+                    // Tạo đối tượng Random
+                    Random random = new Random();
+                    //
+                    int countImage = 0;
+                    for (int i = 0; i < length_att_in_selectedFileImagePaths; i++)
+                    {
+                        string path_image;
+                        // Lấy ngẫu nhiên một dòng từ groupFileLines
+                        string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
+                        if (countImage < 4)
+                        {
+                            path_image = "../../../../" + imageFiles[random.Next(imageFiles.Length)];
+                            countImage++;
+                        }
+                        else
+                        {
+                            path_image = "../../../../" + videoFiles[random.Next(videoFiles.Length)];
+                            countImage = 0;
+                        }
+                        string path_audio = "../../../../" + selectedFileAudioPaths[number][x];
+                        WriteCellToFile(selectedFile, ref index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
+                    }
                 }
+
             }
 
             string file2Path = @"files/FileProShow_2.txt";
@@ -1292,6 +1357,10 @@ public partial class Form1 : Form
         {
             MessageBox.Show("The folder does not exist.", "Error");
         }
+    }
+    private void dropdownButton_Click(object sender, EventArgs e)
+    {
+        contextMenuStrip.Show(dropdownButton, new Point(0, dropdownButton.Height));
     }
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
