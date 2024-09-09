@@ -849,7 +849,7 @@ public partial class Form1 : Form
             extractedContent = extractedContent.Replace("cell[0]", $"cell[{index}]");
             // Tìm và thay thế dòng chứa "cell[0].transTime" bằng "cell[0].transTime=1000"
             extractedContent = System.Text.RegularExpressions.Regex.Replace(extractedContent, $@"cell\[{index}\]\.transTime=\d+", $"cell[{index}].transTime=1000");
-            int video_length = 6000;
+            int video_length = 5000;
             if (IsVideoFile(path_image) && segment > video_length + 1000)
             {
                 string soundFile = $"cell[{index}].sound.file={path_audio}";
