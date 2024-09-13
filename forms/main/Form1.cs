@@ -718,12 +718,12 @@ public partial class Form1 : Form
                         string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
                         if (countImage < 4)
                         {
-                            path_image = "../../../../" + videoFiles[random.Next(imageFiles.Length)];
+                            path_image = "../../../../" + videoFiles[random.Next(videoFiles.Length)];
                             countImage++;
                         }
                         else
                         {
-                            path_image = "../../../../" + imageFiles[random.Next(videoFiles.Length)];
+                            path_image = "../../../../" + imageFiles[random.Next(imageFiles.Length)];
                             countImage = 0;
                         }
                         string path_audio = "../../../../" + selectedFileAudioPaths[number][x];
