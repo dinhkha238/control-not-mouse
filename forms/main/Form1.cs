@@ -716,7 +716,7 @@ public partial class Form1 : Form
                         string path_image;
                         // Lấy ngẫu nhiên một dòng từ groupFileLines
                         string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
-                        if (countImage < 4)
+                        if (countImage < 3)
                         {
                             path_image = "../../../../" + videoFiles[random.Next(videoFiles.Length)];
                             countImage++;
