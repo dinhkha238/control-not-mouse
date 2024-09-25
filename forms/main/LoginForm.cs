@@ -1,6 +1,5 @@
 using System;
 using System.Management;
-using dotenv.net;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
@@ -64,10 +63,8 @@ namespace WinFormsApp
 
         private async Task<bool> ValidateCredentials(string serialNumber)
         {
-            // Đọc chuỗi kết nối đến MongoDB từ biến môi trường
-            DotEnv.Load();
-            var credentialPath = Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS");
-            var spreadsheetId = Environment.GetEnvironmentVariable("SPREADSHEET_ID");
+            var credentialPath = "key.json";
+            var spreadsheetId = "1zrrCVQfsTMnchwCLhk1DJLANT1BAmyd6i1d75p0iw0c";
 
             // Đường dẫn tới tệp JSON bạn đã tải về
             string[] Scopes = { SheetsService.Scope.SpreadsheetsReadonly };
