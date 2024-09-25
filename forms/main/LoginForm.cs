@@ -1,4 +1,5 @@
 using System;
+using System.Management;
 using dotenv.net;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
@@ -15,20 +16,41 @@ namespace WinFormsApp
         public LoginForm()
         {
             InitializeComponent();
+            SetSerialNumber();
+        }
+
+        // Lấy Serial Number từ Win32_OperatingSystem và set vào TextBox
+        private void SetSerialNumber()
+        {
+            try
+            {
+                ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
+                string productId = "";
+
+                foreach (ManagementObject os in searcher.Get())
+                {
+                    // Lấy Product ID
+                    productId = os["SerialNumber"].ToString();
+                }
+
+                // Set giá trị vào TextBox
+                textBox1.Text = productId;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Không thể lấy Serial Number: " + ex.Message);
+            }
         }
 
         private async void btnLogin_Click(object sender, EventArgs e)
         {
-            string username = txtUsername.Text;
-            string password = txtPassword.Text;
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            string serialNumber = textBox1.Text;
+            if (string.IsNullOrEmpty(serialNumber))
             {
-                MessageBox.Show("Username and Password are required");
+                MessageBox.Show("Serial Number is required");
                 return;
             }
-
-
-            bool isValid = await ValidateCredentials(username, password);
+            bool isValid = await ValidateCredentials(serialNumber);
             if (isValid)
             {
                 DialogResult = DialogResult.OK;
@@ -36,11 +58,11 @@ namespace WinFormsApp
             }
             else
             {
-                MessageBox.Show("Invalid Username or Password");
+                MessageBox.Show("Invalid Serial Number");
             }
         }
 
-        private async Task<bool> ValidateCredentials(string inputUsername, string inputPassword)
+        private async Task<bool> ValidateCredentials(string serialNumber)
         {
             // Đọc chuỗi kết nối đến MongoDB từ biến môi trường
             DotEnv.Load();
@@ -65,7 +87,7 @@ namespace WinFormsApp
                 ApplicationName = ApplicationName,
             });
             // Phạm vi của dữ liệu mà bạn muốn đọc (ví dụ: "Sheet1!A1:C10")
-            string range = "Data!A:B";
+            string range = "Data!A2:A";
 
             SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, range);
 
@@ -73,34 +95,20 @@ namespace WinFormsApp
             ValueRange response = request.Execute();
             IList<IList<object>> values = response.Values;
 
-            if (values != null && values.Count > 1)
+            if (values != null && values.Count >= 1)
             {
-                bool isValid = false;
-
-                // Bỏ qua hàng đầu tiên (label)
-                foreach (var row in values.Skip(1))
+                foreach (var row in values)
                 {
-                    if (row.Count >= 2) // Đảm bảo có đủ 2 cột
+                    if (row.Count >= 1) // Đảm bảo có đủ 1 cột
                     {
-                        string username = row[0].ToString();
-                        string password = row[1].ToString();
-
-                        if (username == inputUsername && password == inputPassword)
+                        string inputSerialNumber = row[0].ToString();
+                        if (inputSerialNumber == serialNumber)
                         {
-                            isValid = true;
-                            break;
+                            return true;
                         }
                     }
                 }
-
-                if (isValid)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return false;
             }
             else
             {
