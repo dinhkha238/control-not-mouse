@@ -225,7 +225,7 @@ public partial class Form1 : Form
             }
             isFindWindow = false;
 
-            string savePath = $@"{selectedFolderSavePaths[index_final]}\" + $"{timestamp}.mp4";
+            string savePath = $@"{selectedFolderSavePaths[index_final]}\" + $"{index_final + "_" + timestamp}.mp4";
 
             Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
             EnumChildWindows(saveOptionHandle, (hwnd, lParam) =>
