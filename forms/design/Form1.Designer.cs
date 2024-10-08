@@ -35,6 +35,7 @@ partial class Form1
     private List<string> selectedFolderAudioPaths = new List<string>();
     private List<string> selectedFolderSavePaths = new List<string>();
     private int optionSelectImage = -1;
+    private bool addAudioCheckBox = true;
 
     /// <summary>
     ///  Clean up any resources being used.

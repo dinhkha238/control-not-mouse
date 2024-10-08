@@ -234,6 +234,7 @@ public partial class Form1 : Form
                 GetClassName(hwnd, className, className.Capacity);
                 if (className.ToString() == "Edit")
                 {
+                    Clipboard.Clear();  // Xóa clipboard trước khi thao tác
                     Clipboard.SetText(savePath);
                     SendMessage(hwnd, WM_PASTE, IntPtr.Zero, null);
                     return false; // Stop enumerating
@@ -478,7 +479,7 @@ public partial class Form1 : Form
             reviewButton.TabIndex = i + 4; // Điều chỉnh TabIndex để tránh xung đột với các điều khiển hiện có
             reviewButton.Text = "Review";
             reviewButton.UseVisualStyleBackColor = true;
-            reviewButton.Enabled = selectedFileImagePaths.Count > i && selectedFileImagePaths[i].Length > 0;
+            // reviewButton.Enabled = selectedFileImagePaths.Count > i && selectedFileImagePaths[i].Length > 0;
             reviewButton.Click += (sender, e) => reviewFileImage(sender, e, reviewButton.TabIndex - 4);
             panel.Controls.Add(reviewButton);
         }
@@ -497,49 +498,52 @@ public partial class Form1 : Form
         }
         selectedFileImagePaths.Clear();
         selectedFileAudioPaths.Clear();
-        // // Check if selectedFolderAudioPaths contains at least one folder
-        if (selectedFolderAudioPaths.Count > 0)
+        if (!addAudioCheckBox)
         {
-            // Dictionary to store folder path and its audio file count
-            Dictionary<string, int> folderAudioFileCounts = new Dictionary<string, int>();
-
-            foreach (var folderPath in selectedFolderAudioPaths)
+            // Check if selectedFolderAudioPaths contains at least one folder
+            if (selectedFolderAudioPaths.Count > 0)
             {
-                // Get the count of audio files in the folder
-                int audioFileCount = Directory.GetFiles(folderPath, "*.mp3").Length +
-                                     Directory.GetFiles(folderPath, "*.wav").Length +
-                                     Directory.GetFiles(folderPath, "*.flac").Length;
+                // Dictionary to store folder path and its audio file count
+                Dictionary<string, int> folderAudioFileCounts = new Dictionary<string, int>();
 
-                folderAudioFileCounts[folderPath] = audioFileCount;
-            }
-
-            if (selectedFolderAudioPaths.Count == 1)
-            {
-                // Check if the single folder contains any audio files
-                if (folderAudioFileCounts.Values.First() <= 0)
+                foreach (var folderPath in selectedFolderAudioPaths)
                 {
-                    MessageBox.Show("The folder does not contain any audio files.");
-                    return;
+                    // Get the count of audio files in the folder
+                    int audioFileCount = Directory.GetFiles(folderPath, "*.mp3").Length +
+                                         Directory.GetFiles(folderPath, "*.wav").Length +
+                                         Directory.GetFiles(folderPath, "*.flac").Length;
 
+                    folderAudioFileCounts[folderPath] = audioFileCount;
+                }
+
+                if (selectedFolderAudioPaths.Count == 1)
+                {
+                    // Check if the single folder contains any audio files
+                    if (folderAudioFileCounts.Values.First() <= 0)
+                    {
+                        MessageBox.Show("The folder does not contain any audio files.");
+                        return;
+
+                    }
+                }
+                else
+                {
+                    // Check if all folders have the same number of audio files
+                    bool allFoldersHaveSameCount = folderAudioFileCounts.Values.Distinct().Count() == 1;
+
+                    if (!allFoldersHaveSameCount)
+                    {
+                        MessageBox.Show("Folders contain different numbers of audio files.");
+                        return;
+
+                    }
                 }
             }
             else
             {
-                // Check if all folders have the same number of audio files
-                bool allFoldersHaveSameCount = folderAudioFileCounts.Values.Distinct().Count() == 1;
-
-                if (!allFoldersHaveSameCount)
-                {
-                    MessageBox.Show("Folders contain different numbers of audio files.");
-                    return;
-
-                }
+                MessageBox.Show("Please select at least one audio folder.");
+                return;
             }
-        }
-        else
-        {
-            MessageBox.Show("Please select at least one audio folder.");
-            return;
         }
 
         optionSelectImage = option;
@@ -580,22 +584,31 @@ public partial class Form1 : Form
         saveButton.Visible = true;
         labelSelectFolderSegment.Visible = true;
         openFolderSegmentButton.Visible = true;
+
         foreach (var folderPath in selectedFolderAudioPaths)
         {
-            string[] audioFiles = Directory.GetFiles(folderPath, "*.mp3").Concat(Directory.GetFiles(folderPath, "*.wav")).Concat(Directory.GetFiles(folderPath, "*.flac")).ToArray();
-            Array.Sort(audioFiles, (file1, file2) =>
+            if (!addAudioCheckBox)
             {
-                // Lấy tên tệp từ đường dẫn đầy đủ
-                string fileName1 = Path.GetFileNameWithoutExtension(file1);
-                string fileName2 = Path.GetFileNameWithoutExtension(file2);
+                string[] audioFiles = Directory.GetFiles(folderPath, "*.mp3").Concat(Directory.GetFiles(folderPath, "*.wav")).Concat(Directory.GetFiles(folderPath, "*.flac")).ToArray();
+                Array.Sort(audioFiles, (file1, file2) =>
+                {
+                    // Lấy tên tệp từ đường dẫn đầy đủ
+                    string fileName1 = Path.GetFileNameWithoutExtension(file1);
+                    string fileName2 = Path.GetFileNameWithoutExtension(file2);
 
-                // Chuyển tên tệp sang số nguyên để so sánh
-                int number1 = int.Parse(fileName1);
-                int number2 = int.Parse(fileName2);
+                    // Chuyển tên tệp sang số nguyên để so sánh
+                    int number1 = int.Parse(fileName1);
+                    int number2 = int.Parse(fileName2);
 
-                return number1.CompareTo(number2);
-            });
-            selectedFileAudioPaths.Add(audioFiles);
+                    return number1.CompareTo(number2);
+                });
+                selectedFileAudioPaths.Add(audioFiles);
+            }
+            else
+            {
+                string[] audioFiles = [folderPath];
+                selectedFileAudioPaths.Add(audioFiles);
+            }
         }
         AddButtons(selectedFileAudioPaths[0].Length);
         // Khởi tạo phần tử cho selectedFileImagePaths
@@ -955,7 +968,8 @@ public partial class Form1 : Form
         // Thực hiện các thao tác với phần tử tại index
         List<string> variables = selectedFolderAudioPaths?.ToList() ?? new List<string>();
         List<string> variablesFolderSavePaths = selectedFolderSavePaths?.ToList() ?? new List<string>();
-        DetailFolderForm detailImageForm = new DetailFolderForm(variables, variablesFolderSavePaths);
+        bool variablesAddAudioCheckBox = addAudioCheckBox;
+        DetailFolderForm detailImageForm = new DetailFolderForm(variables, variablesFolderSavePaths, variablesAddAudioCheckBox);
 
         // Show the form as a dialog
         detailImageForm.ShowDialog();
@@ -963,10 +977,12 @@ public partial class Form1 : Form
         // After the form is closed, get the updated variables
         List<string> updatedVariables = detailImageForm.UpdatedVariables;
         List<string> updatedFolderSavePaths = detailImageForm.UpdatedFolderSavePaths;
+        bool updatedAddAudioCheckBox = detailImageForm.AddAudioCheckBox;
 
         // Update your data in Form A
         selectedFolderAudioPaths = updatedVariables;
         selectedFolderSavePaths = updatedFolderSavePaths;
+        addAudioCheckBox = updatedAddAudioCheckBox;
 
     }
     private void selectedFileVideoPaths_Click(object sender, EventArgs e, int index)

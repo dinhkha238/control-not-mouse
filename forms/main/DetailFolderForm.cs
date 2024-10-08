@@ -10,17 +10,21 @@ public partial class DetailFolderForm : Form
     private Button deleteButton;
     private Button addButton;
     private List<string> selectedFolderSavePaths;
+    private CheckBox addAudioCheckBox = new CheckBox();
 
     public List<string> UpdatedVariables { get; private set; }
     public List<string> UpdatedFolderSavePaths { get; private set; }
+    public bool AddAudioCheckBox { get; private set; }
 
-    public DetailFolderForm(List<string> variables, List<string> selectedFolderSavePaths)
+    public DetailFolderForm(List<string> variables, List<string> selectedFolderSavePaths, bool addAudioCheckBox = true)
     {
         InitializeComponent();
         this.variables = new List<string>(variables);
         this.selectedFolderSavePaths = new List<string>(selectedFolderSavePaths);
+        this.addAudioCheckBox.Checked = addAudioCheckBox;
         this.UpdatedVariables = new List<string>(variables); // Initialize with a copy of the input list
         this.UpdatedFolderSavePaths = new List<string>(selectedFolderSavePaths);
+        this.AddAudioCheckBox = addAudioCheckBox;
         InitializeForm();
     }
 
@@ -65,6 +69,17 @@ public partial class DetailFolderForm : Form
         this.addButton.Click += AddButton_Click;
         this.Controls.Add(this.addButton);
 
+        // Thêm CheckBox "Add audio file"
+        this.addAudioCheckBox = new CheckBox();
+        this.addAudioCheckBox.Text = "Add audio file";
+        this.addAudioCheckBox.Location = new System.Drawing.Point(200, 220);
+        this.addAudioCheckBox.Checked = this.AddAudioCheckBox;
+        this.addAudioCheckBox.CheckedChanged += (sender, e) =>
+        {
+            this.AddAudioCheckBox = this.addAudioCheckBox.Checked;
+        };
+        this.Controls.Add(this.addAudioCheckBox);
+
         this.FormClosing += DetailImageForm_FormClosing;
     }
 
@@ -96,12 +111,33 @@ public partial class DetailFolderForm : Form
 
     private void AddButton_Click(object sender, EventArgs e)
     {
-        using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+        if (addAudioCheckBox.Checked)
         {
-            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                string selectedFolder = folderBrowserDialog.SelectedPath;
-                dataGridView.Rows.Add(selectedFolder, "", "Select");
+                openFileDialog.Multiselect = true;
+                openFileDialog.Filter = "Audio Files|*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma";
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string[] selectedFiles = openFileDialog.FileNames;
+                    // Xử lý các file audio đã chọn
+                    foreach (string file in selectedFiles)
+                    {
+                        // Ví dụ: Thêm đường dẫn file vào DataGridView
+                        dataGridView.Rows.Add(file);
+                    }
+                }
+            }
+        }
+        else
+        {
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+            {
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string selectedFolder = folderBrowserDialog.SelectedPath;
+                    dataGridView.Rows.Add(selectedFolder, "", "Select");
+                }
             }
         }
     }
