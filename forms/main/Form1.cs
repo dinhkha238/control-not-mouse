@@ -497,7 +497,6 @@ public partial class Form1 : Form
             }
         }
         selectedFileImagePaths.Clear();
-        selectedFileAudioPaths.Clear();
         if (!addAudioCheckBox)
         {
             // Check if selectedFolderAudioPaths contains at least one folder
@@ -563,16 +562,6 @@ public partial class Form1 : Form
         {
             ((ToolStripMenuItem)contextMenuStrip.Items[1]).Checked = true;
         }
-
-        // Kiểm tra xem đã chọn đủ số lượng thư mục chứa file audio chưa
-        for (int i = 0; i < selectedFolderAudioPaths.Count; i++)
-        {
-            if (selectedFolderSavePaths[i] == "")
-            {
-                MessageBox.Show("Please select save path for segment " + (i + 1) + "!");
-                return;
-            }
-        }
         labelX.Visible = true;
         labelY.Visible = true;
         labelQuantity.Visible = true;
@@ -585,31 +574,7 @@ public partial class Form1 : Form
         labelSelectFolderSegment.Visible = true;
         openFolderSegmentButton.Visible = true;
 
-        foreach (var folderPath in selectedFolderAudioPaths)
-        {
-            if (!addAudioCheckBox)
-            {
-                string[] audioFiles = Directory.GetFiles(folderPath, "*.mp3").Concat(Directory.GetFiles(folderPath, "*.wav")).Concat(Directory.GetFiles(folderPath, "*.flac")).ToArray();
-                Array.Sort(audioFiles, (file1, file2) =>
-                {
-                    // Lấy tên tệp từ đường dẫn đầy đủ
-                    string fileName1 = Path.GetFileNameWithoutExtension(file1);
-                    string fileName2 = Path.GetFileNameWithoutExtension(file2);
 
-                    // Chuyển tên tệp sang số nguyên để so sánh
-                    int number1 = int.Parse(fileName1);
-                    int number2 = int.Parse(fileName2);
-
-                    return number1.CompareTo(number2);
-                });
-                selectedFileAudioPaths.Add(audioFiles);
-            }
-            else
-            {
-                string[] audioFiles = [folderPath];
-                selectedFileAudioPaths.Add(audioFiles);
-            }
-        }
         AddButtons(selectedFileAudioPaths[0].Length);
         // Khởi tạo phần tử cho selectedFileImagePaths
         for (int i = 0; i < selectedFileAudioPaths[0].Length; i++)
@@ -983,6 +948,44 @@ public partial class Form1 : Form
         selectedFolderAudioPaths = updatedVariables;
         selectedFolderSavePaths = updatedFolderSavePaths;
         addAudioCheckBox = updatedAddAudioCheckBox;
+
+        selectedFileAudioPaths.Clear();
+
+        // Kiểm tra xem đã chọn đủ số lượng thư mục lưu chưa
+        for (int i = 0; i < selectedFolderAudioPaths.Count; i++)
+        {
+            if (selectedFolderSavePaths[i] == "")
+            {
+                MessageBox.Show("Please select save path for segment " + (i + 1) + "!");
+                return;
+            }
+        }
+
+        foreach (var folderPath in selectedFolderAudioPaths)
+        {
+            if (!addAudioCheckBox)
+            {
+                string[] audioFiles = Directory.GetFiles(folderPath, "*.mp3").Concat(Directory.GetFiles(folderPath, "*.wav")).Concat(Directory.GetFiles(folderPath, "*.flac")).ToArray();
+                Array.Sort(audioFiles, (file1, file2) =>
+                {
+                    // Lấy tên tệp từ đường dẫn đầy đủ
+                    string fileName1 = Path.GetFileNameWithoutExtension(file1);
+                    string fileName2 = Path.GetFileNameWithoutExtension(file2);
+
+                    // Chuyển tên tệp sang số nguyên để so sánh
+                    int number1 = int.Parse(fileName1);
+                    int number2 = int.Parse(fileName2);
+
+                    return number1.CompareTo(number2);
+                });
+                selectedFileAudioPaths.Add(audioFiles);
+            }
+            else
+            {
+                string[] audioFiles = [folderPath];
+                selectedFileAudioPaths.Add(audioFiles);
+            }
+        }
 
     }
     private void selectedFileVideoPaths_Click(object sender, EventArgs e, int index)
