@@ -44,6 +44,11 @@ public partial class Form1 : Form
     const int BM_CLICK = 0x00F5;
     const int WM_SETTEXT = 0x000C;
     const int WM_PASTE = 0x0302;
+    // Các thông điệp ListBox
+    const uint LB_GETCOUNT = 0x018B;  // Lấy số lượng mục trong ListBox
+    const uint LB_SETCURSEL = 0x0186; // Đặt mục hiện tại trong ListBox
+    const uint WM_LBUTTONDBLCLK = 0x0203; // Thông điệp double click chuột
+
 
 
     public Form1()
@@ -106,7 +111,9 @@ public partial class Form1 : Form
             {
                 FileName = proShowPath,
                 Arguments = filePath,
-                UseShellExecute = true
+                UseShellExecute = true,
+                WindowStyle = ProcessWindowStyle.Minimized // Hoặc Hidden nếu bạn muốn ẩn hoàn toàn cửa sổ
+
             };
 
             // Khởi động ProShow với tệp .psh
@@ -138,33 +145,72 @@ public partial class Form1 : Form
                 return;
             }
             isFindWindow = false;
+            Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
 
-            SetForegroundWindow(proShowHandle);
-            Thread.Sleep(2000); // Đợi một chút để hộp thoại mở
 
-            // Nhấn tổ hợp phím alt+f3
-            keybd_event(VK_MENU, 0, 0, UIntPtr.Zero); // Alt down
-            keybd_event(0x72, 0, 0, UIntPtr.Zero); // F3 down
-            keybd_event(0x72, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // F3 up
-            keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Alt up
 
-            Thread.Sleep(2000); // Đợi một chút để hộp thoại mở
+            IntPtr renderVideoHandle = IntPtr.Zero;
+            while (elapsed < timeout)
+            {
+                renderVideoHandle = FindWindow(null, "Publishing Formats");
+                if (renderVideoHandle != IntPtr.Zero)
+                {
+                    isFindWindow = true;
+                    break;
+                }
+                // Chờ 100ms trước khi kiểm tra lại
+                Thread.Sleep(interval);
+                elapsed += interval;
+            }
+            if (!isFindWindow)
+            {
+                return;
+            }
+            isFindWindow = false;
 
-            EnumChildWindows(proShowHandle, (hwnd, lParam) =>
+            // Duyệt qua tất cả các cửa sổ con để tìm ListBox
+            EnumChildWindows(renderVideoHandle, (hwnd, lParam) =>
             {
                 StringBuilder className = new StringBuilder(256);
                 GetClassName(hwnd, className, className.Capacity);
-                if (className.ToString() == "Button")
+
+                if (className.ToString() == "ListBox")
                 {
-                    StringBuilder windowText = new StringBuilder(256);
-                    GetWindowText(hwnd, windowText, windowText.Capacity);
-                    if (windowText.ToString() == "Video")
+
+                    // Đếm số lượng phần tử trong ListBox
+                    int itemCount = SendMessage(hwnd, LB_GETCOUNT, IntPtr.Zero, null);
+                    if (itemCount == -1)
                     {
-                        PostMessage(hwnd, BM_CLICK, IntPtr.Zero, IntPtr.Zero);
-                        return false; // Stop enumerating
+                        MessageBox.Show("Failed to get item count.");
+                        return false; // Dừng lại
                     }
+
+                    // Kiểm tra xem có ít nhất 4 phần tử không
+                    if (itemCount >= 4)
+                    {
+                        // Đặt lựa chọn cho phần tử thứ 4 (chỉ số 3, vì chỉ số bắt đầu từ 0)
+                        SendMessage(hwnd, LB_SETCURSEL, (IntPtr)3, null);
+                        // Lấy tọa độ của ListBox
+                        RECT rect = new RECT();
+                        GetWindowRect(hwnd, out rect);
+
+                        // Tính toán tọa độ cho phần tử thứ 4
+                        int itemHeight = (rect.Bottom - rect.Top) / itemCount; // Giả định rằng tất cả các mục đều có cùng chiều cao
+                        int x = rect.Left + 5; // Vị trí X (khoảng cách 5 pixel từ bên trái)
+                        int y = rect.Top + itemHeight * 3 + (itemHeight / 2); // Vị trí Y (giữa phần tử thứ 4)
+
+                        // Gửi thông điệp double click tới ListBox
+                        PostMessage(hwnd, WM_LBUTTONDBLCLK, IntPtr.Zero, (IntPtr)((y << 16) | x));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Not enough items in the ListBox.");
+                    }
+
+                    return false; // Dừng sau khi tìm thấy ListBox và thao tác
                 }
-                return true; // Continue enumerating
+
+                return true; // Tiếp tục nếu chưa tìm thấy
             }, IntPtr.Zero);
 
             elapsed = 0;
@@ -234,9 +280,7 @@ public partial class Form1 : Form
                 GetClassName(hwnd, className, className.Capacity);
                 if (className.ToString() == "Edit")
                 {
-                    Clipboard.Clear();  // Xóa clipboard trước khi thao tác
-                    Clipboard.SetText(savePath);
-                    SendMessage(hwnd, WM_PASTE, IntPtr.Zero, null);
+                    SendMessage(hwnd, WM_SETTEXT, IntPtr.Zero, savePath);
                     return false; // Stop enumerating
                 }
                 return true; // Continue enumerating
@@ -298,6 +342,8 @@ public partial class Form1 : Form
                 return true; // Continue enumerating
             }, IntPtr.Zero);
         }
+        Thread.Sleep(1000); // Đợi một chút để hộp thoại mở
+
         // Đóng cửa sổ PROSHOW_TITLE
         IntPtr proShowCloseHandle = FindWindow(null, PROSHOW_TITLE);
         if (proShowCloseHandle != IntPtr.Zero)
@@ -1387,4 +1433,15 @@ public partial class Form1 : Form
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
     static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+    [DllImport("user32.dll")]
+    public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RECT
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
 }
