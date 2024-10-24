@@ -37,6 +37,11 @@ partial class Form1
     private int optionSelectImage = -1;
     private bool addAudioCheckBox = true;
 
+    private string path_image_animation = @"image_animation";
+    private string path_image_animation_cutted = @"image_animation_cutted";
+
+    private string path_image_to_video = "";
+
     /// <summary>
     ///  Clean up any resources being used.
     /// </summary>
