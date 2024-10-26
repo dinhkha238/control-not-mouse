@@ -4,6 +4,9 @@ using System.Text;
 using NAudio.Wave;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Python.Runtime;
+using System;
+using System.IO;
 
 namespace WinFormsApp;
 
@@ -902,8 +905,9 @@ public partial class Form1 : Form
         }
         path_image_animation_cutted = Path.GetFullPath(path_image_animation_cutted);
 
+        ConvertTo30fps(path_image_to_video, "output_30fps.mp4");
         // Cắt video thành các đoạn 5 giây
-        CutVideoIntoSegments(path_image_to_video, path_image_animation_cutted, 5);
+        CutVideo("output_30fps.mp4", path_image_animation_cutted);
 
         Thread.Sleep(1000);
 
@@ -936,6 +940,14 @@ public partial class Form1 : Form
         MergeVideosUsingListFile(listFilePath, Path.Combine(selectedFolderSavePaths[0], "output.mp4"));
 
         MessageBox.Show("Done!");
+    }
+    static void ConvertTo30fps(string inputFile, string outputFile)
+    {
+        // Tạo lệnh FFmpeg để chuyển đổi video
+        string arguments = $"-i \"{inputFile}\" -r 30 \"{outputFile}\"";
+
+        // Gọi hàm RunFFmpegCommand với các tham số đã tạo
+        RunFFmpegCommand(arguments);
     }
 
     // Hàm chọn danh sách video ghép theo tỉ lệ 3:1
@@ -1248,61 +1260,36 @@ public partial class Form1 : Form
     }
     private void SettingsButton_Click(object sender, EventArgs e)
     {
-        string videoFolder = @"c:\Users\Dinh Kha\Desktop\Video_test4";
+        string videoFolder = @"c:\Users\Dinh Kha\Desktop\Video_test\abc";
         string outputFile = "final_output.mp4";
 
         // Đọc tất cả các file video từ folder (ví dụ các file .mp4)
         string[] videoPaths = Directory.GetFiles(videoFolder, "*.mp4");
 
-        if (videoPaths.Length < 2)
+        if (videoPaths.Length == 0)
         {
-            MessageBox.Show("Cần ít nhất 2 video để ghép.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            Console.WriteLine("Không tìm thấy video nào trong thư mục.");
             return;
         }
 
-        string outputFilePath = "output.mp4";
-
-        // Tạo lệnh FFmpeg để ghép các video từ folder
-        string filterComplex = string.Empty;
-        string inputFiles = string.Empty;
-
-        for (int i = 0; i < videoPaths.Length; i++)
+        // Tạo một file danh sách video để FFmpeg xử lý
+        string listFilePath = Path.Combine(videoFolder, "video_list.txt");
+        using (StreamWriter writer = new StreamWriter(listFilePath))
         {
-            inputFiles += $"-i \"{videoPaths[i]}\" "; // Thêm các tệp video vào lệnh
-            filterComplex += $"[{i}:v]scale=1920:1080,setsar=1[v{i}];";
+            foreach (var video in videoPaths)
+            {
+                writer.WriteLine($"file '{video.Replace("\\", "/")}'"); // Sử dụng format của FFmpeg
+            }
         }
 
-        filterComplex += string.Join("", videoPaths.Select((_, i) => $"[v{i}][{i}:a]")) +
-                         $"concat=n={videoPaths.Length}:v=1:a=1[v][a]";
-
-        // Lệnh FFmpeg với filter_complex
-        string ffmpegArgs = $"{inputFiles} -filter_complex \"{filterComplex}\" -map \"[v]\" -map \"[a]\" {outputFilePath}";
-        RunFFmpegCommand(ffmpegArgs);
-        MessageBox.Show("DOne");
-        // if (videoPaths.Length == 0)
-        // {
-        //     Console.WriteLine("Không tìm thấy video nào trong thư mục.");
-        //     return;
-        // }
-
-        // // Tạo một file danh sách video để FFmpeg xử lý
-        // string listFilePath = Path.Combine(videoFolder, "video_list.txt");
-        // using (StreamWriter writer = new StreamWriter(listFilePath))
-        // {
-        //     foreach (var video in videoPaths)
-        //     {
-        //         writer.WriteLine($"file '{video.Replace("\\", "/")}'"); // Sử dụng format của FFmpeg
-        //     }
-        // }
-
-        // // Gọi FFmpeg để ghép các video lại
-        // MergeVideosUsingListFile(listFilePath, outputFile);
-        // MessageBox.Show("Done");
+        // Gọi FFmpeg để ghép các video lại
+        MergeVideosUsingListFile(listFilePath, outputFile);
+        MessageBox.Show("Done");
     }
     // Hàm gọi FFmpeg để ghép video từ danh sách file
     static void MergeVideosUsingListFile(string listFilePath, string outputPath)
     {
-        string arguments = $"-f concat -safe 0 -i \"{listFilePath}\" -c copy \"{outputPath}\"";
+        string arguments = $"-f concat -safe 0 -i \"{listFilePath}\" -c copy -an \"{outputPath}\"";
 
         RunFFmpegCommand(arguments);
     }
@@ -1319,6 +1306,36 @@ public partial class Form1 : Form
 
         Console.WriteLine("Video đã được cắt thành các đoạn nhỏ.");
     }
+
+    static void CutVideo(string inputVideoPath, string outputFolder)
+    {
+        var psi = new ProcessStartInfo();
+        psi.FileName = "python";  // Đảm bảo Python đã có trong PATH
+        var script = @"cut.py";  // Đường dẫn đến script Python của bạn
+
+        var videoIndex = "1";
+
+        // // Truyền tham số cho script Python
+        psi.Arguments = $"{script} {inputVideoPath} {outputFolder} {videoIndex}";
+
+        psi.UseShellExecute = false;
+        psi.RedirectStandardOutput = true;
+        psi.RedirectStandardError = true;
+
+        // Khởi chạy quá trình và đợi hoàn thành
+        var process = Process.Start(psi);
+
+        // Đọc đầu ra
+        string output = process.StandardOutput.ReadToEnd();
+        string errors = process.StandardError.ReadToEnd();
+
+        process.WaitForExit();
+
+        // Hiển thị đầu ra và lỗi (nếu có)
+        Console.WriteLine(output);
+        Console.WriteLine(errors);
+    }
+
     static void RunFFmpegCommand(string arguments)
     {
         Process ffmpegProcess = new Process();
@@ -1793,8 +1810,45 @@ public partial class Form1 : Form
     }
     private void dropdownButton_Click(object sender, EventArgs e)
     {
-        // string inputVideoPath = @"c:\Users\Dinh Kha\Desktop\Video\King Charles Final Move To Princess Anne Role\Segment\test2.mp4";
-        // string outputFolder = @"c:\Users\Dinh Kha\Desktop\avata\Cutted";
+        // var inputVideoPath = "\"D:\\C#\\WinFormsApp\\xyz.mp4\""; // Thêm dấu \ trước dấu "
+        // string outputFolder = "\"c:\\Users\\Dinh Kha\\Desktop\\avata\\Cutted\"";
+
+        // // // Kiểm tra thư mục đầu ra, nếu không có thì tạo mới
+        // // if (!Directory.Exists(outputFolder))
+        // // {
+        // //     Directory.CreateDirectory(outputFolder);
+        // // }
+
+        // var psi = new ProcessStartInfo();
+        // psi.FileName = "python";  // Đảm bảo Python đã có trong PATH
+        // var script = @"cut.py";  // Đường dẫn đến script Python của bạn
+
+        // var videoIndex = "1";
+
+        // // // Truyền tham số cho script Python
+        // psi.Arguments = $"{script} {inputVideoPath} {outputFolder} {videoIndex}";
+
+        // psi.UseShellExecute = false;
+        // psi.RedirectStandardOutput = true;
+        // psi.RedirectStandardError = true;
+
+        // // Khởi chạy quá trình và đợi hoàn thành
+        // var process = Process.Start(psi);
+
+        // // Đọc đầu ra
+        // string output = process.StandardOutput.ReadToEnd();
+        // string errors = process.StandardError.ReadToEnd();
+
+        // process.WaitForExit();
+
+        // // Hiển thị đầu ra và lỗi (nếu có)
+        // Console.WriteLine(output);
+        // Console.WriteLine(errors);
+
+        contextMenuStrip.Show(dropdownButton, new Point(0, dropdownButton.Height));
+
+        // string inputVideoPath = "output_30fps.mp4";
+        // string outputFolder = "\"c:\\Users\\Dinh Kha\\Desktop\\avata\\Cutted\"";
 
         // // Kiểm tra thư mục đầu ra, nếu không có thì tạo mới
         // if (!Directory.Exists(outputFolder))
@@ -1803,8 +1857,9 @@ public partial class Form1 : Form
         // }
 
         // // Cắt video thành các đoạn 5 giây
-        // CutVideoIntoSegments(inputVideoPath, outputFolder, 5);
-        contextMenuStrip.Show(dropdownButton, new Point(0, dropdownButton.Height));
+        // // CutVideoIntoSegments(inputVideoPath, outputFolder, 5);
+        // CutVideo(inputVideoPath, outputFolder);
+
     }
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
