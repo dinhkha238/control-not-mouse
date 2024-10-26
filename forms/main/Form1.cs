@@ -637,173 +637,6 @@ public partial class Form1 : Form
     }
     private void generateSlideButton_Click(object sender, EventArgs e)
     {
-        // for (int number = 0; number < selectedFolderAudioPaths.Count; number++)
-        // {
-        //     if (selectedFileImagePaths.Count == 0)
-        //     {
-        //         MessageBox.Show("Please select images!");
-        //         return;
-        //     }
-        //     for (int i = 0; i < selectedFileImagePaths.Count; i++)
-        //     {
-        //         if (selectedFileImagePaths[i].Length == 0)
-        //         {
-        //             MessageBox.Show($"Please select images for segment {i + 1}!");
-        //             return;
-        //         }
-        //     }
-
-
-        //     int length_selectedFileAudioPaths = selectedFileAudioPaths[number].Length;
-        //     string settingsFilePath = "settings.json";
-        //     if (!File.Exists(settingsFilePath))
-        //     {
-        //         MessageBox.Show("Settings file not found.");
-        //         return;
-        //     }
-        //     string settingsContent = File.ReadAllText(settingsFilePath);
-        //     dynamic settings = JsonConvert.DeserializeObject(settingsContent);
-        //     string groupStyle = settings.GroupStyle;
-        //     string groupFilePath = System.IO.Path.Combine("groups", groupStyle);
-        //     if (!File.Exists(groupFilePath))
-        //     {
-        //         MessageBox.Show("Group file not found.");
-        //         return;
-        //     }
-
-
-        //     string file3Path = @"files/extractedContent.txt";
-        //     // clear content of file3Path
-        //     System.IO.File.WriteAllText(file3Path, string.Empty);
-        //     int index_cell = 0;
-        //     if (optionSelectImage == 0)
-        //     {
-        //         for (int x = 0; x < length_selectedFileAudioPaths; x++)
-        //         {
-
-        //             // Lọc các phần tử là file Video
-        //             string[] videoFiles = selectedFileImagePaths[x].Where(IsVideoFile).ToArray();
-
-        //             // Lấy 1 phần tử ngẫu nhiên trong videoFiles
-        //             string lastElement = videoFiles.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
-
-        //             // Lấy các phần tử còn lại (trừ phần tử videoFiles)
-        //             string[] remainingElements = selectedFileImagePaths[x].Except(videoFiles).ToArray();
-
-        //             // Trộn các phần tử còn lại
-        //             string[] shuffledElements = remainingElements.OrderBy(x => Guid.NewGuid()).ToArray();
-
-        //             string[] att_in_selectedFileImagePaths;
-        //             if (lastElement != null)
-        //             {
-        //                 att_in_selectedFileImagePaths = shuffledElements.Concat(new string[] { lastElement }).ToArray();
-
-        //             }
-        //             else
-        //             {
-        //                 att_in_selectedFileImagePaths = shuffledElements;
-        //             }
-        //             int length_att_in_selectedFileImagePaths = att_in_selectedFileImagePaths.Length;
-        //             string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
-        //             // Tạo đối tượng Random
-        //             Random random = new Random();
-        //             // 
-
-        //             for (int i = 0; i < length_att_in_selectedFileImagePaths; i++)
-        //             {
-        //                 // Lấy ngẫu nhiên một dòng từ groupFileLines
-        //                 string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
-        //                 string path_image = "../../../../" + att_in_selectedFileImagePaths[i];
-        //                 string path_audio = "../../../../" + selectedFileAudioPaths[number][x];
-        //                 int length_audio = GetAudioFileLength(selectedFileAudioPaths[number][x]);
-        //                 float segment = length_audio / length_att_in_selectedFileImagePaths;
-        //                 WriteCellToFile(selectedFile, ref index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
-        //             }
-        //         }
-        //     }
-        //     else
-        //     {
-        //         int segment = 5000;
-        //         for (int x = 0; x < length_selectedFileAudioPaths; x++)
-        //         {
-        //             // Lọc các phần tử là file Video
-        //             string[] videoFiles = selectedFileImagePaths[x].Where(IsVideoFile).ToArray();
-        //             //  Các phần tử còn lại (trừ phần tử videoFiles)
-        //             string[] imageFiles = selectedFileImagePaths[x].Except(videoFiles).ToArray();
-        //             // Lấy length audio của file audio
-        //             int length_audio = GetAudioFileLength(selectedFileAudioPaths[number][x]);
-
-        //             int length_att_in_selectedFileImagePaths = length_audio / segment;
-        //             // Lấy phần dư sau khi 
-        //             int remaining = length_audio - length_att_in_selectedFileImagePaths * segment;
-
-        //             string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
-        //             // Tạo đối tượng Random
-        //             Random random = new Random();
-        //             //
-        //             int countImage = 0;
-        //             for (int i = 0; i < length_att_in_selectedFileImagePaths; i++)
-        //             {
-        //                 string path_image;
-        //                 // Lấy ngẫu nhiên một dòng từ groupFileLines
-        //                 string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
-        //                 if (countImage < 3)
-        //                 {
-        //                     path_image = "../../../../" + videoFiles[random.Next(videoFiles.Length)];
-        //                     countImage++;
-        //                 }
-        //                 else
-        //                 {
-        //                     path_image = "../../../../" + imageFiles[random.Next(imageFiles.Length)];
-        //                     countImage = 0;
-        //                 }
-        //                 string path_audio = "../../../../" + selectedFileAudioPaths[number][x];
-        //                 WriteCellToFile(selectedFile, ref index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
-        //             }
-        //         }
-
-        //     }
-
-        //     string file2Path = @"files/FileProShow_2.txt";
-        //     using (StreamWriter writer1 = new StreamWriter(file2Path))
-        //     {
-        //         writer1.WriteLine($"cells={index_cell}");
-        //         writer1.Close();
-        //     }
-
-        //     string file4Path = @"files/FileProShow_4.txt";
-        //     using (StreamWriter writer1 = new StreamWriter(file4Path))
-        //     {
-        //         writer1.WriteLine($"modifierCount=0");
-        //         writer1.Close();
-        //     }
-
-        //     string file1Path = @"files/FileProShow.txt";
-        //     string folderContainFileProShow = Path.Combine(Directory.GetCurrentDirectory(), @"finals");
-        //     if (!Directory.Exists(folderContainFileProShow))
-        //     {
-        //         Directory.CreateDirectory(folderContainFileProShow);
-        //     }
-        //     string combinedFilePath = $"finals/combined_{number}.psh"; // Replace with your combined file path
-        //                                                                // Open the combined file for writing
-        //     using (StreamWriter writer = new StreamWriter(combinedFilePath))
-        //     {
-        //         WriteFileContent(writer, file1Path);
-
-        //         // Write the content of the first file
-        //         WriteFileContent(writer, file2Path);
-
-        //         // Write the content of the second file
-        //         WriteFileContent(writer, file3Path);
-
-        //         // Write the content of the third file
-        //         WriteFileContent(writer, file4Path);
-        //     }
-        // }
-
-        // button7_Click(sender, e, selectedFolderAudioPaths.Count);
-        // MessageBox.Show("Done!");
-
         //  Các phần tử còn lại (trừ phần tử videoFiles)
         string[] imageFiles = selectedFileImagePaths[0].Where(file => !IsVideoFile(file)).ToArray();
 
@@ -938,6 +771,9 @@ public partial class Form1 : Form
         }
         // Ghép các video đã chọn
         MergeVideosUsingListFile(listFilePath, Path.Combine(selectedFolderSavePaths[0], "output.mp4"));
+
+        CombineVideoAndAudio(Path.Combine(selectedFolderSavePaths[0], "output.mp4"), selectedFileAudioPaths[0][0], Path.Combine(selectedFolderSavePaths[0], "output_final.mp4"));
+
 
         MessageBox.Show("Done!");
     }
@@ -1285,7 +1121,18 @@ public partial class Form1 : Form
         // Gọi FFmpeg để ghép các video lại
         MergeVideosUsingListFile(listFilePath, outputFile);
         MessageBox.Show("Done");
+        // CombineVideoAndAudio(@"c:\Users\Dinh Kha\Desktop\Test\Why Russian Air Defense is a Joke\aItaly\output.mp4", @"c:\Users\Dinh Kha\Desktop\Test\Why Russian Air Defense is a Joke\aItaly\audio_files\full_1.wav", "output_with_audio.mp4");
+        // MessageBox.Show("Done");
+
+
     }
+
+    static void CombineVideoAndAudio(string videoFile, string audioFile, string outputFile)
+    {
+        string arguments = $"-i \"{videoFile}\" -i \"{audioFile}\" -c:v copy -c:a aac -strict experimental \"{outputFile}\"";
+        RunFFmpegCommand(arguments);
+    }
+
     // Hàm gọi FFmpeg để ghép video từ danh sách file
     static void MergeVideosUsingListFile(string listFilePath, string outputPath)
     {
