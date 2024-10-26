@@ -39,8 +39,8 @@ partial class Form1
 
     private string path_image_animation = @"image_animation";
     private string path_image_animation_cutted = @"image_animation_cutted";
-
     private string path_image_to_video = "";
+    private string name_ffmpeg = "";
 
     /// <summary>
     ///  Clean up any resources being used.

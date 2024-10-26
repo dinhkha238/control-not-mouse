@@ -847,12 +847,11 @@ public partial class Form1 : Form
             Console.WriteLine("Lỗi khi xóa file: " + ex.Message);
         }
     }
-    static void ConvertTo30fps(string inputFile, string outputFile)
+    public void ConvertTo30fps(string inputFile, string outputFile)
     {
         // Tạo lệnh FFmpeg để chuyển đổi video
         string arguments = $"-i \"{inputFile}\" -r 30 \"{outputFile}\"";
-
-        // Gọi hàm RunFFmpegCommand với các tham số đã tạo
+        name_ffmpeg = "CONVERTING TO 30FPS";
         RunFFmpegCommand(arguments);
     }
 
@@ -1190,6 +1189,10 @@ public partial class Form1 : Form
 
         // Gọi FFmpeg để ghép các video lại
         MergeVideosUsingListFile(listFilePath, outputFile);
+
+        // Ghép các video đã chọn
+
+        CombineVideoAndAudio(@"d:\Why Russian Air Defense is a Joke\aItaly\output_final_1729960616.mp4", @"d:\Why Russian Air Defense is a Joke\aItaly\i.MP3", "ouput.mp4");
         MessageBox.Show("Done");
         // CombineVideoAndAudio(@"c:\Users\Dinh Kha\Desktop\Test\Why Russian Air Defense is a Joke\aItaly\output.mp4", @"c:\Users\Dinh Kha\Desktop\Test\Why Russian Air Defense is a Joke\aItaly\audio_files\full_1.wav", "output_with_audio.mp4");
         // MessageBox.Show("Done");
@@ -1197,31 +1200,20 @@ public partial class Form1 : Form
 
     }
 
-    static void CombineVideoAndAudio(string videoFile, string audioFile, string outputFile)
+    private void CombineVideoAndAudio(string videoFile, string audioFile, string outputFile)
     {
         string arguments = $"-i \"{videoFile}\" -i \"{audioFile}\" -c:v copy -c:a aac -strict experimental \"{outputFile}\"";
+        name_ffmpeg = "COMBINING VIDEO AND AUDIO";
         RunFFmpegCommand(arguments);
     }
 
     // Hàm gọi FFmpeg để ghép video từ danh sách file
-    static void MergeVideosUsingListFile(string listFilePath, string outputPath)
+    private void MergeVideosUsingListFile(string listFilePath, string outputPath)
     {
         string arguments = $"-f concat -safe 0 -i \"{listFilePath}\" -c copy -an \"{outputPath}\"";
+        name_ffmpeg = "MERGING VIDEO";
 
         RunFFmpegCommand(arguments);
-    }
-
-    static void CutVideoIntoSegments(string inputVideoPath, string outputFolder, int segmentDuration)
-    {
-        // Lấy tên video gốc mà không có đuôi
-        string videoFileName = Path.GetFileNameWithoutExtension(inputVideoPath);
-
-        // Lệnh ffmpeg để cắt video thành các đoạn, mỗi đoạn có độ dài segmentDuration giây và tắt tiếng
-        string arguments = $"-i \"{inputVideoPath}\" -c copy -an -map 0 -segment_time {segmentDuration} -f segment \"{outputFolder}\\{videoFileName}_%03d.mp4\"";
-
-        RunFFmpegCommand(arguments);
-
-        Console.WriteLine("Video đã được cắt thành các đoạn nhỏ.");
     }
 
     static void CutVideo(string inputVideoPath, string outputFolder)
@@ -1259,27 +1251,47 @@ public partial class Form1 : Form
         return number.ToString();
     }
 
-    static void RunFFmpegCommand(string arguments)
+    private void RunFFmpegCommand(string arguments)
     {
         Process ffmpegProcess = new Process();
-        // Cung cấp đường dẫn đầy đủ đến FFmpeg nếu không có trong PATH
-        ffmpegProcess.StartInfo.FileName = "ffmpeg";
+        ffmpegProcess.StartInfo.FileName = "ffmpeg"; // Hoặc cung cấp đường dẫn đầy đủ nếu cần
         ffmpegProcess.StartInfo.Arguments = arguments;
         ffmpegProcess.StartInfo.RedirectStandardOutput = true;
         ffmpegProcess.StartInfo.RedirectStandardError = true;
         ffmpegProcess.StartInfo.UseShellExecute = false;
         ffmpegProcess.StartInfo.CreateNoWindow = true;
 
+        // Đăng ký sự kiện để ghi log ra file
+        ffmpegProcess.OutputDataReceived += (sender, e) =>
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                LogToFile("ffmpeg_log.txt", "FFmpeg Log: " + e.Data);
+            }
+        };
+
+        ffmpegProcess.ErrorDataReceived += (sender, e) =>
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                LogToFile("ffmpeg_log.txt", "FFmpeg Error: " + e.Data);
+            }
+        };
+
         ffmpegProcess.Start();
 
-        // Bắt lỗi nếu có
-        string error = ffmpegProcess.StandardError.ReadToEnd();
+        // Bắt đầu đọc log
+        ffmpegProcess.BeginOutputReadLine();
+        ffmpegProcess.BeginErrorReadLine();
+
         ffmpegProcess.WaitForExit();
 
-        if (!string.IsNullOrEmpty(error))
-        {
-            Console.WriteLine("FFmpeg Error: " + error);
-        }
+        LogToFile("ffmpeg_log.txt", "Video converted to 30fps successfully!");
+    }
+    private void LogToFile(string logFile, string message)
+    {
+        // Ghi đè nội dung file log bằng thông điệp mới
+        File.WriteAllText(logFile, $"{name_ffmpeg}: {DateTime.Now}: {message}\n");
     }
 
     private void reviewFolderAudioButton_Click(object sender, EventArgs e)
