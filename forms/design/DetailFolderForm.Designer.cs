@@ -6,9 +6,10 @@ partial class DetailFolderForm
         // 
         // DetailImageForm
         // 
-        this.ClientSize = new System.Drawing.Size(800, 450);
+        this.ClientSize = new System.Drawing.Size(1000, 500);
         this.Name = "DetailFolderForm";
         this.Text = "Select audio folders";
+        this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
         this.ResumeLayout(false);
     }
 }

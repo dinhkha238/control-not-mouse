@@ -1042,110 +1042,6 @@ public partial class Form1 : Form
     {
         StylesForm stylesForm = new StylesForm();
         stylesForm.ShowDialog();
-
-        // Đường dẫn đến thư mục chứa ảnh
-        // string folderPath = @"c:\Users\Dinh Kha\Desktop\avata";
-        // // string folderPath = @"c:\Users\Dinh Kha\Desktop\Data\US Army\Image\1";
-        // string folderSavePath = @"c:\Users\Dinh Kha\Desktop\avata\Video";
-
-        // // Đọc tất cả các file ảnh trong thư mục
-        // string[] imageFiles = Directory.GetFiles(folderPath, "*.*")
-        //                                .Where(file => file.EndsWith(".jpg") ||
-        //                                               file.EndsWith(".png") ||
-        //                                               file.EndsWith(".bmp"))
-        //                                .ToArray();
-        // selectedFolderSavePaths.Clear();
-
-        // for (int number = 0; number < 1; number++)
-        // {
-        //     selectedFolderSavePaths.Add(folderSavePath);
-        //     int length_selectedFileAudioPaths = 1;
-        //     string settingsFilePath = "settings.json";
-        //     if (!File.Exists(settingsFilePath))
-        //     {
-        //         MessageBox.Show("Settings file not found.");
-        //         return;
-        //     }
-        //     string settingsContent = File.ReadAllText(settingsFilePath);
-        //     dynamic settings = JsonConvert.DeserializeObject(settingsContent);
-        //     string groupStyle = settings.GroupStyle;
-        //     string groupFilePath = System.IO.Path.Combine("groups", groupStyle);
-        //     if (!File.Exists(groupFilePath))
-        //     {
-        //         MessageBox.Show("Group file not found.");
-        //         return;
-        //     }
-
-
-        //     string file3Path = @"files/extractedContent.txt";
-        //     // clear content of file3Path
-        //     System.IO.File.WriteAllText(file3Path, string.Empty);
-        //     int index_cell = 0;
-
-        //     int segment = 5000;
-        //     for (int x = 0; x < length_selectedFileAudioPaths; x++)
-        //     {
-        //         // Lấy length audio của file audio
-        //         int length_audio = 5000;
-
-        //         int length_att_in_selectedFileImagePaths = length_audio / segment;
-        //         // Lấy phần dư sau khi 
-        //         int remaining = length_audio - length_att_in_selectedFileImagePaths * segment;
-
-        //         string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
-        //         // Tạo đối tượng Random
-        //         Random random = new Random();
-        //         //
-        //         int countImage = 0;
-        //         for (int i = 0; i < imageFiles.Length; i++)
-        //         {
-        //             // Lấy ngẫu nhiên một dòng từ groupFileLines
-        //             string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
-        //             string path_image;
-        //             path_image = "../../../../" + imageFiles[i];
-        //             string path_audio = "";
-        //             WriteCellToFile(selectedFile, ref index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
-        //         }
-        //     }
-        //     string file2Path = @"files/FileProShow_2.txt";
-        //     using (StreamWriter writer1 = new StreamWriter(file2Path))
-        //     {
-        //         writer1.WriteLine($"cells={index_cell}");
-        //         writer1.Close();
-        //     }
-
-        //     string file4Path = @"files/FileProShow_4.txt";
-        //     using (StreamWriter writer1 = new StreamWriter(file4Path))
-        //     {
-        //         writer1.WriteLine($"modifierCount=0");
-        //         writer1.Close();
-        //     }
-
-        //     string file1Path = @"files/FileProShow.txt";
-        //     string folderContainFileProShow = Path.Combine(Directory.GetCurrentDirectory(), @"finals");
-        //     if (!Directory.Exists(folderContainFileProShow))
-        //     {
-        //         Directory.CreateDirectory(folderContainFileProShow);
-        //     }
-        //     string combinedFilePath = $"finals/combined_{number}.psh"; // Replace with your combined file path
-        //                                                                // Open the combined file for writing
-        //     using (StreamWriter writer = new StreamWriter(combinedFilePath))
-        //     {
-        //         WriteFileContent(writer, file1Path);
-
-        //         // Write the content of the first file
-        //         WriteFileContent(writer, file2Path);
-
-        //         // Write the content of the second file
-        //         WriteFileContent(writer, file3Path);
-
-        //         // Write the content of the third file
-        //         WriteFileContent(writer, file4Path);
-        //     }
-
-        // }
-        // button7_Click(sender, e, imageFiles.Length);
-        // MessageBox.Show("Done!");
     }
     private void reviewFileImage(object sender, EventArgs e, int index)
     {
@@ -1164,40 +1060,8 @@ public partial class Form1 : Form
     }
     private void SettingsButton_Click(object sender, EventArgs e)
     {
-        // string videoFolder = @"c:\Users\Dinh Kha\Desktop\Video_test\abc";
-        // string outputFile = "final_output.mp4";
-
-        // // Đọc tất cả các file video từ folder (ví dụ các file .mp4)
-        // string[] videoPaths = Directory.GetFiles(videoFolder, "*.mp4");
-
-        // if (videoPaths.Length == 0)
-        // {
-        //     Console.WriteLine("Không tìm thấy video nào trong thư mục.");
-        //     return;
-        // }
-
-        // // Tạo một file danh sách video để FFmpeg xử lý
-        // string listFilePath = Path.Combine(videoFolder, "video_list.txt");
-        // using (StreamWriter writer = new StreamWriter(listFilePath))
-        // {
-        //     foreach (var video in videoPaths)
-        //     {
-        //         writer.WriteLine($"file '{video.Replace("\\", "/")}'"); // Sử dụng format của FFmpeg
-        //     }
-        // }
-
-        // // Gọi FFmpeg để ghép các video lại
-        // MergeVideosUsingListFile(listFilePath, outputFile);
-
-        // // Ghép các video đã chọn
-
-        // CombineVideoAndAudio(@"d:\Why Russian Air Defense is a Joke\aItaly\output_final_1729960616.mp4", @"d:\Why Russian Air Defense is a Joke\aItaly\i.MP3", "ouput.mp4");
-        // MessageBox.Show("Done");
-        // CombineVideoAndAudio(@"c:\Users\Dinh Kha\Desktop\Test\Why Russian Air Defense is a Joke\aItaly\output.mp4", @"c:\Users\Dinh Kha\Desktop\Test\Why Russian Air Defense is a Joke\aItaly\audio_files\full_1.wav", "output_with_audio.mp4");
-        // MessageBox.Show("Done");
         SettingsForm settingsForm = new SettingsForm();
         settingsForm.ShowDialog();
-
     }
 
     private void CombineVideoAndAudio(string videoFile, string audioFile, string outputFile)
@@ -1745,56 +1609,7 @@ public partial class Form1 : Form
     }
     private void dropdownButton_Click(object sender, EventArgs e)
     {
-        // var inputVideoPath = "\"D:\\C#\\WinFormsApp\\xyz.mp4\""; // Thêm dấu \ trước dấu "
-        // string outputFolder = "\"c:\\Users\\Dinh Kha\\Desktop\\avata\\Cutted\"";
-
-        // // // Kiểm tra thư mục đầu ra, nếu không có thì tạo mới
-        // // if (!Directory.Exists(outputFolder))
-        // // {
-        // //     Directory.CreateDirectory(outputFolder);
-        // // }
-
-        // var psi = new ProcessStartInfo();
-        // psi.FileName = "python";  // Đảm bảo Python đã có trong PATH
-        // var script = @"cut.py";  // Đường dẫn đến script Python của bạn
-
-        // var videoIndex = "1";
-
-        // // // Truyền tham số cho script Python
-        // psi.Arguments = $"{script} {inputVideoPath} {outputFolder} {videoIndex}";
-
-        // psi.UseShellExecute = false;
-        // psi.RedirectStandardOutput = true;
-        // psi.RedirectStandardError = true;
-
-        // // Khởi chạy quá trình và đợi hoàn thành
-        // var process = Process.Start(psi);
-
-        // // Đọc đầu ra
-        // string output = process.StandardOutput.ReadToEnd();
-        // string errors = process.StandardError.ReadToEnd();
-
-        // process.WaitForExit();
-
-        // // Hiển thị đầu ra và lỗi (nếu có)
-        // Console.WriteLine(output);
-        // Console.WriteLine(errors);
-
         contextMenuStrip.Show(dropdownButton, new Point(0, dropdownButton.Height));
-
-        // string inputVideoPath = "output_30fps.mp4";
-        // string outputFolder = "\"c:\\Users\\Dinh Kha\\Desktop\\avata\\Cutted\"";
-
-        // // Kiểm tra thư mục đầu ra, nếu không có thì tạo mới
-        // if (!Directory.Exists(outputFolder))
-        // {
-        //     Directory.CreateDirectory(outputFolder);
-        // }
-
-        // // Cắt video thành các đoạn 5 giây
-        // // CutVideoIntoSegments(inputVideoPath, outputFolder, 5);
-        // CutVideo(inputVideoPath, outputFolder);
-
     }
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]

@@ -31,8 +31,8 @@ public partial class DetailFolderForm : Form
     private void InitializeForm()
     {
         this.dataGridView = new DataGridView();
-        this.dataGridView.Location = new System.Drawing.Point(10, 10);
-        this.dataGridView.Size = new System.Drawing.Size(750, 200);
+        this.dataGridView.Location = new System.Drawing.Point(25, 5);
+        this.dataGridView.Size = new System.Drawing.Size(950, 400);
         this.dataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         this.dataGridView.AllowUserToAddRows = false;
         this.dataGridView.Columns.Add("AudioPath", "Audio Path");
@@ -46,8 +46,8 @@ public partial class DetailFolderForm : Form
         });
 
         // Adjust column widths
-        this.dataGridView.Columns["AudioPath"].Width = 300;
-        this.dataGridView.Columns["SavePath"].Width = 300;
+        this.dataGridView.Columns["AudioPath"].Width = 400;
+        this.dataGridView.Columns["SavePath"].Width = 400;
         this.dataGridView.Columns["SelectSavePath"].Width = 100;
         this.dataGridView.CellContentClick += DataGridView_CellContentClick;
         this.Controls.Add(this.dataGridView);
@@ -59,20 +59,20 @@ public partial class DetailFolderForm : Form
 
         this.deleteButton = new Button();
         this.deleteButton.Text = "Delete";
-        this.deleteButton.Location = new System.Drawing.Point(10, 220);
+        this.deleteButton.Location = new System.Drawing.Point(25, 420);
         this.deleteButton.Click += DeleteButton_Click;
         this.Controls.Add(this.deleteButton);
 
         this.addButton = new Button();
         this.addButton.Text = "Add";
-        this.addButton.Location = new System.Drawing.Point(100, 220);
+        this.addButton.Location = new System.Drawing.Point(115, 420);
         this.addButton.Click += AddButton_Click;
         this.Controls.Add(this.addButton);
 
         // Thêm CheckBox "Add audio file"
         this.addAudioCheckBox = new CheckBox();
         this.addAudioCheckBox.Text = "Add audio file";
-        this.addAudioCheckBox.Location = new System.Drawing.Point(200, 220);
+        this.addAudioCheckBox.Location = new System.Drawing.Point(215, 420);
         this.addAudioCheckBox.Checked = this.AddAudioCheckBox;
         this.addAudioCheckBox.CheckedChanged += (sender, e) =>
         {
