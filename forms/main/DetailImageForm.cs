@@ -1,7 +1,8 @@
 public partial class DetailImageForm : Form
 {
     private List<string> variables;
-    private ListBox listBox;
+    private ListBox imageListBox;
+    private ListBox videoListBox;
     private Button deleteButton;
     private Button addButton;
     private Label imageCountLabel;
@@ -23,12 +24,33 @@ public partial class DetailImageForm : Form
 
     private void InitializeForm()
     {
-        this.listBox = new ListBox();
-        this.listBox.Location = new System.Drawing.Point(25, 5);
-        this.listBox.Size = new System.Drawing.Size(950, 400);
-        this.listBox.SelectionMode = SelectionMode.MultiExtended;
-        this.listBox.DataSource = variables;
-        this.Controls.Add(this.listBox);
+        // Label for Image ListBox
+        Label imageLabel = new Label();
+        imageLabel.Text = "Images";
+        imageLabel.Location = new System.Drawing.Point(25, 5); // Position above imageListBox
+        imageLabel.Size = new System.Drawing.Size(50, 20);
+        this.Controls.Add(imageLabel);
+
+        // ListBox for images
+        this.imageListBox = new ListBox();
+        this.imageListBox.Location = new System.Drawing.Point(25, 30); // Adjust position below the label
+        this.imageListBox.Size = new System.Drawing.Size(450, 375);
+        this.imageListBox.SelectionMode = SelectionMode.MultiExtended;
+        this.Controls.Add(this.imageListBox);
+
+        // Label for Video ListBox
+        Label videoLabel = new Label();
+        videoLabel.Text = "Videos";
+        videoLabel.Location = new System.Drawing.Point(525, 5); // Position above videoListBox
+        videoLabel.Size = new System.Drawing.Size(50, 20);
+        this.Controls.Add(videoLabel);
+
+        // ListBox for videos
+        this.videoListBox = new ListBox();
+        this.videoListBox.Location = new System.Drawing.Point(525, 30); // Adjust position below the label
+        this.videoListBox.Size = new System.Drawing.Size(450, 375);
+        this.videoListBox.SelectionMode = SelectionMode.MultiExtended;
+        this.Controls.Add(this.videoListBox);
 
         this.deleteButton = new Button();
         this.deleteButton.Text = "Delete";
@@ -56,25 +78,32 @@ public partial class DetailImageForm : Form
         this.Controls.Add(this.videoCountLabel);
 
         this.FormClosing += DetailImageForm_FormClosing;
+        UpdateListBoxes(); // Populate ListBoxes based on initial variables
     }
 
     private void DeleteButton_Click(object sender, EventArgs e)
     {
-        var selectedItems = listBox.SelectedItems.Cast<string>().ToList();
-        foreach (var item in selectedItems)
+        var selectedImages = imageListBox.SelectedItems.Cast<string>().ToList();
+        var selectedVideos = videoListBox.SelectedItems.Cast<string>().ToList();
+
+        foreach (var item in selectedImages)
         {
             variables.Remove(item);
-            UpdateCounts();
         }
-        listBox.DataSource = null;
-        listBox.DataSource = variables;
+        foreach (var item in selectedVideos)
+        {
+            variables.Remove(item);
+        }
+
+        UpdateCounts();
+        UpdateListBoxes();
     }
 
     private void AddButton_Click(object sender, EventArgs e)
     {
         using (OpenFileDialog openFileDialog = new OpenFileDialog())
         {
-            openFileDialog.Multiselect = true; // Allow multiple file selection
+            openFileDialog.Multiselect = true;
             openFileDialog.Filter = "Image and Video Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.mp4;*.avi;*.mov;*.wmv";
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
@@ -88,8 +117,7 @@ public partial class DetailImageForm : Form
                         videoCount++;
                 }
                 UpdateLabels();
-                listBox.DataSource = null;
-                listBox.DataSource = variables;
+                UpdateListBoxes();
             }
         }
     }
@@ -105,6 +133,20 @@ public partial class DetailImageForm : Form
         imageCount = variables.Count(IsImageFile);
         videoCount = variables.Count(IsVideoFile);
         UpdateLabels();
+    }
+
+    private void UpdateListBoxes()
+    {
+        var images = variables.Where(IsImageFile).ToList();
+        var videos = variables.Where(IsVideoFile).ToList();
+
+        imageListBox.DataSource = null;
+        imageListBox.DataSource = images;
+        imageListBox.SelectedIndex = -1; // Clear selection in imageListBox
+
+        videoListBox.DataSource = null;
+        videoListBox.DataSource = videos;
+        videoListBox.SelectedIndex = -1; // Clear selection in videoListBox
     }
 
     private bool IsImageFile(string file)
