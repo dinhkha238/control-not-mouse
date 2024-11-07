@@ -6,7 +6,7 @@ partial class DetailFolderForm
         // 
         // DetailImageForm
         // 
-        this.ClientSize = new System.Drawing.Size(1000, 500);
+        this.ClientSize = new System.Drawing.Size(1250, 500);
         this.Name = "DetailFolderForm";
         this.Text = "Select audio folders";
         this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

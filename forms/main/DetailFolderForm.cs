@@ -6,24 +6,28 @@ using System.Windows.Forms;
 public partial class DetailFolderForm : Form
 {
     private List<string> variables;
+    private List<string> selectedFolderSavePaths;
+    private List<string> selectedFileIntroPaths;
     private DataGridView dataGridView;
     private Button deleteButton;
     private Button addButton;
-    private List<string> selectedFolderSavePaths;
     private CheckBox addAudioCheckBox = new CheckBox();
 
     public List<string> UpdatedVariables { get; private set; }
     public List<string> UpdatedFolderSavePaths { get; private set; }
+    public List<string> UpdatedFileIntroPaths { get; private set; }
     public bool AddAudioCheckBox { get; private set; }
 
-    public DetailFolderForm(List<string> variables, List<string> selectedFolderSavePaths, bool addAudioCheckBox = true)
+    public DetailFolderForm(List<string> variables, List<string> selectedFolderSavePaths, List<string> selectedFileIntroPaths, bool addAudioCheckBox = true)
     {
         InitializeComponent();
         this.variables = new List<string>(variables);
         this.selectedFolderSavePaths = new List<string>(selectedFolderSavePaths);
+        this.selectedFileIntroPaths = new List<string>(selectedFileIntroPaths);
         this.addAudioCheckBox.Checked = addAudioCheckBox;
-        this.UpdatedVariables = new List<string>(variables); // Initialize with a copy of the input list
+        this.UpdatedVariables = new List<string>(variables);
         this.UpdatedFolderSavePaths = new List<string>(selectedFolderSavePaths);
+        this.UpdatedFileIntroPaths = new List<string>(selectedFileIntroPaths);
         this.AddAudioCheckBox = addAudioCheckBox;
         InitializeForm();
     }
@@ -32,11 +36,13 @@ public partial class DetailFolderForm : Form
     {
         this.dataGridView = new DataGridView();
         this.dataGridView.Location = new System.Drawing.Point(25, 5);
-        this.dataGridView.Size = new System.Drawing.Size(950, 400);
+        this.dataGridView.Size = new System.Drawing.Size(1200, 400); // Adjust width to fit new columns
         this.dataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         this.dataGridView.AllowUserToAddRows = false;
         this.dataGridView.Columns.Add("AudioPath", "Audio Path");
         this.dataGridView.Columns.Add("SavePath", "Save Path");
+
+        // Button column to select save path
         this.dataGridView.Columns.Add(new DataGridViewButtonColumn
         {
             Name = "SelectSavePath",
@@ -45,16 +51,30 @@ public partial class DetailFolderForm : Form
             UseColumnTextForButtonValue = true
         });
 
+        // Column for Intro Path
+        this.dataGridView.Columns.Add("IntroPath", "Intro File Path");
+
+        // Button column to select intro file
+        this.dataGridView.Columns.Add(new DataGridViewButtonColumn
+        {
+            Name = "SelectIntroPath",
+            HeaderText = "Select Intro File",
+            Text = "Select",
+            UseColumnTextForButtonValue = true
+        });
+
         // Adjust column widths
-        this.dataGridView.Columns["AudioPath"].Width = 400;
-        this.dataGridView.Columns["SavePath"].Width = 400;
-        this.dataGridView.Columns["SelectSavePath"].Width = 100;
+        this.dataGridView.Columns["AudioPath"].Width = 350;
+        this.dataGridView.Columns["SavePath"].Width = 350;
+        this.dataGridView.Columns["SelectSavePath"].Width = 50;
+        this.dataGridView.Columns["IntroPath"].Width = 350;
+        this.dataGridView.Columns["SelectIntroPath"].Width = 50;
         this.dataGridView.CellContentClick += DataGridView_CellContentClick;
         this.Controls.Add(this.dataGridView);
 
         for (int i = 0; i < selectedFolderSavePaths.Count; i++)
         {
-            this.dataGridView.Rows.Add(variables[i], selectedFolderSavePaths[i], "Select");
+            this.dataGridView.Rows.Add(variables[i], selectedFolderSavePaths[i], "Select", selectedFileIntroPaths[i], "Select");
         }
 
         this.deleteButton = new Button();
@@ -69,7 +89,7 @@ public partial class DetailFolderForm : Form
         this.addButton.Click += AddButton_Click;
         this.Controls.Add(this.addButton);
 
-        // Thêm CheckBox "Add audio file"
+        // Add CheckBox "Add audio file"
         this.addAudioCheckBox = new CheckBox();
         this.addAudioCheckBox.Text = "Add audio file";
         this.addAudioCheckBox.Location = new System.Drawing.Point(215, 420);
@@ -93,6 +113,18 @@ public partial class DetailFolderForm : Form
                 {
                     string selectedFolder = folderBrowserDialog.SelectedPath;
                     dataGridView.Rows[e.RowIndex].Cells["SavePath"].Value = selectedFolder;
+                }
+            }
+        }
+        else if (e.ColumnIndex == dataGridView.Columns["SelectIntroPath"].Index && e.RowIndex >= 0)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "Intro Files|*.mp4;*.avi;*.mov;*.mkv"; // Adjust filter for intro files
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string selectedFile = openFileDialog.FileName;
+                    dataGridView.Rows[e.RowIndex].Cells["IntroPath"].Value = selectedFile;
                 }
             }
         }
@@ -120,11 +152,9 @@ public partial class DetailFolderForm : Form
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string[] selectedFiles = openFileDialog.FileNames;
-                    // Xử lý các file audio đã chọn
                     foreach (string file in selectedFiles)
                     {
-                        // Ví dụ: Thêm đường dẫn file vào DataGridView
-                        dataGridView.Rows.Add(file);
+                        dataGridView.Rows.Add(file, "", "", "", "Select");
                     }
                 }
             }
@@ -136,7 +166,7 @@ public partial class DetailFolderForm : Form
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
                     string selectedFolder = folderBrowserDialog.SelectedPath;
-                    dataGridView.Rows.Add(selectedFolder, "", "Select");
+                    dataGridView.Rows.Add("", selectedFolder, "Select", "", "Select");
                 }
             }
         }
@@ -146,15 +176,16 @@ public partial class DetailFolderForm : Form
     {
         UpdatedVariables = new List<string>();
         UpdatedFolderSavePaths = new List<string>();
+        UpdatedFileIntroPaths = new List<string>();
+
         foreach (DataGridViewRow row in dataGridView.Rows)
         {
             if (!row.IsNewRow)
             {
-                UpdatedVariables.Add(row.Cells["AudioPath"].Value.ToString());
-                UpdatedFolderSavePaths.Add(row.Cells["SavePath"].Value.ToString());
+                UpdatedVariables.Add(row.Cells["AudioPath"].Value?.ToString());
+                UpdatedFolderSavePaths.Add(row.Cells["SavePath"].Value?.ToString());
+                UpdatedFileIntroPaths.Add(row.Cells["IntroPath"].Value?.ToString());
             }
         }
-
     }
-
 }

@@ -286,6 +286,9 @@ public partial class Form1 : Form
                 GetClassName(hwnd, className, className.Capacity);
                 if (className.ToString() == "Edit")
                 {
+                    // Clipboard.Clear();  // Xóa clipboard trước khi thao tác
+                    // Clipboard.SetText(savePath);
+                    // SendMessage(hwnd, WM_PASTE, IntPtr.Zero, null);
                     SendMessage(hwnd, WM_SETTEXT, IntPtr.Zero, savePath);
                     return false; // Stop enumerating
                 }
@@ -794,6 +797,12 @@ public partial class Form1 : Form
 
             DeleteFile(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_" + timestamp}.mp4"));
 
+            if (selectedFileIntroPaths[index_audio] != "")
+            {
+                File.WriteAllText(listFilePath, $"file '{selectedFileIntroPaths[index_audio]}'\nfile '{Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4")}'");
+                MergeVideosUsingListFileHaveAudio(listFilePath, Path.Combine(selectedFolderSavePaths[index_audio], $"{"intro_final_" + timestamp}.mp4"));
+                DeleteFile(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4"));
+            }
         }
         DeleteAllFilesInFolder(path_image_animation);
         DeleteAllFilesInFolder(path_image_animation_cutted);
@@ -1066,7 +1075,7 @@ public partial class Form1 : Form
 
     private void CombineVideoAndAudio(string videoFile, string audioFile, string outputFile)
     {
-        string arguments = $"-i \"{videoFile}\" -i \"{audioFile}\" -c:v copy -c:a aac -strict experimental \"{outputFile}\"";
+        string arguments = $"-i \"{videoFile}\" -i \"{audioFile}\" -c:v copy -c:a aac -b:a 128k -ar 44100 -ac 2 \"{outputFile}\"";
         name_ffmpeg = "COMBINING VIDEO AND AUDIO";
         RunFFmpegCommand(arguments);
     }
@@ -1076,6 +1085,13 @@ public partial class Form1 : Form
     {
         string arguments = $"-f concat -safe 0 -i \"{listFilePath}\" -c copy -an \"{outputPath}\"";
         name_ffmpeg = "MERGING VIDEO";
+
+        RunFFmpegCommand(arguments);
+    }
+    private void MergeVideosUsingListFileHaveAudio(string listFilePath, string outputPath)
+    {
+        string arguments = $"-f concat -safe 0 -i \"{listFilePath}\" -c copy \"{outputPath}\"";
+        name_ffmpeg = "MERGING INTRO AND VIDEO";
 
         RunFFmpegCommand(arguments);
     }
@@ -1162,34 +1178,39 @@ public partial class Form1 : Form
     {
         // Thực hiện các thao tác với phần tử tại index
         List<string> variables = selectedFolderAudioPaths?.ToList() ?? new List<string>();
+        List<string> variablesFileIntroPaths = selectedFileIntroPaths?.ToList() ?? new List<string>();
         List<string> variablesFolderSavePaths = selectedFolderSavePaths?.ToList() ?? new List<string>();
         bool variablesAddAudioCheckBox = addAudioCheckBox;
-        DetailFolderForm detailImageForm = new DetailFolderForm(variables, variablesFolderSavePaths, variablesAddAudioCheckBox);
+        DetailFolderForm detailImageForm = new DetailFolderForm(variables, variablesFolderSavePaths, variablesFileIntroPaths, variablesAddAudioCheckBox);
 
         // Show the form as a dialog
         detailImageForm.ShowDialog();
 
+
+
         // After the form is closed, get the updated variables
         List<string> updatedVariables = detailImageForm.UpdatedVariables;
+        List<string> updatedFileIntroVariables = detailImageForm.UpdatedFileIntroPaths;
         List<string> updatedFolderSavePaths = detailImageForm.UpdatedFolderSavePaths;
         bool updatedAddAudioCheckBox = detailImageForm.AddAudioCheckBox;
 
+        // Kiểm tra xem đã chọn đủ số lượng thư mục lưu chưa
+        for (int i = 0; i < updatedVariables.Count; i++)
+        {
+            if (updatedFolderSavePaths[i] == "")
+            {
+                MessageBox.Show("Please select save path for segment " + (i + 1) + "!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+        }
+
         // Update your data in Form A
         selectedFolderAudioPaths = updatedVariables;
+        selectedFileIntroPaths = updatedFileIntroVariables;
         selectedFolderSavePaths = updatedFolderSavePaths;
         addAudioCheckBox = updatedAddAudioCheckBox;
 
         selectedFileAudioPaths.Clear();
-
-        // Kiểm tra xem đã chọn đủ số lượng thư mục lưu chưa
-        for (int i = 0; i < selectedFolderAudioPaths.Count; i++)
-        {
-            if (selectedFolderSavePaths[i] == "")
-            {
-                MessageBox.Show("Please select save path for segment " + (i + 1) + "!");
-                return;
-            }
-        }
 
         foreach (var folderPath in selectedFolderAudioPaths)
         {
