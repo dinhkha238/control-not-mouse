@@ -1,0 +1,53 @@
+styles\A Moving Backdrop.pxs
+styles\Backdrop Dark Framed Pan Left.pxs
+styles\Backdrop Dark Framed Pan Right.pxs
+styles\Backdrop Dark Framed Zoom In 3D.pxs
+styles\Backdrop Dark Framed Zoom In Rotate.pxs
+styles\Backdrop Dark Framed Zoom In.pxs
+styles\Backdrop Dark Framed Zoom Out 3D.pxs
+styles\Backdrop Dark Framed Zoom Out Rotate.pxs
+styles\Backdrop Dark Framed Zoom Out.pxs
+styles\Backdrop Dark Pan Left.pxs
+styles\Backdrop Dark Pan Right.pxs
+styles\Backdrop Dark Zoom In 3D.pxs
+styles\Backdrop Dark Zoom In Rotate.pxs
+styles\Backdrop Dark Zoom In.pxs
+styles\Backdrop Dark Zoom Out 3D.pxs
+styles\Backdrop Dark Zoom Out Rotate.pxs
+styles\Backdrop Dark Zoom Out.pxs
+styles\Backdrop Light Framed Pan Left.pxs
+styles\Backdrop Light Framed Pan Right.pxs
+styles\Backdrop Light Framed Zoom In 3D.pxs
+styles\Backdrop Light Framed Zoom In Rotate.pxs
+styles\Backdrop Light Framed Zoom In.pxs
+styles\Backdrop Light Framed Zoom Out 3D.pxs
+styles\Backdrop Light Framed Zoom Out Rotate.pxs
+styles\Backdrop Light Framed Zoom Out.pxs
+styles\Backdrop Light Pan Left.pxs
+styles\Backdrop Light Pan Right.pxs
+styles\Backdrop Light Zoom In 3D.pxs
+styles\Backdrop Light Zoom In Rotate.pxs
+styles\Backdrop Light Zoom In.pxs
+styles\Backdrop Light Zoom Out 3D.pxs
+styles\Backdrop Light Zoom Out Rotate.pxs
+styles\Backdrop Light Zoom Out.pxs
+styles\Coasting.pxs
+styles\Flip and Glide 3D Dark 1.pxs
+styles\Flip and Glide 3D Dark 2.pxs
+styles\Flip and Glide 3D Light 1.pxs
+styles\Flip and Glide 3D Light 2.pxs
+styles\Momentum 3D 1 Blur.pxs
+styles\Momentum 3D 1 Dark.pxs
+styles\Momentum 3D 1 Light.pxs
+styles\Reflection Pair Crossing Dark.pxs
+styles\Reflection Pair Crossing Light.pxs
+styles\Tilted Revolution 3D Landscape 1.pxs
+styles\Tilted Revolution 3D Landscape 2.pxs
+styles\Tilted Revolution 3D Portrait 1.pxs
+styles\Tilted Revolution 3D Portrait 2.pxs
+styles\Tilted Singles 3D Dark Backdrop Blur.pxs
+styles\Tilted Singles 3D Dark Framed.pxs
+styles\Tilted Singles 3D Dark.pxs
+styles\Tilted Singles 3D Light Backdrop Blur.pxs
+styles\Tilted Singles 3D Light Framed.pxs
+styles\Tilted Singles 3D Light.pxs
