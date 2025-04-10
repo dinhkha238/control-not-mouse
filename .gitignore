@@ -2,6 +2,5 @@ files
 finals
 bin
 obj
-groups
 .env
 __pycache__
