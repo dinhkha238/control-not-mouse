@@ -6,6 +6,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
+using MediaToolkit;
+using MediaToolkit.Model;
 
 namespace WinFormsApp;
 
@@ -102,20 +104,12 @@ public partial class Form1 : Form
                 return;
             }
 
-            // if (!System.IO.File.Exists(filePath))
-            // {
-            //     MessageBox.Show("Đường dẫn tới tệp .psh không đúng.");
-            //     return;
-            // }
-
             // Tạo một đối tượng ProcessStartInfo để khởi động ProShow với tệp .psh
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = proShowPath,
                 Arguments = filePath,
                 UseShellExecute = true,
-                WindowStyle = ProcessWindowStyle.Minimized // Hoặc Hidden nếu bạn muốn ẩn hoàn toàn cửa sổ
-
             };
 
             // Khởi động ProShow với tệp .psh
@@ -750,7 +744,7 @@ public partial class Form1 : Form
             long timestamp = vietnamTime.ToUnixTimeSeconds();
 
             ConvertTo30fps(path_image_to_video, $"{"output_30fps_" + timestamp}.mp4");
-
+            
             CutVideo($"{"output_30fps_" + timestamp}.mp4", path_image_animation_cutted);
 
             DeleteFile($"{"output_30fps_" + timestamp}.mp4");
@@ -758,8 +752,26 @@ public partial class Form1 : Form
 
         Thread.Sleep(1000);
 
+        if (!Directory.Exists(path_video_converted))
+        {
+            Directory.CreateDirectory(path_video_converted);
+        }
+        path_video_converted = Path.GetFullPath(path_video_converted);
+
+        // 🔍 Tìm tất cả file mp4
+        string[] videoFilesNotConvert = selectedFileImagePaths[0].Where(IsVideoFile).ToArray();
+
+        foreach (string inputFile in videoFilesNotConvert)
+        {
+            string fileName = Path.GetFileNameWithoutExtension(inputFile);
+            string outputFile = Path.Combine(path_video_converted, fileName + "_fixed.mp4");
+
+            string ffmpegArgs = $"-y -i \"{inputFile}\" -c copy -an -map 0 \"{outputFile}\"";
+            RunFFmpegCommand(ffmpegArgs);
+        }
+
         // Lọc các phần tử là file Video
-        string[] videoFiles = selectedFileImagePaths[0].Where(IsVideoFile).ToArray();
+        string[] videoFiles = Directory.GetFiles(path_video_converted, "*.mp4");
         string[] imageToVideoFiles = Directory.GetFiles("image_animation_cutted", "*.mp4");
 
         imageToVideoFiles = imageToVideoFiles.Select(file => Path.Combine(currentDirectory, file)).ToArray();
@@ -769,12 +781,9 @@ public partial class Form1 : Form
             // Tính độ dài của file âm thanh
             double audioDuration = GetAudioFileLength(selectedFileAudioPaths[index_audio][0]) / 1000;
 
-            // Mỗi video có độ dài là 5 giây, tính số lượng video cần ghép
-            int totalVideosNeeded = (int)Math.Ceiling(audioDuration / 5.0);
-
             // Danh sách video cần ghép
-            string[] videoPaths = GetVideoListForMerging(videoFiles, imageToVideoFiles, totalVideosNeeded);
-
+            string[] videoPaths = GetVideoListForMerging(videoFiles, imageToVideoFiles, audioDuration);
+            
             // Tạo đường dẫn cho file video_list.txt ngay trong thư mục hiện tại
             string listFilePath = Path.Combine(currentDirectory, "video_list.txt");
 
@@ -804,6 +813,7 @@ public partial class Form1 : Form
                 DeleteFile(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4"));
             }
         }
+        DeleteAllFilesInFolder(path_video_converted);
         DeleteAllFilesInFolder(path_image_animation);
         DeleteAllFilesInFolder(path_image_animation_cutted);
 
@@ -858,30 +868,71 @@ public partial class Form1 : Form
     public void ConvertTo30fps(string inputFile, string outputFile)
     {
         // Tạo lệnh FFmpeg để chuyển đổi video
-        string arguments = $"-i \"{inputFile}\" -r 30 \"{outputFile}\"";
+        string arguments = $"-i \"{inputFile}\" -r 30 -c:v h264_nvenc -preset fast -b:v 4M -an \"{outputFile}\"";
         name_ffmpeg = "CONVERTING TO 30FPS";
         RunFFmpegCommand(arguments);
     }
 
     // Hàm chọn danh sách video ghép theo tỉ lệ 3:1
-    static string[] GetVideoListForMerging(string[] folder1Videos, string[] folder2Videos, int totalVideosNeeded)
+    static string[] GetVideoListForMerging(string[] folder1Videos, string[] folder2Videos, double audioDuration)
     {
         var videoList = new List<string>();
-        // Tạo đối tượng Random
         Random random = new Random();
-        //
+
+        // Lọc video hợp lệ trong folder1Videos (3s < duration < 10s)
+        var validFolder1Videos = new List<(string path, double duration)>();
+        foreach (var videoPath in folder1Videos)
+        {
+            var inputFile = new MediaFile { Filename = videoPath };
+            using (var engine = new Engine())
+            {
+                engine.GetMetadata(inputFile);
+                var duration = inputFile.Metadata.Duration.TotalSeconds;
+                if (duration > 3 && duration < 10)
+                {
+                    validFolder1Videos.Add((videoPath, duration));
+                }
+            }
+        }
+
+        if (validFolder1Videos.Count == 0 || folder2Videos.Length == 0)
+            return videoList.ToArray();
+
+        double totalDuration = 0;
         int countImage = 0;
-        for (int i = 0; i < totalVideosNeeded; i++)
+
+        while (true)
         {
             if (countImage < 3)
             {
-                videoList.Add(folder1Videos[random.Next(folder1Videos.Length)]);
+                var selected = validFolder1Videos[random.Next(validFolder1Videos.Count)];
+                videoList.Add(selected.path);
+                totalDuration += selected.duration;
+
                 countImage++;
+
+                if (totalDuration >= audioDuration)
+                    break;
             }
             else
             {
-                videoList.Add(folder2Videos[random.Next(folder2Videos.Length)]);
+                var selectedPath = folder2Videos[random.Next(folder2Videos.Length)];
+                var inputFile = new MediaFile { Filename = selectedPath };
+                double folder2Duration;
+
+                using (var engine = new Engine())
+                {
+                    engine.GetMetadata(inputFile);
+                    folder2Duration = inputFile.Metadata.Duration.TotalSeconds;
+                }
+
+                videoList.Add(selectedPath);
+                totalDuration += folder2Duration;
+
                 countImage = 0;
+
+                if (totalDuration >= audioDuration)
+                    break;
             }
         }
 
@@ -1075,7 +1126,7 @@ public partial class Form1 : Form
 
     private void CombineVideoAndAudio(string videoFile, string audioFile, string outputFile)
     {
-        string arguments = $"-i \"{videoFile}\" -i \"{audioFile}\" -c:v copy -c:a aac -b:a 128k -ar 44100 -ac 2 \"{outputFile}\"";
+        string arguments = $"-i \"{videoFile}\" -i \"{audioFile}\" -c:v copy -c:a aac -b:a 128k -ar 44100 -ac 2 -movflags +faststart \"{outputFile}\"";
         name_ffmpeg = "COMBINING VIDEO AND AUDIO";
         RunFFmpegCommand(arguments);
     }
