@@ -744,7 +744,7 @@ public partial class Form1 : Form
             long timestamp = vietnamTime.ToUnixTimeSeconds();
 
             ConvertTo30fps(path_image_to_video, $"{"output_30fps_" + timestamp}.mp4");
-            
+
             CutVideo($"{"output_30fps_" + timestamp}.mp4", path_image_animation_cutted);
 
             DeleteFile($"{"output_30fps_" + timestamp}.mp4");
@@ -783,7 +783,7 @@ public partial class Form1 : Form
 
             // Danh sách video cần ghép
             string[] videoPaths = GetVideoListForMerging(videoFiles, imageToVideoFiles, audioDuration);
-            
+
             // Tạo đường dẫn cho file video_list.txt ngay trong thư mục hiện tại
             string listFilePath = Path.Combine(currentDirectory, "video_list.txt");
 
@@ -808,9 +808,16 @@ public partial class Form1 : Form
 
             if (selectedFileIntroPaths[index_audio] != "")
             {
-                File.WriteAllText(listFilePath, $"file '{selectedFileIntroPaths[index_audio]}'\nfile '{Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4")}'");
+                string fileName = Path.GetFileNameWithoutExtension(selectedFileIntroPaths[index_audio]);
+                string outputFile = Path.Combine(currentDirectory, fileName + "_intro_fixed.mp4");
+
+                string ffmpegArgs = $"-y -i \"{selectedFileIntroPaths[index_audio]}\" -c copy -map 0 \"{outputFile}\"";
+                RunFFmpegCommand(ffmpegArgs);
+
+                File.WriteAllText(listFilePath, $"file '{outputFile}'\nfile '{Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4")}'");
                 MergeVideosUsingListFileHaveAudio(listFilePath, Path.Combine(selectedFolderSavePaths[index_audio], $"{"intro_final_" + timestamp}.mp4"));
                 DeleteFile(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4"));
+                DeleteFile(outputFile);
             }
         }
         DeleteAllFilesInFolder(path_video_converted);
