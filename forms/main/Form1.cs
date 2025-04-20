@@ -819,6 +819,20 @@ public partial class Form1 : Form
                 DeleteFile(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4"));
                 DeleteFile(outputFile);
             }
+
+            if (backgroundMusicPath != "")
+            {
+                if (selectedFileIntroPaths[index_audio] != "")
+                {
+                    AddBackgroundMusicToVideo(Path.Combine(selectedFolderSavePaths[index_audio], $"{"intro_final_" + timestamp}.mp4"), backgroundMusicPath, Path.Combine(selectedFolderSavePaths[index_audio], $"{"intro_music_final_" + timestamp}.mp4"));
+                    DeleteFile(Path.Combine(selectedFolderSavePaths[index_audio], $"{"intro_final_" + timestamp}.mp4"));
+                }
+                else
+                {
+                    AddBackgroundMusicToVideo(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4"), backgroundMusicPath, Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_music_final_" + timestamp}.mp4"));
+                    DeleteFile(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4"));
+                }
+            }
         }
         DeleteAllFilesInFolder(path_video_converted);
         DeleteAllFilesInFolder(path_image_animation);
@@ -1153,6 +1167,16 @@ public partial class Form1 : Form
 
         RunFFmpegCommand(arguments);
     }
+    public void AddBackgroundMusicToVideo(string inputVideoPath, string backgroundMusicPath, string outputPath)
+    {
+        string arguments = $"-i \"{inputVideoPath}\" -stream_loop -1 -i \"{backgroundMusicPath}\" " +
+                           "-filter_complex \"[1:a]volume=0.2[a1];[0:a][a1]amix=inputs=2:duration=first:dropout_transition=2[a]\" " +
+                           "-map 0:v -map \"[a]\" -c:v copy -c:a aac -b:a 192k -movflags +faststart -y " +
+                           $"\"{outputPath}\"";
+
+        name_ffmpeg = "ADDING BACKGROUND MUSIC";
+        RunFFmpegCommand(arguments);
+    }
 
     static void CutVideo(string inputVideoPath, string outputFolder)
     {
@@ -1239,7 +1263,8 @@ public partial class Form1 : Form
         List<string> variablesFileIntroPaths = selectedFileIntroPaths?.ToList() ?? new List<string>();
         List<string> variablesFolderSavePaths = selectedFolderSavePaths?.ToList() ?? new List<string>();
         bool variablesAddAudioCheckBox = addAudioCheckBox;
-        DetailFolderForm detailImageForm = new DetailFolderForm(variables, variablesFolderSavePaths, variablesFileIntroPaths, variablesAddAudioCheckBox);
+        string variableBackgroundMusicPath = backgroundMusicPath;
+        DetailFolderForm detailImageForm = new DetailFolderForm(variables, variablesFolderSavePaths, variablesFileIntroPaths, variableBackgroundMusicPath, variablesAddAudioCheckBox);
 
         // Show the form as a dialog
         detailImageForm.ShowDialog();
@@ -1251,6 +1276,7 @@ public partial class Form1 : Form
         List<string> updatedFileIntroVariables = detailImageForm.UpdatedFileIntroPaths;
         List<string> updatedFolderSavePaths = detailImageForm.UpdatedFolderSavePaths;
         bool updatedAddAudioCheckBox = detailImageForm.AddAudioCheckBox;
+        string updateBackgroundMusicPath = detailImageForm.UpdateBackgroundMusicPath;
 
         // Kiểm tra xem đã chọn đủ số lượng thư mục lưu chưa
         for (int i = 0; i < updatedVariables.Count; i++)
@@ -1267,6 +1293,7 @@ public partial class Form1 : Form
         selectedFileIntroPaths = updatedFileIntroVariables;
         selectedFolderSavePaths = updatedFolderSavePaths;
         addAudioCheckBox = updatedAddAudioCheckBox;
+        backgroundMusicPath = updateBackgroundMusicPath;
 
         selectedFileAudioPaths.Clear();
 

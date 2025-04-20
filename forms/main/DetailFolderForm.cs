@@ -12,23 +12,26 @@ public partial class DetailFolderForm : Form
     private Button deleteButton;
     private Button addButton;
     private CheckBox addAudioCheckBox = new CheckBox();
+    private TextBox backgroundMusicTextBox;
 
     public List<string> UpdatedVariables { get; private set; }
     public List<string> UpdatedFolderSavePaths { get; private set; }
     public List<string> UpdatedFileIntroPaths { get; private set; }
     public bool AddAudioCheckBox { get; private set; }
+    public string UpdateBackgroundMusicPath { get; private set; }
 
-    public DetailFolderForm(List<string> variables, List<string> selectedFolderSavePaths, List<string> selectedFileIntroPaths, bool addAudioCheckBox = true)
+    public DetailFolderForm(List<string> variables, List<string> selectedFolderSavePaths, List<string> selectedFileIntroPaths, string backgroundMusicTextBox, bool addAudioCheckBox = true)
     {
         InitializeComponent();
         this.variables = new List<string>(variables);
         this.selectedFolderSavePaths = new List<string>(selectedFolderSavePaths);
         this.selectedFileIntroPaths = new List<string>(selectedFileIntroPaths);
-        this.addAudioCheckBox.Checked = addAudioCheckBox;
+
         this.UpdatedVariables = new List<string>(variables);
         this.UpdatedFolderSavePaths = new List<string>(selectedFolderSavePaths);
         this.UpdatedFileIntroPaths = new List<string>(selectedFileIntroPaths);
         this.AddAudioCheckBox = addAudioCheckBox;
+        this.UpdateBackgroundMusicPath = backgroundMusicTextBox;
         InitializeForm();
     }
 
@@ -99,6 +102,39 @@ public partial class DetailFolderForm : Form
             this.AddAudioCheckBox = this.addAudioCheckBox.Checked;
         };
         this.Controls.Add(this.addAudioCheckBox);
+
+        // Label cho nhạc nền
+        Label bgMusicLabel = new Label();
+        bgMusicLabel.Text = "Background Music:";
+        bgMusicLabel.Location = new System.Drawing.Point(25, 460);
+        bgMusicLabel.AutoSize = true;
+        this.Controls.Add(bgMusicLabel);
+
+        // TextBox nhập đường dẫn nhạc nền
+        backgroundMusicTextBox = new TextBox();
+        backgroundMusicTextBox.Name = "backgroundMusicTextBox";
+        backgroundMusicTextBox.Size = new System.Drawing.Size(300, 25);
+        backgroundMusicTextBox.Location = new System.Drawing.Point(150, 455);
+        backgroundMusicTextBox.Text = this.UpdateBackgroundMusicPath;
+        this.Controls.Add(backgroundMusicTextBox);
+
+        // Button để chọn file nhạc nền
+        Button selectBackgroundMusicButton = new Button();
+        selectBackgroundMusicButton.Text = "Browse";
+        selectBackgroundMusicButton.Location = new System.Drawing.Point(460, 455);
+        selectBackgroundMusicButton.Click += (sender, e) =>
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "Audio files (*.mp3;*.wav)|*.mp3;*.wav|All files (*.*)|*.*";
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    backgroundMusicTextBox.Text = openFileDialog.FileName;
+                }
+            }
+        };
+        this.Controls.Add(selectBackgroundMusicButton);
+
 
         this.FormClosing += DetailImageForm_FormClosing;
     }
@@ -187,5 +223,7 @@ public partial class DetailFolderForm : Form
                 UpdatedFileIntroPaths.Add(row.Cells["IntroPath"].Value?.ToString());
             }
         }
+
+        UpdateBackgroundMusicPath = backgroundMusicTextBox.Text?.Trim();
     }
 }

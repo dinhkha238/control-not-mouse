@@ -37,6 +37,7 @@ partial class Form1
     private List<string> selectedFileIntroPaths = new List<string>();
     private int optionSelectImage = -1;
     private bool addAudioCheckBox = true;
+    private string backgroundMusicPath = "";
 
     private string path_image_animation = @"image_animation";
     private string path_image_animation_cutted = @"image_animation_cutted";
