@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using MediaToolkit;
 using MediaToolkit.Model;
+using WinFormsApp.Forms;
 
 namespace WinFormsApp;
 
@@ -59,7 +60,7 @@ public partial class Form1 : Form
     {
         InitializeComponent();
     }
-    private void button7_Click(object sender, EventArgs e, int totalFileExport)
+    private void button7_Click(object sender, EventArgs e, int totalFileExport, ProgressForm progressForm)
     {
         // Đọc dữ liệu từ file settings.json
         string settingsFilePath = "settings.json";
@@ -132,6 +133,10 @@ public partial class Form1 : Form
                     isFindWindow = true;
                     break;
                 }
+                if (progressForm.IsCancelled)
+                {
+                    return;
+                }
                 // Chờ 100ms trước khi kiểm tra lại
                 Thread.Sleep(intervalImport);
                 elapsed += intervalImport;
@@ -141,6 +146,8 @@ public partial class Form1 : Form
                 return;
             }
             isFindWindow = false;
+
+            progressForm.DisableCancelButton();
 
             IntPtr renderVideoHandle = IntPtr.Zero;
             while (elapsed < timeout)
@@ -631,214 +638,222 @@ public partial class Form1 : Form
             selectedFileImagePaths.Add([]);
         }
     }
-    private void generateSlideButton_Click(object sender, EventArgs e)
+    private async void generateSlideButton_Click(object sender, EventArgs e)
     {
-        //  Các phần tử còn lại (trừ phần tử videoFiles)
-        string[] imageFiles = selectedFileImagePaths[0].Where(file => !IsVideoFile(file)).ToArray();
+        // Hiển thị ProgressForm
+        ProgressForm progressForm = new ProgressForm();
 
-        if (imageFiles.Length != 0)
+        // Chạy các tác vụ trên Thread riêng
+        Task controlTask = Task.Run(() =>
         {
-            for (int number = 0; number < 1; number++)
+            //  Các phần tử còn lại (trừ phần tử videoFiles)
+            string[] imageFiles = selectedFileImagePaths[0].Where(file => !IsVideoFile(file)).ToArray();
+
+            if (imageFiles.Length != 0)
             {
-                int length_selectedFileAudioPaths = 1;
-                string settingsFilePath = "settings.json";
-                if (!File.Exists(settingsFilePath))
+                for (int number = 0; number < 1; number++)
                 {
-                    MessageBox.Show("Settings file not found.");
-                    return;
-                }
-                string settingsContent = File.ReadAllText(settingsFilePath);
-                dynamic settings = JsonConvert.DeserializeObject(settingsContent);
-                string groupStyle = settings.GroupStyle;
-                string groupFilePath = System.IO.Path.Combine("groups", groupStyle);
-                if (!File.Exists(groupFilePath))
-                {
-                    MessageBox.Show("Group file not found.");
-                    return;
-                }
-
-
-                string file3Path = @"files/extractedContent.txt";
-                // clear content of file3Path
-                System.IO.File.WriteAllText(file3Path, string.Empty);
-                int index_cell = 0;
-
-                int segment = 5000;
-                for (int x = 0; x < length_selectedFileAudioPaths; x++)
-                {
-                    // Lấy length audio của file audio
-                    int length_audio = 5000;
-
-                    int length_att_in_selectedFileImagePaths = length_audio / segment;
-                    // Lấy phần dư sau khi 
-                    int remaining = length_audio - length_att_in_selectedFileImagePaths * segment;
-
-                    string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
-                    // Tạo đối tượng Random
-                    Random random = new Random();
-
-
-                    for (int i = 0; i < imageFiles.Length; i++)
+                    int length_selectedFileAudioPaths = 1;
+                    string settingsFilePath = "settings.json";
+                    if (!File.Exists(settingsFilePath))
                     {
-                        // Lấy ngẫu nhiên một dòng từ groupFileLines
-                        string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
-                        string path_image;
-                        path_image = "../../../../" + imageFiles[i];
-                        string path_audio = "";
-                        WriteCellToFile(selectedFile, ref index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
+                        MessageBox.Show("Settings file not found.");
+                        return;
+                    }
+                    string settingsContent = File.ReadAllText(settingsFilePath);
+                    dynamic settings = JsonConvert.DeserializeObject(settingsContent);
+                    string groupStyle = settings.GroupStyle;
+                    string groupFilePath = System.IO.Path.Combine("groups", groupStyle);
+                    if (!File.Exists(groupFilePath))
+                    {
+                        MessageBox.Show("Group file not found.");
+                        return;
+                    }
+
+                    string file3Path = @"files/extractedContent.txt";
+                    System.IO.File.WriteAllText(file3Path, string.Empty);
+                    int index_cell = 0;
+                    int segment = 5000;
+                    for (int x = 0; x < length_selectedFileAudioPaths; x++)
+                    {
+                        int length_audio = 5000;
+                        int length_att_in_selectedFileImagePaths = length_audio / segment;
+
+                        string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
+                        Random random = new Random();
+
+                        for (int i = 0; i < imageFiles.Length; i++)
+                        {
+                            string selectedFile = groupFileLines[random.Next(groupFileLines.Length)];
+                            string path_image = "../../../../" + imageFiles[i];
+                            string path_audio = "";
+                            progressForm.SetStatus($"Đang xử lý ảnh");
+                            WriteCellToFile(selectedFile, ref index_cell, path_image, path_audio, length_audio, segment, i, length_att_in_selectedFileImagePaths, file3Path);
+                        }
+                    }
+                    string file2Path = @"files/FileProShow_2.txt";
+                    using (StreamWriter writer1 = new StreamWriter(file2Path))
+                    {
+                        writer1.WriteLine($"cells={index_cell}");
+                    }
+
+                    string file4Path = @"files/FileProShow_4.txt";
+                    using (StreamWriter writer1 = new StreamWriter(file4Path))
+                    {
+                        writer1.WriteLine($"modifierCount=0");
+                    }
+
+                    string file1Path = @"files/FileProShow.txt";
+                    string folderContainFileProShow = Path.Combine(Directory.GetCurrentDirectory(), @"finals");
+                    if (!Directory.Exists(folderContainFileProShow))
+                    {
+                        Directory.CreateDirectory(folderContainFileProShow);
+                    }
+                    string combinedFilePath = $"finals/combined_{number}.psh";
+                    using (StreamWriter writer = new StreamWriter(combinedFilePath))
+                    {
+                        WriteFileContent(writer, file1Path);
+                        WriteFileContent(writer, file2Path);
+                        WriteFileContent(writer, file3Path);
+                        WriteFileContent(writer, file4Path);
                     }
                 }
-                string file2Path = @"files/FileProShow_2.txt";
-                using (StreamWriter writer1 = new StreamWriter(file2Path))
+
+                // Sau khi hoàn thành, đóng cửa sổ tiến trình
+                button7_Click(sender, e, 1, progressForm);
+
+                // Kiểm tra nếu người dùng đã nhấn "Cancel"
+                if (progressForm.IsCancelled)
                 {
-                    writer1.WriteLine($"cells={index_cell}");
-                    writer1.Close();
-                }
-
-                string file4Path = @"files/FileProShow_4.txt";
-                using (StreamWriter writer1 = new StreamWriter(file4Path))
-                {
-                    writer1.WriteLine($"modifierCount=0");
-                    writer1.Close();
-                }
-
-                string file1Path = @"files/FileProShow.txt";
-                string folderContainFileProShow = Path.Combine(Directory.GetCurrentDirectory(), @"finals");
-                if (!Directory.Exists(folderContainFileProShow))
-                {
-                    Directory.CreateDirectory(folderContainFileProShow);
-                }
-                string combinedFilePath = $"finals/combined_{number}.psh"; // Replace with your combined file path
-                                                                           // Open the combined file for writing
-                using (StreamWriter writer = new StreamWriter(combinedFilePath))
-                {
-                    WriteFileContent(writer, file1Path);
-
-                    // Write the content of the first file
-                    WriteFileContent(writer, file2Path);
-
-                    // Write the content of the second file
-                    WriteFileContent(writer, file3Path);
-
-                    // Write the content of the third file
-                    WriteFileContent(writer, file4Path);
+                    return; // Thoát ra nếu hủy
                 }
 
             }
-            button7_Click(sender, e, 1);
-        }
 
-        // Lấy thư mục hiện tại của chương trình (thư mục chứa code)
-        string currentDirectory = Directory.GetCurrentDirectory();
+            // Lấy thư mục hiện tại của chương trình (thư mục chứa code)
+            string currentDirectory = Directory.GetCurrentDirectory();
 
-        if (!Directory.Exists(path_image_animation_cutted))
-        {
-            Directory.CreateDirectory(path_image_animation_cutted);
-        }
-        path_image_animation_cutted = Path.GetFullPath(path_image_animation_cutted);
-
-        if (imageFiles.Length != 0)
-        {
-            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            DateTimeOffset vietnamTime = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, vietnamTimeZone);
-            long timestamp = vietnamTime.ToUnixTimeSeconds();
-
-            ConvertTo30fps(path_image_to_video, $"{"output_30fps_" + timestamp}.mp4");
-
-            CutVideo($"{"output_30fps_" + timestamp}.mp4", path_image_animation_cutted);
-
-            DeleteFile($"{"output_30fps_" + timestamp}.mp4");
-        }
-
-        Thread.Sleep(1000);
-
-        if (!Directory.Exists(path_video_converted))
-        {
-            Directory.CreateDirectory(path_video_converted);
-        }
-        path_video_converted = Path.GetFullPath(path_video_converted);
-
-        // 🔍 Tìm tất cả file mp4
-        string[] videoFilesNotConvert = selectedFileImagePaths[0].Where(IsVideoFile).ToArray();
-
-        foreach (string inputFile in videoFilesNotConvert)
-        {
-            string fileName = Path.GetFileNameWithoutExtension(inputFile);
-            string outputFile = Path.Combine(path_video_converted, fileName + "_fixed.mp4");
-
-            string ffmpegArgs = $"-y -i \"{inputFile}\" -c copy -an -map 0 \"{outputFile}\"";
-            RunFFmpegCommand(ffmpegArgs);
-        }
-
-        // Lọc các phần tử là file Video
-        string[] videoFiles = Directory.GetFiles(path_video_converted, "*.mp4");
-        string[] imageToVideoFiles = Directory.GetFiles("image_animation_cutted", "*.mp4");
-
-        imageToVideoFiles = imageToVideoFiles.Select(file => Path.Combine(currentDirectory, file)).ToArray();
-
-        for (int index_audio = 0; index_audio < selectedFolderAudioPaths.Count(); index_audio++)
-        {
-            // Tính độ dài của file âm thanh
-            double audioDuration = GetAudioFileLength(selectedFileAudioPaths[index_audio][0]) / 1000;
-
-            // Danh sách video cần ghép
-            string[] videoPaths = GetVideoListForMerging(videoFiles, imageToVideoFiles, audioDuration);
-
-            // Tạo đường dẫn cho file video_list.txt ngay trong thư mục hiện tại
-            string listFilePath = Path.Combine(currentDirectory, "video_list.txt");
-
-            using (StreamWriter writer = new StreamWriter(listFilePath))
+            if (!Directory.Exists(path_image_animation_cutted))
             {
-                foreach (var video in videoPaths)
-                {
-                    writer.WriteLine($"file '{video.Replace("\\", "/")}'");
-                }
+                Directory.CreateDirectory(path_image_animation_cutted);
+            }
+            path_image_animation_cutted = Path.GetFullPath(path_image_animation_cutted);
+
+            if (imageFiles.Length != 0)
+            {
+                TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                DateTimeOffset vietnamTime = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, vietnamTimeZone);
+                long timestamp = vietnamTime.ToUnixTimeSeconds();
+
+                progressForm.SetStatus($"Đang chuyển đổi định dạng ảnh");
+
+                ConvertTo30fps(path_image_to_video, $"{"output_30fps_" + timestamp}.mp4");
+
+                CutVideo($"{"output_30fps_" + timestamp}.mp4", path_image_animation_cutted);
+
+                DeleteFile($"{"output_30fps_" + timestamp}.mp4");
             }
 
-            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            DateTimeOffset vietnamTime = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, vietnamTimeZone);
-            long timestamp = vietnamTime.ToUnixTimeSeconds();
+            Thread.Sleep(1000);
 
-            // Ghép các video đã chọn
-            MergeVideosUsingListFile(listFilePath, Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_" + timestamp}.mp4"));
-
-            CombineVideoAndAudio(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_" + timestamp}.mp4"), selectedFileAudioPaths[index_audio][0], Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4"));
-
-            DeleteFile(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_" + timestamp}.mp4"));
-
-            if (selectedFileIntroPaths[index_audio] != "")
+            if (!Directory.Exists(path_video_converted))
             {
-                string fileName = Path.GetFileNameWithoutExtension(selectedFileIntroPaths[index_audio]);
-                string outputFile = Path.Combine(currentDirectory, fileName + "_intro_fixed.mp4");
+                Directory.CreateDirectory(path_video_converted);
+            }
+            path_video_converted = Path.GetFullPath(path_video_converted);
 
-                string ffmpegArgs = $"-y -i \"{selectedFileIntroPaths[index_audio]}\" -c copy -map 0 \"{outputFile}\"";
+            progressForm.SetStatus($"Đang chuyển đổi định dạng video");
+
+            // 🔍 Tìm tất cả file mp4
+            string[] videoFilesNotConvert = selectedFileImagePaths[0].Where(IsVideoFile).ToArray();
+
+            foreach (string inputFile in videoFilesNotConvert)
+            {
+                string fileName = Path.GetFileNameWithoutExtension(inputFile);
+                string outputFile = Path.Combine(path_video_converted, fileName + "_fixed.mp4");
+
+                string ffmpegArgs = $"-y -i \"{inputFile}\" -c copy -an -map 0 \"{outputFile}\"";
                 RunFFmpegCommand(ffmpegArgs);
-
-                File.WriteAllText(listFilePath, $"file '{outputFile}'\nfile '{Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4")}'");
-                MergeVideosUsingListFileHaveAudio(listFilePath, Path.Combine(selectedFolderSavePaths[index_audio], $"{"intro_final_" + timestamp}.mp4"));
-                DeleteFile(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4"));
-                DeleteFile(outputFile);
             }
 
-            if (backgroundMusicPath != "")
+            // Lọc các phần tử là file Video
+            string[] videoFiles = Directory.GetFiles(path_video_converted, "*.mp4");
+            string[] imageToVideoFiles = Directory.GetFiles("image_animation_cutted", "*.mp4");
+
+            imageToVideoFiles = imageToVideoFiles.Select(file => Path.Combine(currentDirectory, file)).ToArray();
+
+            for (int index_audio = 0; index_audio < selectedFolderAudioPaths.Count(); index_audio++)
             {
+                progressForm.SetStatus($"Đang tạo video {index_audio + 1}");
+                // Tính độ dài của file âm thanh
+                double audioDuration = GetAudioFileLength(selectedFileAudioPaths[index_audio][0]) / 1000;
+
+                // Danh sách video cần ghép
+                string[] videoPaths = GetVideoListForMerging(videoFiles, imageToVideoFiles, audioDuration);
+
+                // Tạo đường dẫn cho file video_list.txt ngay trong thư mục hiện tại
+                string listFilePath = Path.Combine(currentDirectory, "video_list.txt");
+
+                using (StreamWriter writer = new StreamWriter(listFilePath))
+                {
+                    foreach (var video in videoPaths)
+                    {
+                        writer.WriteLine($"file '{video.Replace("\\", "/")}'");
+                    }
+                }
+
+                TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                DateTimeOffset vietnamTime = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, vietnamTimeZone);
+                long timestamp = vietnamTime.ToUnixTimeSeconds();
+
+                // Ghép các video đã chọn
+                MergeVideosUsingListFile(listFilePath, Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_" + timestamp}.mp4"));
+
+                CombineVideoAndAudio(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_" + timestamp}.mp4"), selectedFileAudioPaths[index_audio][0], Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4"));
+
+                DeleteFile(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_" + timestamp}.mp4"));
+
                 if (selectedFileIntroPaths[index_audio] != "")
                 {
-                    AddBackgroundMusicToVideo(Path.Combine(selectedFolderSavePaths[index_audio], $"{"intro_final_" + timestamp}.mp4"), backgroundMusicPath, Path.Combine(selectedFolderSavePaths[index_audio], $"{"intro_music_final_" + timestamp}.mp4"));
-                    DeleteFile(Path.Combine(selectedFolderSavePaths[index_audio], $"{"intro_final_" + timestamp}.mp4"));
-                }
-                else
-                {
-                    AddBackgroundMusicToVideo(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4"), backgroundMusicPath, Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_music_final_" + timestamp}.mp4"));
+                    string fileName = Path.GetFileNameWithoutExtension(selectedFileIntroPaths[index_audio]);
+                    string outputFile = Path.Combine(currentDirectory, fileName + "_intro_fixed.mp4");
+
+                    string ffmpegArgs = $"-y -i \"{selectedFileIntroPaths[index_audio]}\" -c copy -map 0 \"{outputFile}\"";
+                    RunFFmpegCommand(ffmpegArgs);
+
+                    File.WriteAllText(listFilePath, $"file '{outputFile}'\nfile '{Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4")}'");
+                    MergeVideosUsingListFileHaveAudio(listFilePath, Path.Combine(selectedFolderSavePaths[index_audio], $"{"intro_final_" + timestamp}.mp4"));
                     DeleteFile(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4"));
+                    DeleteFile(outputFile);
+                }
+
+                if (backgroundMusicPath != "")
+                {
+                    if (selectedFileIntroPaths[index_audio] != "")
+                    {
+                        AddBackgroundMusicToVideo(Path.Combine(selectedFolderSavePaths[index_audio], $"{"intro_final_" + timestamp}.mp4"), backgroundMusicPath, Path.Combine(selectedFolderSavePaths[index_audio], $"{"intro_music_final_" + timestamp}.mp4"));
+                        DeleteFile(Path.Combine(selectedFolderSavePaths[index_audio], $"{"intro_final_" + timestamp}.mp4"));
+                    }
+                    else
+                    {
+                        AddBackgroundMusicToVideo(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4"), backgroundMusicPath, Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_music_final_" + timestamp}.mp4"));
+                        DeleteFile(Path.Combine(selectedFolderSavePaths[index_audio], $"{"output_final_" + timestamp}.mp4"));
+                    }
                 }
             }
-        }
-        DeleteAllFilesInFolder(path_video_converted);
-        DeleteAllFilesInFolder(path_image_animation);
-        DeleteAllFilesInFolder(path_image_animation_cutted);
+            DeleteAllFilesInFolder(path_video_converted);
+            DeleteAllFilesInFolder(path_image_animation);
+            DeleteAllFilesInFolder(path_image_animation_cutted);
 
-        MessageBox.Show("Done!");
+            progressForm.Close();
+            MessageBox.Show("Done!");
+        });
+
+        // Hiển thị ProgressForm trong khi tác vụ đang chạy
+        progressForm.ShowDialog();
+
+        // Chờ tác vụ hoàn thành (nếu cần)
+        await controlTask;
     }
     public static void DeleteAllFilesInFolder(string folderPath)
     {
