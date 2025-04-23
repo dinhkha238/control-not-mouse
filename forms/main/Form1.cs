@@ -784,7 +784,7 @@ public partial class Form1 : Form
 
             for (int index_audio = 0; index_audio < selectedFolderAudioPaths.Count(); index_audio++)
             {
-                progressForm.SetStatus($"Đang tạo video {index_audio + 1}");
+                progressForm.SetStatus($"Đang tạo video {index_audio + 1} / {selectedFolderAudioPaths.Count()}");
                 // Tính độ dài của file âm thanh
                 double audioDuration = GetAudioFileLength(selectedFileAudioPaths[index_audio][0]) / 1000;
 
