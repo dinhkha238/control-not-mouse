@@ -12,3 +12,5 @@ Các thứ cần cài
 - C:\Users\ADMIN\AppData\Local\Programs\Python\Python311\Scripts
 - C:\Users\ADMIN\AppData\Local\Programs\Python\Python311
 
+* BUILD
+- dotnet publish -c Release -r win-x64 --self-contained
