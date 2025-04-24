@@ -1173,7 +1173,7 @@ public partial class Form1 : Form
     public void AddBackgroundMusicToVideo(string inputVideoPath, string backgroundMusicPath, string outputPath)
     {
         string arguments = $"-i \"{inputVideoPath}\" -stream_loop -1 -i \"{backgroundMusicPath}\" " +
-                           "-filter_complex \"[1:a]volume=0.2[a1];[0:a][a1]amix=inputs=2:duration=first:dropout_transition=2[a]\" " +
+                           "-filter_complex \"[1:a]volume=0.15[a1];[0:a][a1]amix=inputs=2:duration=first:dropout_transition=2[a]\" " +
                            "-map 0:v -map \"[a]\" -c:v copy -c:a aac -b:a 192k -movflags +faststart -y " +
                            $"\"{outputPath}\"";
 
