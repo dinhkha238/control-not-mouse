@@ -834,7 +834,6 @@ public partial class Form1 : Form
             DeleteAllFilesInFolder(path_image_animation_cutted);
 
             progressForm.Close();
-            MessageBox.Show("Done!");
         });
 
         // Hiển thị ProgressForm trong khi tác vụ đang chạy
@@ -842,6 +841,7 @@ public partial class Form1 : Form
 
         // Chờ tác vụ hoàn thành (nếu cần)
         await controlTask;
+        MessageBox.Show("Done!");
     }
     public static void DeleteAllFilesInFolder(string folderPath)
     {
