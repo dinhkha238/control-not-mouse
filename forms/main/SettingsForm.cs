@@ -162,6 +162,7 @@ public partial class SettingsForm : Form
         this.Controls.Add(this.selectFolderButton);
         this.Name = "SettingsForm";
         this.Text = "Settings";
+        this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
         this.ResumeLayout(false);
         this.PerformLayout();
     }

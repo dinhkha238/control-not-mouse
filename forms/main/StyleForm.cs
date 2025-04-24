@@ -70,6 +70,7 @@ public class StylesForm : Form
         this.Controls.Add(this.listBox);
         this.Name = "StylesForm";
         this.Text = "StylesForm";
+        this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
         this.ResumeLayout(false);
         this.PerformLayout();
     }
