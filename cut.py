@@ -18,7 +18,7 @@ def cut_video(input_video_path, output_directory, video_index):
         video_duration = video.duration  # Độ dài video tính bằng giây
 
     # Sử dụng ThreadPoolExecutor để cắt video đa luồng
-    segment_duration = 5.0  # Thời lượng mỗi phân đoạn (giây)
+    segment_duration = 10.0  # Thời lượng mỗi phân đoạn (giây)
     with ThreadPoolExecutor() as executor:
         futures = []
         segment_index = 1

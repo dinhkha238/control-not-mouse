@@ -666,10 +666,10 @@ public partial class Form1 : Form
                     string file3Path = @"files/extractedContent.txt";
                     System.IO.File.WriteAllText(file3Path, string.Empty);
                     int index_cell = 0;
-                    int segment = 5000;
+                    int segment = 10000;
                     for (int x = 0; x < length_selectedFileAudioPaths; x++)
                     {
-                        int length_audio = 5000;
+                        int length_audio = 10000;
                         int length_att_in_selectedFileImagePaths = length_audio / segment;
 
                         string[] groupFileLines = System.IO.File.ReadAllLines(groupFilePath);
@@ -1040,7 +1040,7 @@ public partial class Form1 : Form
             extractedContent = extractedContent.Replace("cell[0]", $"cell[{index}]");
             // Tìm và thay thế dòng chứa "cell[0].transTime" bằng "cell[0].transTime=1000"
             extractedContent = System.Text.RegularExpressions.Regex.Replace(extractedContent, $@"cell\[{index}\]\.transTime=\d+", $"cell[{index}].transTime=1000");
-            int video_length = 5000;
+            int video_length = 10000;
             if (IsVideoFile(path_image) && segment > video_length + 1000)
             {
                 string soundFile = $"cell[{index}].sound.file={path_audio}";

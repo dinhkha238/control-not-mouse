@@ -64,7 +64,7 @@ namespace WinFormsApp
         private async Task<bool> ValidateCredentials(string serialNumber)
         {
             var credentialPath = "key.json";
-            var spreadsheetId = "1zrrCVQfsTMnchwCLhk1DJLANT1BAmyd6i1d75p0iw0c";
+            var spreadsheetId = "1Pg3xkR6VvSBKuo-pAPjZKsNpkaEEQ-LPUDvRR0PC3Wk";
 
             // Đường dẫn tới tệp JSON bạn đã tải về
             string[] Scopes = { SheetsService.Scope.SpreadsheetsReadonly };
