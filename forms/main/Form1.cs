@@ -49,6 +49,8 @@ public partial class Form1 : Form
     const int BM_CLICK = 0x00F5;
     const int WM_SETTEXT = 0x000C;
     const int WM_PASTE = 0x0302;
+    const int WM_CHAR = 0x0102;
+    const int WM_KEYDOWN = 0x0100;
     // Các thông điệp ListBox
     const uint LB_GETCOUNT = 0x018B;  // Lấy số lượng mục trong ListBox
     const uint LB_SETCURSEL = 0x0186; // Đặt mục hiện tại trong ListBox
@@ -291,6 +293,9 @@ public partial class Form1 : Form
                     // Clipboard.SetText(savePath);
                     // SendMessage(hwnd, WM_PASTE, IntPtr.Zero, null);
                     SendMessage(hwnd, WM_SETTEXT, IntPtr.Zero, savePath);
+                    // Giả lập người dùng nhấn phím Space rồi xóa, để app nhận biết có sự thay đổi
+                    SendMessage(hwnd, WM_CHAR, (IntPtr)' ', null);
+                    SendMessage(hwnd, WM_KEYDOWN, (IntPtr)Keys.Back, null);
                     return false; // Stop enumerating
                 }
                 return true; // Continue enumerating
@@ -753,7 +758,19 @@ public partial class Form1 : Form
             progressForm.SetStatus($"Đang chuyển đổi định dạng video");
 
             // 🔍 Tìm tất cả file mp4
-            string[] videoFilesNotConvert = selectedFileImagePaths[0].Where(IsVideoFile).ToArray();
+            var videoFilesNotConvert = selectedFileImagePaths[0]
+        .Where(IsVideoFile)
+        .Where(path =>
+        {
+            var file = new MediaFile { Filename = path };
+            using (var engine = new Engine())
+            {
+                engine.GetMetadata(file);
+                double duration = file.Metadata.Duration.TotalSeconds;
+                return duration > 3 && duration < 10;
+            }
+        })
+        .ToArray();
 
             foreach (string inputFile in videoFilesNotConvert)
             {
@@ -770,11 +787,23 @@ public partial class Form1 : Form
 
             imageToVideoFiles = imageToVideoFiles.Select(file => Path.Combine(currentDirectory, file)).ToArray();
 
+            if (videoFiles.Length == 0)
+            {
+                MessageBox.Show("Không tìm thấy video hợp lệ trong thư mục chuyển đổi!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (imageToVideoFiles.Length == 0)
+            {
+                MessageBox.Show("Không tìm thấy video trong thư mục 'image_animation_cutted'!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             for (int index_audio = 0; index_audio < selectedFolderAudioPaths.Count(); index_audio++)
             {
                 progressForm.SetStatus($"Đang tạo video {index_audio + 1} / {selectedFolderAudioPaths.Count()}");
                 // Tính độ dài của file âm thanh
-                double audioDuration = GetAudioFileLength(selectedFileAudioPaths[index_audio][0]) / 1000;
+                double audioDuration = GetVideoDuration(selectedFileAudioPaths[index_audio][0]);
 
                 // Danh sách video cần ghép
                 string[] videoPaths = GetVideoListForMerging(videoFiles, imageToVideoFiles, audioDuration);
@@ -892,7 +921,7 @@ public partial class Form1 : Form
     public void ConvertTo30fps(string inputFile, string outputFile)
     {
         // Tạo lệnh FFmpeg để chuyển đổi video
-        string arguments = $"-i \"{inputFile}\" -r 30 -c:v h264_nvenc -preset fast -b:v 4M -an \"{outputFile}\"";
+        string arguments = $"-i \"{inputFile}\" -r 30 -c:v libx264 -preset fast -b:v 4M -an \"{outputFile}\"";
         name_ffmpeg = "CONVERTING TO 30FPS";
         RunFFmpegCommand(arguments);
     }
@@ -901,73 +930,45 @@ public partial class Form1 : Form
     static string[] GetVideoListForMerging(string[] folder1Videos, string[] folder2Videos, double audioDuration)
     {
         var videoList = new List<string>();
-        Random random = new Random();
-
-        // Lọc video hợp lệ trong folder1Videos (3s < duration < 10s)
-        var validFolder1Videos = new List<(string path, double duration)>();
-        foreach (var videoPath in folder1Videos)
-        {
-            var inputFile = new MediaFile { Filename = videoPath };
-            using (var engine = new Engine())
-            {
-                engine.GetMetadata(inputFile);
-                var duration = inputFile.Metadata.Duration.TotalSeconds;
-                if (duration > 3 && duration < 10)
-                {
-                    validFolder1Videos.Add((videoPath, duration));
-                }
-            }
-        }
-
-        if (validFolder1Videos.Count == 0 || folder2Videos.Length == 0)
-            return videoList.ToArray();
-
+        var random = new Random();
         double totalDuration = 0;
         int countImage = 0;
 
         while (true)
         {
+            string selectedPath;
+            double duration;
+
             if (countImage < 3)
             {
-                var selected = validFolder1Videos[random.Next(validFolder1Videos.Count)];
-                videoList.Add(selected.path);
-                totalDuration += selected.duration;
-
+                selectedPath = folder1Videos[random.Next(folder1Videos.Length)];
+                duration = GetVideoDuration(selectedPath);
                 countImage++;
-
-                if (totalDuration >= audioDuration)
-                    break;
             }
             else
             {
-                var selectedPath = folder2Videos[random.Next(folder2Videos.Length)];
-                var inputFile = new MediaFile { Filename = selectedPath };
-                double folder2Duration;
-
-                using (var engine = new Engine())
-                {
-                    engine.GetMetadata(inputFile);
-                    folder2Duration = inputFile.Metadata.Duration.TotalSeconds;
-                }
-
-                videoList.Add(selectedPath);
-                totalDuration += folder2Duration;
-
+                selectedPath = folder2Videos[random.Next(folder2Videos.Length)];
+                duration = GetVideoDuration(selectedPath);
                 countImage = 0;
-
-                if (totalDuration >= audioDuration)
-                    break;
             }
+
+            videoList.Add(selectedPath);
+            totalDuration += duration;
+
+            if (totalDuration >= audioDuration)
+                break; // Sau khi đã cộng và thêm video cuối cùng
         }
 
         return videoList.ToArray();
     }
-    static int GetAudioFileLength(string filePath)
+    static double GetVideoDuration(string path)
     {
-        var audioFileReader = new AudioFileReader(filePath);
-        TimeSpan duration = audioFileReader.TotalTime;
-        int[] timeArray = { duration.Hours, duration.Minutes, duration.Seconds, duration.Milliseconds };
-        return (timeArray[0] * 60 * 60 + timeArray[1] * 60 + timeArray[2]) * 1000 + timeArray[3];
+        var file = new MediaFile { Filename = path };
+        using (var engine = new Engine())
+        {
+            engine.GetMetadata(file);
+            return file.Metadata.Duration.TotalSeconds;
+        }
     }
     static void WriteCellToFile(string style_file_name, ref int index, string path_image, string path_audio, int length_audio, float segment, int i, int length_att_in_selectedFileImagePaths, string outputFilePath)
     {
