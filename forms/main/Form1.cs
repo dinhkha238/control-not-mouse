@@ -639,8 +639,38 @@ public partial class Form1 : Form
         // Chạy các tác vụ trên Thread riêng
         Task controlTask = Task.Run(() =>
         {
+            progressForm.SetStatus($"Đang kiểm tra dữ liệu");
             //  Các phần tử còn lại (trừ phần tử videoFiles)
             string[] imageFiles = selectedFileImagePaths[0].Where(file => !IsVideoFile(file)).ToArray();
+
+            if (imageFiles.Length < 90 || imageFiles.Length > 130)
+            {
+                MessageBox.Show($"Cần tối thiểu 90 ảnh và tối đa 130 ảnh", "Thiếu/thừa ảnh", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                progressForm.Close();
+                return;
+            }
+
+            // 🔍 Tìm tất cả file mp4
+            var videoFilesNotConvert = selectedFileImagePaths[0]
+                .Where(IsVideoFile)
+                .Where(path =>
+                {
+                    var file = new MediaFile { Filename = path };
+                    using (var engine = new Engine())
+                    {
+                        engine.GetMetadata(file);
+                        double duration = file.Metadata.Duration.TotalSeconds;
+                        return duration >= 3 && duration <= 10;
+                    }
+                })
+                .ToArray();
+
+            if (videoFilesNotConvert.Length < 200)
+            {
+                MessageBox.Show($"Dữ liệu có {videoFilesNotConvert.Length} video đủ điều kiện. Cần ít nhất 200 video đủ điều kiện để bắt đầu tiến trình", "Thiếu video", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                progressForm.Close();
+                return;
+            }
 
             if (imageFiles.Length != 0)
             {
@@ -757,20 +787,7 @@ public partial class Form1 : Form
 
             progressForm.SetStatus($"Đang chuyển đổi định dạng video");
 
-            // 🔍 Tìm tất cả file mp4
-            var videoFilesNotConvert = selectedFileImagePaths[0]
-        .Where(IsVideoFile)
-        .Where(path =>
-        {
-            var file = new MediaFile { Filename = path };
-            using (var engine = new Engine())
-            {
-                engine.GetMetadata(file);
-                double duration = file.Metadata.Duration.TotalSeconds;
-                return duration > 3 && duration < 10;
-            }
-        })
-        .ToArray();
+
 
             foreach (string inputFile in videoFilesNotConvert)
             {
@@ -789,12 +806,14 @@ public partial class Form1 : Form
 
             if (videoFiles.Length == 0)
             {
+                progressForm.Close();
                 MessageBox.Show("Không tìm thấy video hợp lệ trong thư mục chuyển đổi!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             if (imageToVideoFiles.Length == 0)
             {
+                progressForm.Close();
                 MessageBox.Show("Không tìm thấy video trong thư mục 'image_animation_cutted'!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -863,6 +882,7 @@ public partial class Form1 : Form
             DeleteAllFilesInFolder(path_image_animation_cutted);
 
             progressForm.Close();
+            MessageBox.Show("Done!");
         });
 
         // Hiển thị ProgressForm trong khi tác vụ đang chạy
@@ -870,7 +890,6 @@ public partial class Form1 : Form
 
         // Chờ tác vụ hoàn thành (nếu cần)
         await controlTask;
-        MessageBox.Show("Done!");
     }
     public static void DeleteAllFilesInFolder(string folderPath)
     {
