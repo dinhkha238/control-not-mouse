@@ -3,3 +3,5 @@ bin
 obj
 .env
 __pycache__
+fixed_videos
+video_converted
