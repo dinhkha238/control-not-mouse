@@ -1241,37 +1241,10 @@ public partial class Form1 : Form
         Process ffmpegProcess = new Process();
         ffmpegProcess.StartInfo.FileName = "ffmpeg"; // Hoặc cung cấp đường dẫn đầy đủ nếu cần
         ffmpegProcess.StartInfo.Arguments = arguments;
-        ffmpegProcess.StartInfo.RedirectStandardOutput = true;
-        ffmpegProcess.StartInfo.RedirectStandardError = true;
         ffmpegProcess.StartInfo.UseShellExecute = false;
         ffmpegProcess.StartInfo.CreateNoWindow = true;
-
-        // Đăng ký sự kiện để ghi log ra file
-        ffmpegProcess.OutputDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                LogToFile("ffmpeg_log.txt", "FFmpeg Log: " + e.Data);
-            }
-        };
-
-        ffmpegProcess.ErrorDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                LogToFile("ffmpeg_log.txt", "FFmpeg Error: " + e.Data);
-            }
-        };
-
         ffmpegProcess.Start();
-
-        // Bắt đầu đọc log
-        ffmpegProcess.BeginOutputReadLine();
-        ffmpegProcess.BeginErrorReadLine();
-
         ffmpegProcess.WaitForExit();
-
-        LogToFile("ffmpeg_log.txt", "Video converted to 30fps successfully!");
     }
     private void LogToFile(string logFile, string message)
     {
