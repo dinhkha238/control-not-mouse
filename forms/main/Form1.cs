@@ -633,6 +633,10 @@ public partial class Form1 : Form
     }
     private async void generateSlideButton_Click(object sender, EventArgs e)
     {
+        DeleteAllFilesInFolder(path_video_converted);
+        DeleteAllFilesInFolder(path_image_animation);
+        DeleteAllFilesInFolder(path_image_animation_cutted);
+
         // Hiển thị ProgressForm
         ProgressForm progressForm = new ProgressForm();
 
@@ -953,6 +957,18 @@ public partial class Form1 : Form
         double totalDuration = 0;
         int countImage = 0;
 
+        // Hàm shuffle mảng
+        string[] Shuffle(string[] array)
+        {
+            return array.OrderBy(x => random.Next()).ToArray();
+        }
+
+        // Random trước
+        var shuffledFolder1 = Shuffle(folder1Videos);
+        var shuffledFolder2 = Shuffle(folder2Videos);
+
+        int index1 = 0, index2 = 0;
+
         while (true)
         {
             string selectedPath;
@@ -960,22 +976,35 @@ public partial class Form1 : Form
 
             if (countImage < 3)
             {
-                selectedPath = folder1Videos[random.Next(folder1Videos.Length)];
-                duration = GetVideoDuration(selectedPath);
+                // Lấy phần tử từ folder1
+                selectedPath = shuffledFolder1[index1];
+                index1++;
+                if (index1 >= shuffledFolder1.Length)
+                {
+                    index1 = 0;
+                    shuffledFolder1 = Shuffle(folder1Videos); // Shuffle lại khi dùng hết
+                }
                 countImage++;
             }
             else
             {
-                selectedPath = folder2Videos[random.Next(folder2Videos.Length)];
-                duration = GetVideoDuration(selectedPath);
+                // Lấy phần tử từ folder2
+                selectedPath = shuffledFolder2[index2];
+                index2++;
+                if (index2 >= shuffledFolder2.Length)
+                {
+                    index2 = 0;
+                    shuffledFolder2 = Shuffle(folder2Videos); // Shuffle lại khi dùng hết
+                }
                 countImage = 0;
             }
 
+            duration = GetVideoDuration(selectedPath);
             videoList.Add(selectedPath);
             totalDuration += duration;
 
             if (totalDuration >= audioDuration)
-                break; // Sau khi đã cộng và thêm video cuối cùng
+                break;
         }
 
         return videoList.ToArray();
