@@ -635,6 +635,9 @@ public partial class Form1 : Form
     {
         DeleteAllFilesInFolder(path_video_converted);
         DeleteAllFilesInFolder(path_image_animation);
+        DeleteAllFilesInFolder(path_highlight);
+        DeleteAllFilesInFolder(path_txt_folder);
+        DeleteAllFilesInFolder(path_video_subbed);
         DeleteAllFilesInFolder(path_image_animation_cutted);
 
         // Hiển thị ProgressForm
@@ -644,6 +647,13 @@ public partial class Form1 : Form
         Task controlTask = Task.Run(() =>
         {
             progressForm.SetStatus($"Đang kiểm tra dữ liệu");
+            if ((orgSrtPath != "" && selectedFolderSavePaths.Count != selectedFileSrtPaths.Count) ||
+                (orgSrtPath == "" && selectedFileSrtPaths.Count > 0))
+            {
+                MessageBox.Show(this, $"Kiểm tra lại dữ liệu srt", "Thiếu file", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                progressForm.Close();
+                return;
+            }
             //  Các phần tử còn lại (trừ phần tử videoFiles)
             string[] imageFiles = selectedFileImagePaths[0].Where(file => !IsVideoFile(file)).ToArray();
 
@@ -765,6 +775,12 @@ public partial class Form1 : Form
                 Directory.CreateDirectory(path_image_animation_cutted);
             }
             path_image_animation_cutted = Path.GetFullPath(path_image_animation_cutted);
+            path_highlight = Path.GetFullPath(path_highlight);
+            path_txt_folder = Path.GetFullPath(path_txt_folder);
+
+            string srtFiles = Path.Combine(path_txt_folder, "list_srt.txt");
+            Directory.CreateDirectory(path_txt_folder);
+            File.WriteAllLines(srtFiles, selectedFileSrtPaths);
 
             if (imageFiles.Length != 0)
             {
@@ -774,14 +790,20 @@ public partial class Form1 : Form
 
                 progressForm.SetStatus($"Đang chuyển đổi định dạng ảnh");
 
-                ConvertTo30fps(path_image_to_video, $"{"output_30fps_" + timestamp}.mp4");
+                CutVideo(path_image_to_video, path_image_animation_cutted);
 
-                CutVideo($"{"output_30fps_" + timestamp}.mp4", path_image_animation_cutted);
+                ConvertTo30fpsAndSrt(orgSrtPath, path_image_animation_cutted, path_video_subbed);
 
-                DeleteFile($"{"output_30fps_" + timestamp}.mp4");
+                CreateSrtForLanguage(orgSrtPath, srtFiles, path_highlight);
+
+                DeleteFile(path_image_to_video);
             }
-
             Thread.Sleep(1000);
+
+            string txt_highlights = Path.Combine(path_highlight, "highlights.txt");
+            highlightFiles = File.ReadAllLines(txt_highlights)
+                                 .Where(line => !string.IsNullOrWhiteSpace(line))
+                                 .ToList();
 
             if (!Directory.Exists(path_video_converted))
             {
@@ -790,8 +812,6 @@ public partial class Form1 : Form
             path_video_converted = Path.GetFullPath(path_video_converted);
 
             progressForm.SetStatus($"Đang chuyển đổi định dạng video");
-
-
 
             foreach (string inputFile in videoFilesNotConvert)
             {
@@ -804,21 +824,19 @@ public partial class Form1 : Form
 
             // Lọc các phần tử là file Video
             string[] videoFiles = Directory.GetFiles(path_video_converted, "*.mp4");
-            string[] imageToVideoFiles = Directory.GetFiles("image_animation_cutted", "*.mp4");
-
-            imageToVideoFiles = imageToVideoFiles.Select(file => Path.Combine(currentDirectory, file)).ToArray();
+            string[] imageToVideoFiles = Directory.GetFiles(path_video_subbed, "*.mp4");
 
             if (videoFiles.Length == 0)
             {
+                MessageBox.Show(this, "Không tìm thấy video hợp lệ trong thư mục chuyển đổi!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 progressForm.Close();
-                MessageBox.Show("Không tìm thấy video hợp lệ trong thư mục chuyển đổi!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             if (imageToVideoFiles.Length == 0)
             {
+                MessageBox.Show(this, "Không tìm thấy video trong thư mục 'video_subbed'!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 progressForm.Close();
-                MessageBox.Show("Không tìm thấy video trong thư mục 'image_animation_cutted'!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -827,9 +845,12 @@ public partial class Form1 : Form
                 progressForm.SetStatus($"Đang tạo video {index_audio + 1} / {selectedFolderAudioPaths.Count()}");
                 // Tính độ dài của file âm thanh
                 double audioDuration = GetVideoDuration(selectedFileAudioPaths[index_audio][0]);
+                string[] videoPaths;
 
-                // Danh sách video cần ghép
-                string[] videoPaths = GetVideoListForMerging(videoFiles, imageToVideoFiles, audioDuration);
+                if (orgSrtPath != "")
+                    videoPaths = GetVideoListForSrt(videoFiles, imageToVideoFiles, audioDuration, highlightFiles[index_audio], mappingFile);
+                else
+                    videoPaths = GetVideoListForMerging(videoFiles, imageToVideoFiles, audioDuration);
 
                 // Tạo đường dẫn cho file video_list.txt ngay trong thư mục hiện tại
                 string listFilePath = Path.Combine(currentDirectory, "video_list.txt");
@@ -883,10 +904,13 @@ public partial class Form1 : Form
             }
             DeleteAllFilesInFolder(path_video_converted);
             DeleteAllFilesInFolder(path_image_animation);
+            DeleteAllFilesInFolder(path_highlight);
+            DeleteAllFilesInFolder(path_txt_folder);
+            DeleteAllFilesInFolder(path_video_subbed);
             DeleteAllFilesInFolder(path_image_animation_cutted);
 
             progressForm.Close();
-            MessageBox.Show("Done!");
+            MessageBox.Show(this, "Done!");
         });
 
         // Hiển thị ProgressForm trong khi tác vụ đang chạy
@@ -1009,6 +1033,151 @@ public partial class Form1 : Form
 
         return videoList.ToArray();
     }
+
+    static string[] GetVideoListForSrt(string[] folder1Videos, string[] folder2Videos, double audioDuration, string highlight_File, string mappingFile)
+    {
+        var videoList = new List<string>();
+        var random = new Random();
+        double totalDuration = 0;
+
+        // Đọc file SRT
+        var srtEntries = ParseSrt(highlight_File);
+        int srtIndex = 0;
+
+        // Đọc file ánh xạ SRT -> video
+        var srtMap = LoadSrtMapping(mappingFile);
+
+        string[] Shuffle(string[] array) => array.OrderBy(x => random.Next()).ToArray();
+        var shuffledVideos = Shuffle(folder1Videos);
+        int index = 0;
+
+        while (true)
+        {
+            string selectedPath = shuffledVideos[index];
+            double duration = GetVideoDuration(selectedPath);
+
+            if (srtIndex < srtEntries.Count)
+            {
+                double srtTime = srtEntries[srtIndex].Time;
+                double y = srtTime - totalDuration;
+
+                if (y < 4)
+                {
+                    string srtName = srtEntries[srtIndex].Text.Trim();
+
+                    // Nếu trong mapping có key trùng với text SRT
+                    if (srtMap.TryGetValue(srtName, out string mappedFileName))
+                    {
+                        var match = folder2Videos.FirstOrDefault(v =>
+                            Path.GetFileName(v).Equals(mappedFileName, StringComparison.OrdinalIgnoreCase));
+
+                        if (match != null)
+                        {
+                            selectedPath = match;
+                            duration = GetVideoDuration(match);
+                        }
+                    }
+
+                    srtIndex++;
+                }
+                else
+                {
+                    if (y < duration)
+                    {
+                        // Cắt video ngẫu nhiên theo y
+                        string cutPath = CutVideoForSrt(selectedPath, y);
+                        selectedPath = cutPath;
+                        duration = y;
+                    }
+
+                    if (totalDuration + duration >= srtTime)
+                        srtIndex++;
+                }
+            }
+
+            videoList.Add(selectedPath);
+            totalDuration += duration;
+
+            if (totalDuration >= audioDuration)
+                break;
+
+            index++;
+            if (index >= shuffledVideos.Length)
+            {
+                index = 0;
+                shuffledVideos = Shuffle(folder1Videos);
+            }
+        }
+
+        return videoList.ToArray();
+    }
+
+
+    // -------------------------
+    // 🔹 ĐỌC FILE ÁNH XẠ
+    // -------------------------
+    static Dictionary<string, string> LoadSrtMapping(string mappingFile)
+    {
+        var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (!File.Exists(mappingFile))
+            return dict;
+
+        foreach (var line in File.ReadAllLines(mappingFile))
+        {
+            if (string.IsNullOrWhiteSpace(line) || !line.Contains("="))
+                continue;
+
+            var parts = line.Split('=', 2);
+            string key = parts[0].Trim();
+            string value = parts[1].Trim();
+            dict[key] = value;
+        }
+
+        return dict;
+    }
+
+    // -------------------------
+    // 🔹 CẮT VIDEO BẰNG FFMPEG
+    // -------------------------
+    static string CutVideoForSrt(string inputPath, double lengthSeconds)
+    {
+        string appDir = AppDomain.CurrentDomain.BaseDirectory;
+        string tempDir = Path.Combine(appDir, "tmp_video");
+        Directory.CreateDirectory(tempDir);
+
+        string outputPath = Path.Combine(tempDir, $"cut_{Guid.NewGuid()}.mp4");
+
+        string args = $"-y -i \"{inputPath}\" -t {lengthSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture)} -c copy \"{outputPath}\"";
+
+        RunFFmpegCommand(args);
+        return outputPath;
+    }
+
+
+    // -------------------------
+    // 🔹 ĐỌC FILE SRT
+    // -------------------------
+    static List<(double Time, string Text)> ParseSrt(string path)
+    {
+        var lines = File.ReadAllLines(path);
+        var result = new List<(double, string)>();
+
+        for (int i = 0; i < lines.Length; i++)
+        {
+            if (lines[i].Contains(":"))
+            {
+                string timeStr = lines[i].Trim();
+                if (TimeSpan.TryParse(timeStr.Replace(',', '.'), out var ts))
+                {
+                    string text = (i + 1 < lines.Length) ? lines[i + 1].Trim() : "";
+                    result.Add((ts.TotalSeconds, text));
+                }
+            }
+        }
+
+        return result;
+    }
+
     static double GetVideoDuration(string path)
     {
         var file = new MediaFile { Filename = path };
@@ -1242,21 +1411,37 @@ public partial class Form1 : Form
         psi.Arguments = $"{script} {inputVideoPath} {outputFolder} {videoIndex}";
 
         psi.UseShellExecute = false;
-        psi.RedirectStandardOutput = true;
-        psi.RedirectStandardError = true;
-
         // Khởi chạy quá trình và đợi hoàn thành
         var process = Process.Start(psi);
-
-        // Đọc đầu ra
-        string output = process.StandardOutput.ReadToEnd();
-        string errors = process.StandardError.ReadToEnd();
-
         process.WaitForExit();
+    }
+    static void ConvertTo30fpsAndSrt(string orgSrtPath, string inputFolder, string outputFolder)
+    {
+        var psi = new ProcessStartInfo();
+        psi.FileName = "python";  // Đảm bảo Python đã có trong PATH
+        var script = @"srt_ass.py";  // Đường dẫn đến script Python của bạn
 
-        // Hiển thị đầu ra và lỗi (nếu có)
-        Console.WriteLine(output);
-        Console.WriteLine(errors);
+        // // Truyền tham số cho script Python
+        psi.Arguments = $"{script} \"{orgSrtPath}\" \"{inputFolder}\" \"{outputFolder}\"";
+
+        psi.UseShellExecute = false;
+        // Khởi chạy quá trình và đợi hoàn thành
+        var process = Process.Start(psi);
+        process.WaitForExit();
+    }
+    static void CreateSrtForLanguage(string orgSrtPath, string list_srt, string path_highlight)
+    {
+        var psi = new ProcessStartInfo();
+        psi.FileName = "python";  // Đảm bảo Python đã có trong PATH
+        var script = @"create_srt.py";  // Đường dẫn đến script Python của bạn
+
+        // // Truyền tham số cho script Python
+        psi.Arguments = $"{script} \"{orgSrtPath}\" \"{list_srt}\" \"{path_highlight}\"";
+
+        psi.UseShellExecute = false;
+        // Khởi chạy quá trình và đợi hoàn thành
+        var process = Process.Start(psi);
+        process.WaitForExit();
     }
     public static string GetRandomSixDigitNumber()
     {
@@ -1265,7 +1450,7 @@ public partial class Form1 : Form
         return number.ToString();
     }
 
-    private void RunFFmpegCommand(string arguments)
+    private static void RunFFmpegCommand(string arguments)
     {
         Process ffmpegProcess = new Process();
         ffmpegProcess.StartInfo.FileName = "ffmpeg"; // Hoặc cung cấp đường dẫn đầy đủ nếu cần
@@ -1289,12 +1474,10 @@ public partial class Form1 : Form
         List<string> variablesFolderSavePaths = selectedFolderSavePaths?.ToList() ?? new List<string>();
         bool variablesAddAudioCheckBox = addAudioCheckBox;
         string variableBackgroundMusicPath = backgroundMusicPath;
-        DetailFolderForm detailImageForm = new DetailFolderForm(variables, variablesFolderSavePaths, variablesFileIntroPaths, variableBackgroundMusicPath, variablesAddAudioCheckBox);
+        DetailFolderForm detailImageForm = new DetailFolderForm(variables, variablesFolderSavePaths, variablesFileIntroPaths, selectedFileSrtPaths, variableBackgroundMusicPath, orgSrtPath, variablesAddAudioCheckBox);
 
         // Show the form as a dialog
         detailImageForm.ShowDialog();
-
-
 
         // After the form is closed, get the updated variables
         List<string> updatedVariables = detailImageForm.UpdatedVariables;
@@ -1319,6 +1502,9 @@ public partial class Form1 : Form
         selectedFolderSavePaths = updatedFolderSavePaths;
         addAudioCheckBox = updatedAddAudioCheckBox;
         backgroundMusicPath = updateBackgroundMusicPath;
+
+        orgSrtPath = detailImageForm.OrgSrtPath;
+        selectedFileSrtPaths = detailImageForm.UpdatedFileSrtPaths;
 
         selectedFileAudioPaths.Clear();
 

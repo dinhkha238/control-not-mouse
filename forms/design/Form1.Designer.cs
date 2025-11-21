@@ -24,13 +24,21 @@ partial class Form1
     private List<string> selectedFolderAudioPaths = new List<string>();
     private List<string> selectedFolderSavePaths = new List<string>();
     private List<string> selectedFileIntroPaths = new List<string>();
+    private List<string> selectedFileSrtPaths = new List<string>();
+    private List<string> highlightFiles = new List<string>();
     private int optionSelectImage = -1;
     private bool addAudioCheckBox = true;
     private string backgroundMusicPath = "";
+    private string orgSrtPath = "";
 
     private string path_image_animation = @"image_animation";
     private string path_image_animation_cutted = @"image_animation_cutted";
     private string path_video_converted = @"video_converted";
+    private string path_video_subbed = @"video_subbed";
+    private string path_highlight = @"highlight";
+    private string path_txt_folder = @"txt_folder";
+
+    private string mappingFile = @"txt_folder\mapping.txt";
     private string path_image_to_video = "";
     private string name_ffmpeg = "";
     private TabControl tabControl;

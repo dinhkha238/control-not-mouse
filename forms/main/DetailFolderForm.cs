@@ -13,14 +13,17 @@ public partial class DetailFolderForm : Form
     private Button addButton;
     private CheckBox addAudioCheckBox = new CheckBox();
     private TextBox backgroundMusicTextBox;
+    private TextBox orgSrtTextBox;
 
     public List<string> UpdatedVariables { get; private set; }
     public List<string> UpdatedFolderSavePaths { get; private set; }
     public List<string> UpdatedFileIntroPaths { get; private set; }
+    public List<string> UpdatedFileSrtPaths { get; private set; }
     public bool AddAudioCheckBox { get; private set; }
     public string UpdateBackgroundMusicPath { get; private set; }
+    public string OrgSrtPath { get; private set; }
 
-    public DetailFolderForm(List<string> variables, List<string> selectedFolderSavePaths, List<string> selectedFileIntroPaths, string backgroundMusicTextBox, bool addAudioCheckBox = true)
+    public DetailFolderForm(List<string> variables, List<string> selectedFolderSavePaths, List<string> selectedFileIntroPaths, List<string> selectedSrtPaths, string backgroundMusicTextBox, string orgSrtPath = "", bool addAudioCheckBox = true)
     {
         InitializeComponent();
         this.variables = new List<string>(variables);
@@ -32,6 +35,9 @@ public partial class DetailFolderForm : Form
         this.UpdatedFileIntroPaths = new List<string>(selectedFileIntroPaths);
         this.AddAudioCheckBox = addAudioCheckBox;
         this.UpdateBackgroundMusicPath = backgroundMusicTextBox;
+
+        this.OrgSrtPath = orgSrtPath;
+        this.UpdatedFileSrtPaths = selectedSrtPaths;
         InitializeForm();
     }
 
@@ -66,18 +72,31 @@ public partial class DetailFolderForm : Form
             UseColumnTextForButtonValue = true
         });
 
+        // Column for Srt Path
+        this.dataGridView.Columns.Add("SrtPath", "Srt File Path");
+
+        this.dataGridView.Columns.Add(new DataGridViewButtonColumn
+        {
+            Name = "SelectSrtPath",
+            HeaderText = "Select Srt File",
+            Text = "Select",
+            UseColumnTextForButtonValue = true
+        });
+
         // Adjust column widths
-        this.dataGridView.Columns["AudioPath"].Width = 350;
-        this.dataGridView.Columns["SavePath"].Width = 350;
+        this.dataGridView.Columns["AudioPath"].Width = 250;
+        this.dataGridView.Columns["SavePath"].Width = 250;
         this.dataGridView.Columns["SelectSavePath"].Width = 50;
-        this.dataGridView.Columns["IntroPath"].Width = 350;
+        this.dataGridView.Columns["IntroPath"].Width = 250;
         this.dataGridView.Columns["SelectIntroPath"].Width = 50;
+        this.dataGridView.Columns["SrtPath"].Width = 250;
+        this.dataGridView.Columns["SelectSrtPath"].Width = 50;
         this.dataGridView.CellContentClick += DataGridView_CellContentClick;
         this.Controls.Add(this.dataGridView);
 
         for (int i = 0; i < selectedFolderSavePaths.Count; i++)
         {
-            this.dataGridView.Rows.Add(variables[i], selectedFolderSavePaths[i], "Select", selectedFileIntroPaths[i], "Select");
+            this.dataGridView.Rows.Add(variables[i], selectedFolderSavePaths[i], "Select", selectedFileIntroPaths[i], "Select", i < UpdatedFileSrtPaths.Count ? UpdatedFileSrtPaths[i] : "", "Select");
         }
 
         this.deleteButton = new Button();
@@ -103,10 +122,43 @@ public partial class DetailFolderForm : Form
         };
         this.Controls.Add(this.addAudioCheckBox);
 
+        // Label cho srt gốc
+        Label orgSrtLabel = new Label();
+        orgSrtLabel.Text = "Mark Text:";
+        orgSrtLabel.Location = new System.Drawing.Point(25, 460);
+        orgSrtLabel.AutoSize = true;
+        this.Controls.Add(orgSrtLabel);
+
+        orgSrtTextBox = new TextBox();
+        orgSrtTextBox.Name = "orgSrtTextBox";
+        orgSrtTextBox.Size = new System.Drawing.Size(300, 25);
+        orgSrtTextBox.Location = new System.Drawing.Point(150, 455);
+        orgSrtTextBox.Text = this.OrgSrtPath;
+        this.Controls.Add(orgSrtTextBox);
+
+        Button selectOrgSrtButton = new Button();
+        selectOrgSrtButton.Text = "Browse";
+        selectOrgSrtButton.Location = new System.Drawing.Point(460, 455);
+        selectOrgSrtButton.Click += (sender, e) =>
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+                openFileDialog.Title = "Chọn file TXT";
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    orgSrtTextBox.Text = openFileDialog.FileName;
+                }
+            }
+        };
+
+        this.Controls.Add(selectOrgSrtButton);
+
         // Label cho nhạc nền
         Label bgMusicLabel = new Label();
         bgMusicLabel.Text = "Background Music:";
-        bgMusicLabel.Location = new System.Drawing.Point(25, 460);
+        bgMusicLabel.Location = new System.Drawing.Point(25, 490);
         bgMusicLabel.AutoSize = true;
         this.Controls.Add(bgMusicLabel);
 
@@ -114,14 +166,14 @@ public partial class DetailFolderForm : Form
         backgroundMusicTextBox = new TextBox();
         backgroundMusicTextBox.Name = "backgroundMusicTextBox";
         backgroundMusicTextBox.Size = new System.Drawing.Size(300, 25);
-        backgroundMusicTextBox.Location = new System.Drawing.Point(150, 455);
+        backgroundMusicTextBox.Location = new System.Drawing.Point(150, 485);
         backgroundMusicTextBox.Text = this.UpdateBackgroundMusicPath;
         this.Controls.Add(backgroundMusicTextBox);
 
         // Button để chọn file nhạc nền
         Button selectBackgroundMusicButton = new Button();
         selectBackgroundMusicButton.Text = "Browse";
-        selectBackgroundMusicButton.Location = new System.Drawing.Point(460, 455);
+        selectBackgroundMusicButton.Location = new System.Drawing.Point(460, 485);
         selectBackgroundMusicButton.Click += (sender, e) =>
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -134,7 +186,6 @@ public partial class DetailFolderForm : Form
             }
         };
         this.Controls.Add(selectBackgroundMusicButton);
-
 
         this.FormClosing += DetailImageForm_FormClosing;
     }
@@ -164,6 +215,20 @@ public partial class DetailFolderForm : Form
                 }
             }
         }
+        else if (e.ColumnIndex == dataGridView.Columns["SelectSrtPath"].Index && e.RowIndex >= 0)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "SRT Files (*.srt)|*.srt|All files (*.*)|*.*";
+                openFileDialog.Title = "Chọn file SRT";
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string selectedFile = openFileDialog.FileName;
+                    dataGridView.Rows[e.RowIndex].Cells["SrtPath"].Value = selectedFile;
+                }
+            }
+        }
     }
 
     private void DeleteButton_Click(object sender, EventArgs e)
@@ -190,7 +255,7 @@ public partial class DetailFolderForm : Form
                     string[] selectedFiles = openFileDialog.FileNames;
                     foreach (string file in selectedFiles)
                     {
-                        dataGridView.Rows.Add(file, "", "", "", "Select");
+                        dataGridView.Rows.Add(file, "", "", "", "Select", "", "");
                     }
                 }
             }
@@ -202,7 +267,7 @@ public partial class DetailFolderForm : Form
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
                     string selectedFolder = folderBrowserDialog.SelectedPath;
-                    dataGridView.Rows.Add("", selectedFolder, "Select", "", "Select");
+                    dataGridView.Rows.Add("", selectedFolder, "Select", "", "Select", "", "");
                 }
             }
         }
@@ -213,6 +278,7 @@ public partial class DetailFolderForm : Form
         UpdatedVariables = new List<string>();
         UpdatedFolderSavePaths = new List<string>();
         UpdatedFileIntroPaths = new List<string>();
+        UpdatedFileSrtPaths = new List<string>();
 
         foreach (DataGridViewRow row in dataGridView.Rows)
         {
@@ -221,9 +287,13 @@ public partial class DetailFolderForm : Form
                 UpdatedVariables.Add(row.Cells["AudioPath"].Value?.ToString());
                 UpdatedFolderSavePaths.Add(row.Cells["SavePath"].Value?.ToString());
                 UpdatedFileIntroPaths.Add(row.Cells["IntroPath"].Value?.ToString());
+                if (!string.IsNullOrWhiteSpace(row.Cells["SrtPath"].Value?.ToString()))
+                {
+                    UpdatedFileSrtPaths.Add(row.Cells["SrtPath"].Value?.ToString());
+                }
             }
         }
-
         UpdateBackgroundMusicPath = backgroundMusicTextBox.Text?.Trim();
+        OrgSrtPath = orgSrtTextBox.Text?.Trim();
     }
 }
