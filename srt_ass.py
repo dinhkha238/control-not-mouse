@@ -7,7 +7,6 @@ from datetime import timedelta
 
 # ======= Cấu hình =======
 max_threads = 6  # Tùy CPU của bạn
-display_duration = 6.0  # Thời gian hiển thị highlight mặc định
 
 
 # ======= Hỗ trợ thời gian =======
@@ -34,7 +33,7 @@ def parse_txt_blocks(txt_path):
 
 
 # ======= Tạo ASS highlight =======
-def create_highlight_ass(text, output_file, display_duration=6):
+def create_highlight_ass(text, output_file, display_duration=9):
     marked = re.findall(r"\[(.+?)\]", text)
     if not marked:
         return

@@ -669,12 +669,23 @@ public partial class Form1 : Form
                 .Where(IsVideoFile)
                 .Where(path =>
                 {
-                    var file = new MediaFile { Filename = path };
-                    using (var engine = new Engine())
+                    try
                     {
-                        engine.GetMetadata(file);
-                        double duration = file.Metadata.Duration.TotalSeconds;
-                        return duration >= 3 && duration <= 10;
+                        var file = new MediaFile { Filename = path };
+                        using (var engine = new Engine())
+                        {
+                            engine.GetMetadata(file);
+
+                            if (file.Metadata?.Duration == null)
+                                return false; // lỗi metadata
+
+                            double duration = file.Metadata.Duration.TotalSeconds;
+                            return duration >= 3 && duration <= 10;
+                        }
+                    }
+                    catch
+                    {
+                        return false; // nếu video hỏng → loại luôn, không crash
                     }
                 })
                 .ToArray();
@@ -791,6 +802,8 @@ public partial class Form1 : Form
                 progressForm.SetStatus($"Đang chuyển đổi định dạng ảnh");
 
                 CutVideo(path_image_to_video, path_image_animation_cutted);
+
+                RemoveCorruptedVideos(path_image_animation_cutted);
 
                 ConvertTo30fpsAndSrt(orgSrtPath, path_image_animation_cutted, path_video_subbed);
 
@@ -919,6 +932,36 @@ public partial class Form1 : Form
         // Chờ tác vụ hoàn thành (nếu cần)
         await controlTask;
     }
+    public static void RemoveCorruptedVideos(string folderPath)
+    {
+        folderPath = Path.GetFullPath(folderPath);
+        string[] files = Directory.GetFiles(folderPath, "*.mp4");
+
+        foreach (var file in files)
+        {
+            FileInfo fi = new FileInfo(file);
+
+            double duration = GetVideoDuration(file);
+
+            bool tooSmall = fi.Length < 300 * 1024;   // < 300 KB
+            bool corrupted = duration <= 0;           // lỗi không đọc được duration
+            bool tooShort = duration > 0 && duration < 3.0; // nhỏ hơn 3s
+
+            if (tooSmall || corrupted || tooShort)
+            {
+                try
+                {
+                    File.Delete(file);
+                    Console.WriteLine($"Deleted: {fi.Name} (Small:{tooSmall}, Corrupted:{corrupted}, <3s:{tooShort})");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Cannot delete {fi.Name}: {ex.Message}");
+                }
+            }
+        }
+    }
+
     public static void DeleteAllFilesInFolder(string folderPath)
     {
         try
@@ -1090,8 +1133,6 @@ public partial class Form1 : Form
                         duration = y;
                     }
 
-                    if (totalDuration + duration >= srtTime)
-                        srtIndex++;
                 }
             }
 
