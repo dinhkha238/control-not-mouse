@@ -807,16 +807,19 @@ public partial class Form1 : Form
 
                 ConvertTo30fpsAndSrt(orgSrtPath, path_image_animation_cutted, path_video_subbed);
 
-                CreateSrtForLanguage(orgSrtPath, srtFiles, path_highlight);
+                if (orgSrtPath != "") CreateSrtForLanguage(orgSrtPath, srtFiles, path_highlight);
 
                 DeleteFile(path_image_to_video);
             }
             Thread.Sleep(1000);
 
             string txt_highlights = Path.Combine(path_highlight, "highlights.txt");
-            highlightFiles = File.ReadAllLines(txt_highlights)
-                                 .Where(line => !string.IsNullOrWhiteSpace(line))
-                                 .ToList();
+            if (File.Exists(txt_highlights))
+            {
+                highlightFiles = File.ReadAllLines(txt_highlights)
+                                     .Where(line => !string.IsNullOrWhiteSpace(line))
+                                     .ToList();
+            }
 
             if (!Directory.Exists(path_video_converted))
             {
